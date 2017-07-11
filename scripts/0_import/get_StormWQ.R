@@ -33,6 +33,12 @@ wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE
 
 names(dat.keep) <- c(df.names, wqvars.names)
 
+#####################################
+# track formatting in original excel file and code as
+# a categorical variable
+# blue == storm not sampled (likely will ignore these)
+
+# likely use row IDs from above to ID where data starts
 
 # find the columns of interest
 field.col <- grep('field ID', as.character(md.names), ignore.case = TRUE)
