@@ -23,6 +23,9 @@ start <- grep('storm times', names.2, ignore.case = TRUE)
 stop <- start + 1
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
 stormtype <- grep('storm type', names.1, ignore.case = TRUE)
+
+# consider changing the next grep to only include the variable names instead
+# because if vars are in different order in each spreadsheet - vars might be off
 wqvars <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = FALSE)
 
 # filter data frame with columns to keep
