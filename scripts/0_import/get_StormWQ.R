@@ -16,6 +16,9 @@ wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
 files.wd <- list.files(wd)
 wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
 
+# right now, overwride wy to only include through 2016
+wy <- wy[1:5]
+
 # set site names to find in tab names
 # for now, will use test cases of SW1 and SW3
 sites <- c('SW1', 'SW3')
@@ -38,26 +41,27 @@ if (length(files.drop) > 0){
 }
 }
 
+cleaned.dat <- list()
 for (j in 1:length(all.files)) {
-  
 
-all.sheets <- XLConnect::loadWorkbook(all.files[j])
+temp.file.path <- paste(wd, wy[j], all.files[j], sep = "/")
+all.sheets <- XLConnect::loadWorkbook(temp.file.path)
 sheet.names <- XLConnect::getSheets(all.sheets)
-sheet.names <- grep(paste(sites, collapse = '|'), sheet.names, value = TRUE)
-
+sheet.names.short <- substr(sheet.names, 1, 3)
+sheet.names.num <- grep(paste(sites, collapse = '|'), sheet.names.short)
+sheet.names[sheet.names.num]
 
 ###################################
 # import data from excel files
 ###################################
+sheet.dat <- list()
 for (k in 1:length(sheet.names)){
-  temp.file.path <- paste(wd, wy[j], all.files[j], sep = "/")
   file.all <- xlsx::read.xlsx(temp.file.path, sheetIndex = sheet.names[k], header = FALSE)
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
-  file.dat <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
-                              sheetIndex = 1, startRow = row.start+1, endRow = row.end-2, header = FALSE)
+  file.dat <- xlsx::read.xlsx(temp.file.path, 
+                              sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
   
-}
 
 # define rows where names of columns are
 names.1 <- as.character(unlist(as.list(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),])))
@@ -88,14 +92,13 @@ wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE
 
 names(dat.keep) <- c(df.names, wqvars.names)
 
-head(dat.keep)
 
 #######################################
 # Define frozen/not frozen from the equations at the bottom of the spreadsheet
 ##############################################
 
-file.all.formulas <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
-                            sheetIndex = 1, header = FALSE, keepFormulas = TRUE, startRow = row.start+1, endRow = row.end+2)
+file.all.formulas <- xlsx::read.xlsx(temp.file.path, 
+                            sheetIndex = sheet.names[k], header = FALSE, keepFormulas = TRUE, startRow = row.start+1, endRow = row.end+2)
 row.not.frozen <- grep('non', file.all.formulas[,1], ignore.case = TRUE)
 row.frozen <- grep('^frozen', file.all.formulas[,1], ignore.case = TRUE)
 
@@ -144,22 +147,22 @@ dat.keep$frozen[not.frozen.all.rows] <- FALSE
 # not going to use color but other clues from populated/unpopulated cells
 
 dat.keep$estimated <- is.na(dat.keep$lab_id)&is.na(dat.keep$num_subsamples)
-dat.keep$discrete <- is.na(dat.keep$sample_end) & (dat.keep$num_subsamples %in% 1)
+dat.keep$discrete <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
 
 #####################################
 # extract comments from cells in excel
 # and save them all as character strings in "comment" column
 
 # import workbook
-wb <- xlsx::loadWorkbook('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx')
-sheet1 <- xlsx::getSheets(wb)[[1]]
+wb <- xlsx::loadWorkbook(temp.file.path)
+sheet1 <- xlsx::getSheets(wb)[[k]]
 
 # get all rows
-rows  <- getRows(sheet1)
+rows  <- xlsx::getRows(sheet1)
 
 # extract cells and comments in cells
-cells <- getCells(rows[(row.start+1):(row.end-2)])
-comments <- sapply(cells, getCellComment)
+cells <- xlsx::getCells(rows[(row.start+1):(row.end-2)])
+comments <- sapply(cells, xlsx::getCellComment)
 comments2 <- c()
 
 # save comments as strings
@@ -187,8 +190,11 @@ for (i in 1:nrow(comments3)){
 
 # create a new column in dat.keep for comments
 dat.keep$comments <- comments.formatted
-                            
-
+ 
+sheet.dat[[k]] <- dat.keep                        
+} # closes k loop
+cleaned.dat[[j]] <- sheet.dat
+} # closes j loop
 ##############################
 # end of useful script
 #############################
