@@ -5,6 +5,9 @@
 # automate import functions
 ###################################
 library(XLConnect)
+library(xlsx)
+detach('package:XLConnect', unload = TRUE)
+
 
 # point to folder where data are stored
 wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
@@ -27,7 +30,7 @@ for (i in 1:length(wy)) {
 setwd(paste(wd, wy[i], sep = "/"))
 files <- list.files()
 files <- grep('Loads and Yields with Formulas', files, value = TRUE, ignore.case = TRUE)
-files.drop <- grep('\\$|copy|working', files, ignore.case = TRUE)
+files.drop <- grep('\\$|copy|working|updated', files, ignore.case = TRUE)
 if (length(files.drop) > 0){
   all.files[i] <- files[-files.drop]
 } else {
@@ -35,30 +38,26 @@ if (length(files.drop) > 0){
 }
 }
 
-for (j in length(all.files)) {
+for (j in 1:length(all.files)) {
   
 
-all.sheets <- loadWorkbook(files)
-sheet.names <- getSheets(all.sheets)
+all.sheets <- XLConnect::loadWorkbook(all.files[j])
+sheet.names <- XLConnect::getSheets(all.sheets)
 sheet.names <- grep(paste(sites, collapse = '|'), sheet.names, value = TRUE)
-
-detach('package:XLConnect', unload = TRUE)
 
 
 ###################################
 # import data from excel files
 ###################################
-library(xlsx)
-
-
-
-
-file.all <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
-                  sheetIndex = 1, header = FALSE)
-row.start <- grep('start', file.all[,1], ignore.case = TRUE)
-row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
-file.dat <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
-                      sheetIndex = 1, startRow = row.start+1, endRow = row.end-2, header = FALSE)
+for (k in 1:length(sheet.names)){
+  temp.file.path <- paste(wd, wy[j], all.files[j], sep = "/")
+  file.all <- xlsx::read.xlsx(temp.file.path, sheetIndex = sheet.names[k], header = FALSE)
+  row.start <- grep('start', file.all[,1], ignore.case = TRUE)
+  row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
+  file.dat <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
+                              sheetIndex = 1, startRow = row.start+1, endRow = row.end-2, header = FALSE)
+  
+}
 
 # define rows where names of columns are
 names.1 <- as.character(unlist(as.list(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),])))
