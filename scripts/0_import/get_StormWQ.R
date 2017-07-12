@@ -4,8 +4,28 @@
 library(xlsx)
 
 ###################################
+# automate import functions
+###################################
+
+# point to folder where data are stored
+wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
+
+# retrive all water years from folder
+files.wd <- list.files(wd)
+wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
+
+# set site names to find in tab names
+# for now, will use test cases of SW1 and SW3
+sites <- c('SW1', 'SW3')
+
+
+
+###################################
 # import data from excel files
 ###################################
+
+
+
 
 file.all <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
                   sheetIndex = 1, header = FALSE)
@@ -166,16 +186,8 @@ table.cols <- unique(as.character(sapply(styles, cellColor)))
 table.cols <- table.cols[c(1,3:9)]
 table.cols <- paste('#', table.cols, sep = "")
 plot(1:length(table.cols), 1:length(table.cols), pch = 16, col = table.cols, cex = 4)
-# point to folder where data are stored
-wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
 
-# retrive all water years from folder
-files.wd <- list.files(wd)
-wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
 
-# set site names to find in tab names
-
-sites <- c('SW1', 'SW2', 'SW3')
 
 # iterate through each WY and get site files
 # i = wy
