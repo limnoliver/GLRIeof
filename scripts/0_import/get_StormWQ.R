@@ -49,7 +49,7 @@ all.sheets <- XLConnect::loadWorkbook(temp.file.path)
 sheet.names <- XLConnect::getSheets(all.sheets)
 sheet.names.short <- substr(sheet.names, 1, 3)
 sheet.names.num <- grep(paste(sites, collapse = '|'), sheet.names.short)
-sheet.names[sheet.names.num]
+sheet.names <- sheet.names[sheet.names.num]
 
 ###################################
 # import data from excel files
@@ -64,6 +64,7 @@ for (k in 1:length(sheet.names)){
   
 
 # define rows where names of columns are
+  
 names.1 <- as.character(unlist(as.list(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),])))
 names.2 <- as.character(unlist(as.list(file.all[grep('sample times', file.all[,1], ignore.case = TRUE),])))
 names.3 <- as.character(unlist(as.list(file.all[grep('start', file.all[,1], ignore.case = TRUE),])))
@@ -91,7 +92,6 @@ df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_en
 wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
 
 names(dat.keep) <- c(df.names, wqvars.names)
-
 
 #######################################
 # Define frozen/not frozen from the equations at the bottom of the spreadsheet
@@ -161,7 +161,7 @@ sheet1 <- xlsx::getSheets(wb)[[k]]
 rows  <- xlsx::getRows(sheet1)
 
 # extract cells and comments in cells
-cells <- xlsx::getCells(rows[(row.start+1):(row.end-2)])
+cells <- xlsx::getCells(rows[1:row.end])
 comments <- sapply(cells, xlsx::getCellComment)
 comments2 <- c()
 
@@ -174,7 +174,7 @@ for (i in 1:length(cells)){
   }
 }
 # make vector into data frame
-comments3 <- as.data.frame(matrix(comments2, nrow = length((row.start+1):(row.end-2)), byrow = TRUE))
+comments3 <- as.data.frame(matrix(comments2, nrow = length(rows), byrow = TRUE))
 comments.formatted <- ""
 
 # find all non-NA comment values, and paste all comments from every row together into single
