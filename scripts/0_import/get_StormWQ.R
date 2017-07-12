@@ -1,11 +1,10 @@
-#library(XLConnect)
 #library(openxlsx)
 
-library(xlsx)
 
 ###################################
 # automate import functions
 ###################################
+library(XLConnect)
 
 # point to folder where data are stored
 wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
@@ -18,11 +17,38 @@ wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
 # for now, will use test cases of SW1 and SW3
 sites <- c('SW1', 'SW3')
 
+all.files <- c()
+
+# this find the files we're looking for, which are probably
+# wisconsin-specific
+
+for (i in 1:length(wy)) {
+  # read in workbook
+setwd(paste(wd, wy[i], sep = "/"))
+files <- list.files()
+files <- grep('Loads and Yields with Formulas', files, value = TRUE, ignore.case = TRUE)
+files.drop <- grep('\\$|copy|working', files, ignore.case = TRUE)
+if (length(files.drop) > 0){
+  all.files[i] <- files[-files.drop]
+} else {
+  all.files[i] <- files
+}
+}
+
+for (j in length(all.files)) {
+  
+
+all.sheets <- loadWorkbook(files)
+sheet.names <- getSheets(all.sheets)
+sheet.names <- grep(paste(sites, collapse = '|'), sheet.names, value = TRUE)
+
+detach('package:XLConnect', unload = TRUE)
 
 
 ###################################
 # import data from excel files
 ###################################
+library(xlsx)
 
 
 
@@ -67,6 +93,8 @@ head(dat.keep)
 
 #######################################
 # Define frozen/not frozen from the equations at the bottom of the spreadsheet
+##############################################
+
 file.all.formulas <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
                             sheetIndex = 1, header = FALSE, keepFormulas = TRUE, startRow = row.start+1, endRow = row.end+2)
 row.not.frozen <- grep('non', file.all.formulas[,1], ignore.case = TRUE)
@@ -162,7 +190,9 @@ for (i in 1:nrow(comments3)){
 dat.keep$comments <- comments.formatted
                             
 
-
+##############################
+# end of useful script
+#############################
 
 styles <- sapply(cells, xlsx::getCellStyle)
 
@@ -192,24 +222,3 @@ plot(1:length(table.cols), 1:length(table.cols), pch = 16, col = table.cols, cex
 # iterate through each WY and get site files
 # i = wy
 # j = site
-
-for (i in 1:length(wy))
-# read in workbook
-setwd(paste(wd, wy[i], sep = "/"))
-files <- list.files()
-files <- grep('Loads and Yields with Formulas.xlsx', files, value = TRUE)
-files.drop <- grep('\\$', files)
-if (length(files.drop) > 0){
-  files <- files[-files.drop]
-}
-
-all.sheets <- loadWorkbook(files)
-sheet.names <- names(all.sheets)
-sheet.names <- grep(paste(sites, collapse = '|'), sheet.names, value = TRUE)
-styles(all.sheets)
-for (j in 1:length(sheet.names)) {
-  
-}
-
-test <- loadWorkbook('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY16/Final East River Water Year 2016 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx')
-names.wb <- names(test)
