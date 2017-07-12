@@ -1,4 +1,4 @@
-library(XLConnect)
+#library(XLConnect)
 #library(openxlsx)
 
 library(xlsx)
@@ -24,6 +24,8 @@ sample.end <- sample.start + 1
 field <- grep('field', names.3, ignore.case = TRUE)
 start <- grep('storm times', names.2, ignore.case = TRUE)
 stop <- start + 1
+labid <- grep('uwsp', names.3, ignore.case = TRUE)
+numsubsamples <- grep('subsample', names.1, ignore.case = TRUE)
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
 stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 
@@ -31,49 +33,126 @@ stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 # because if vars are in different order in each spreadsheet - vars might be off
 wqvars <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = FALSE)
 
+# set which column indices to keep
+col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, stormtype, wqvars)
 # filter data frame with columns to keep
-dat.keep <- file.dat[,c(field, sample.start, sample.end, start, stop, discharge, stormtype, wqvars)]
+dat.keep <- file.dat[,col.keep]
 
-df.names <- c('storm_id', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'storm_type')
+df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'storm_type')
 wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
 
 names(dat.keep) <- c(df.names, wqvars.names)
 
 head(dat.keep)
 
+#######################################
 # Define frozen/not frozen from the equations at the bottom of the spreadsheet
-
-row.not.frozen <- grep('non', file.all[,1], ignore.case = TRUE)
-row.frozen <- grep('^frozen', file.all[,1], ignore.case = TRUE)
+file.all.formulas <- xlsx::read.xlsx('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx', 
+                            sheetIndex = 1, header = FALSE, keepFormulas = TRUE, startRow = row.start+1, endRow = row.end+2)
+row.not.frozen <- grep('non', file.all.formulas[,1], ignore.case = TRUE)
+row.frozen <- grep('^frozen', file.all.formulas[,1], ignore.case = TRUE)
 
 # ID a column where the frozen/unfrozen distinction will always be made
 eq.col <- grep('storm.*cubic feet', names.1, ignore.case = TRUE)
 
-# ID which samples are estimated and discrete
+# get frozen rows
+eq.frozen <- as.character(file.all.formulas[row.frozen, eq.col])
+frozen.rows <- as.numeric(unlist(strsplit(unlist(eq.frozen),"[^0-9]+")))
+frozen.rows <- frozen.rows[!is.na(frozen.rows)]
+frozen.all.rows <- frozen.rows[1]:frozen.rows[2]
 
-for (i in 1:nrow(dat.keep))
+if (length(frozen.rows) > 2){
+  temp <- frozen.rows[3]:frozen.rows[4]
+  frozen.all.rows <- c(frozen.all.rows, temp)
+} else {
+  frozen.all.rows <- frozen.all.rows
+}
+
+# get non-frozen rows
+eq.not.frozen <- as.character(file.all.formulas[row.not.frozen, eq.col])
+not.frozen.rows <- as.numeric(unlist(strsplit(unlist(eq.not.frozen),"[^0-9]+")))
+not.frozen.rows <- not.frozen.rows[!is.na(not.frozen.rows)]
+not.frozen.all.rows <- not.frozen.rows[1]:not.frozen.rows[2]
+
+if (length(not.frozen.rows) > 2){
+  temp <- not.frozen.rows[3]:not.frozen.rows[4]
+  not.frozen.all.rows <- c(not.frozen.all.rows, temp)
+} else {
+  not.frozen.all.rows <- not.frozen.all.rows
+}
+
+# subtract number of ignored rows so first row = 1
+frozen.all.rows <- frozen.all.rows - row.start
+not.frozen.all.rows <- not.frozen.all.rows - row.start  
+
+# create a frozen column where frozen = TRUE, not frozen = FALSE
+dat.keep$frozen <- NA
+dat.keep$frozen[frozen.all.rows] <- TRUE
+dat.keep$frozen[not.frozen.all.rows] <- FALSE
+
+#########################################
+# find rows that are estimated, not measured
+# also find rows that are discrete
+# these are blue rows in spreadsheet
+# not going to use color but other clues from populated/unpopulated cells
+
+dat.keep$estimated <- is.na(dat.keep$lab_id)&is.na(dat.keep$num_subsamples)
+dat.keep$discrete <- is.na(dat.keep$sample_end) & (dat.keep$num_subsamples %in% 1)
 
 #####################################
-# track formatting in original excel file and code as
-# a categorical variable
-# blue == storm not sampled (likely will ignore these)
+# extract comments from cells in excel
+# and save them all as character strings in "comment" column
 
-# likely use row IDs from above to ID where data starts
-
-# find the columns of interest
-
+# import workbook
 wb <- xlsx::loadWorkbook('M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI/WY12/East River Water Year 2012 Runoff Volumes, Concentrations, Loads and Yields with Formulas.xlsx')
 sheet1 <- xlsx::getSheets(wb)[[1]]
 
 # get all rows
 rows  <- getRows(sheet1)
-not.frozen.row <- getCells(rows[row.not.frozen])
-frozen.row <- getCells(rows[row.frozen])
 
-cells <- getCells(rows[(row.start+2):(row.end-1)])
+# extract cells and comments in cells
+cells <- getCells(rows[(row.start+1):(row.end-2)])
+comments <- sapply(cells, getCellComment)
+comments2 <- c()
+
+# save comments as strings
+for (i in 1:length(cells)){
+  if (is.null(comments[[i]])){
+    comments2[i] <- NA
+  } else {
+    comments2[i] <- comments[[i]]$getString()$toString()
+  }
+}
+# make vector into data frame
+comments3 <- as.data.frame(matrix(comments2, nrow = length((row.start+1):(row.end-2)), byrow = TRUE))
+comments.formatted <- ""
+
+# find all non-NA comment values, and paste all comments from every row together into single
+# character string
+for (i in 1:nrow(comments3)){
+  keep <- which(!is.na(comments3[i,]))
+  if (length(keep) > 0) {
+    comments.formatted[i] <- paste(as.character(comments3[i,keep]), collapse = ',')
+  } else {
+    comments.formatted[i] <- NA
+  }
+}
+
+# create a new column in dat.keep for comments
+dat.keep$comments <- comments.formatted
+                            
+
+
+
 styles <- sapply(cells, xlsx::getCellStyle)
 
 
+
+
+values <- lapply(cells, xlsx::getCellValue(keepFormulas = TRUE))
+
+test <- getCellValue(rows[row.not.frozen])
+# 
 
 cellColor <- function(style) {
   fg  <- style$getFillForegroundXSSFColor()
