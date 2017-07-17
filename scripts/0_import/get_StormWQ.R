@@ -61,16 +61,21 @@ for (k in 1:length(sheet.names)){
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
   col.start <- 1
-  col.end <- ncol(file.all)
   file.dat <- xlsx::read.xlsx(temp.file.path, 
                               sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
   
 
 # define rows where names of columns are
   
-names.1 <- as.character(unlist(as.list(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),])))
-names.2 <- as.character(unlist(as.list(file.all[grep('sample times', file.all[,1], ignore.case = TRUE),])))
-names.3 <- as.character(unlist(as.list(file.all[grep('start', file.all[,1], ignore.case = TRUE),])))
+#names.1 <- as.character(unlist(as.list(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),])))
+#names.2 <- as.character(unlist(as.list(file.all[grep('sample times', file.all[,1], ignore.case = TRUE),])))
+#names.3 <- as.character(unlist(as.list(file.all[grep('start', file.all[,1], ignore.case = TRUE),])))
+
+names.1 <- as.character(lapply(file.all[grep('sample information', file.all[,1], ignore.case = TRUE),], as.character))
+names.2 <- as.character(lapply(file.all[grep('sample times', file.all[,1], ignore.case = TRUE),], as.character))
+names.3 <- as.character(lapply(file.all[grep('start', file.all[,1], ignore.case = TRUE),], as.character))
+
+col.end <- grep('organic nitrogen yield', names.1, ignore.case = TRUE)
 
 sample.start <- grep('sample', names.2, ignore.case = TRUE)
 sample.end <- sample.start + 1
@@ -164,9 +169,16 @@ sheet1 <- xlsx::getSheets(wb)[[k]]
 rows  <- xlsx::getRows(sheet1, rowIndex = c((row.start+1):(row.end-2)))
 
 # extract cells and comments in cells
-cells <- xlsx::getCells(rows)
+cells <- xlsx::getCells(rows, colIndex=c(col.start:col.end))
 comments <- lapply(cells, xlsx::getCellComment)
+comments.address <- names(comments)
+comments.rows <- gsub('([[:digit:]]+)(\\..+)', '\\1', comments.address)
+comments.rows <- as.numeric(comments.rows)
+comments.columns <- gsub('([[:digit:]]+\\.)([[:digit:]]+)', '\\2', comments.address)
+comments.columns <- as.numeric(comments.columns)
+
 comments2 <- c()
+
 
 # save comments as strings
 for (i in 1:length(cells)){
@@ -176,23 +188,26 @@ for (i in 1:length(cells)){
     comments2[i] <- comments[[i]]$getString()$toString()
   }
 }
-# make vector into data frame
-comments3 <- as.data.frame(matrix(comments2, nrow = length((row.start+1):(row.end-2)), byrow = TRUE))
-comments.formatted <- ""
 
-# find all non-NA comment values, and paste all comments from every row together into single
-# character string
-for (i in 1:nrow(comments3)){
-  keep <- which(!is.na(comments3[i,]))
-  if (length(keep) > 0) {
-    comments.formatted[i] <- paste(as.character(comments3[i,keep]), collapse = ',')
+
+comments3 <- c()
+
+for (i in 1:length(rows)) {
+  row.sum <- comments2[which(comments.rows == i+row.start)]
+  row.sum <- row.sum[!is.na(row.sum)]
+  
+  if (length(row.sum) == 0) {
+    comments3[i] <- NA
+  } else if (length(row.sum) == 1) {
+    comments3[i] <- row.sum
   } else {
-    comments.formatted[i] <- NA
+    comments3[i] <- paste(row.sum, collapse = ";")
   }
 }
 
+
 # create a new column in dat.keep for comments
-dat.keep$comments <- comments.formatted
+dat.keep$comments <- comments3
 
 # clean up comments to keep commenter name but remove '\n'
 
