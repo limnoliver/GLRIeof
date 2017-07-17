@@ -47,8 +47,9 @@ for (j in 1:length(all.files)) {
 temp.file.path <- paste(wd, wy[j], all.files[j], sep = "/")
 all.sheets <- XLConnect::loadWorkbook(temp.file.path)
 sheet.names <- XLConnect::getSheets(all.sheets)
-sheet.names.short <- substr(sheet.names, 1, 3)
-sheet.names.num <- grep(paste(sites, collapse = '|'), sheet.names.short)
+sheet.names.short <- substr(sheet.names, 1, 4)
+sheet.names.short <- gsub("-", "", sheet.names.short)
+sheet.names.num <- grep(paste('^', sites,'$', collapse = '|', sep = ""), sheet.names.short)
 sheet.names <- sheet.names[sheet.names.num]
 
 ###################################
@@ -164,7 +165,6 @@ rows  <- xlsx::getRows(sheet1, rowIndex = c((row.start+1):(row.end-2)))
 
 # extract cells and comments in cells
 cells <- xlsx::getCells(rows)
-comments <- xlsx::getCellComment(cells)
 comments <- lapply(cells, xlsx::getCellComment)
 comments2 <- c()
 
