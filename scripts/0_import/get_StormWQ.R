@@ -4,10 +4,11 @@
 ###################################
 # automate import functions
 ###################################
+options(java.parameters = "-Xmx1000m")
+
 library(XLConnect)
 library(xlsx)
 #detach('package:XLConnect', unload = TRUE)
-
 
 # point to folder where data are stored
 wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
@@ -57,6 +58,12 @@ sheet.names <- sheet.names[sheet.names.num]
 ###################################
 sheet.dat <- list()
 for (k in 1:length(sheet.names)){
+  jgc()
+  message("Creating sheet", j, k)
+  #sheet <- createSheet(wb, sheetName = names(the_data)[i])
+  #message("Adding data frame", i)
+  #addDataFrame(the_data[[i]], sheet)
+  
   file.all <- xlsx::read.xlsx(temp.file.path, sheetIndex = sheet.names[k], header = FALSE)
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
