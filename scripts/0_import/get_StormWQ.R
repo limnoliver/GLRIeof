@@ -6,7 +6,7 @@
 ###################################
 library(XLConnect)
 library(xlsx)
-detach('package:XLConnect', unload = TRUE)
+#detach('package:XLConnect', unload = TRUE)
 
 
 # point to folder where data are stored
@@ -59,6 +59,8 @@ for (k in 1:length(sheet.names)){
   file.all <- xlsx::read.xlsx(temp.file.path, sheetIndex = sheet.names[k], header = FALSE)
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
+  col.start <- 1
+  col.end <- ncol(file.all)
   file.dat <- xlsx::read.xlsx(temp.file.path, 
                               sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
   
@@ -158,11 +160,12 @@ wb <- xlsx::loadWorkbook(temp.file.path)
 sheet1 <- xlsx::getSheets(wb)[[k]]
 
 # get all rows
-rows  <- xlsx::getRows(sheet1)
+rows  <- xlsx::getRows(sheet1, rowIndex = c((row.start+1):(row.end-2)))
 
 # extract cells and comments in cells
-cells <- xlsx::getCells(rows[1:row.end])
-comments <- sapply(cells, xlsx::getCellComment)
+cells <- xlsx::getCells(rows)
+comments <- xlsx::getCellComment(cells)
+comments <- lapply(cells, xlsx::getCellComment)
 comments2 <- c()
 
 # save comments as strings
@@ -174,7 +177,7 @@ for (i in 1:length(cells)){
   }
 }
 # make vector into data frame
-comments3 <- as.data.frame(matrix(comments2, nrow = length(rows), byrow = TRUE))
+comments3 <- as.data.frame(matrix(comments2, nrow = length((row.start+1):(row.end-2)), byrow = TRUE))
 comments.formatted <- ""
 
 # find all non-NA comment values, and paste all comments from every row together into single
