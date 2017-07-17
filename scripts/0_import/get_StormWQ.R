@@ -61,8 +61,9 @@ for (k in 1:length(sheet.names)){
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
   col.start <- 1
-  file.dat <- xlsx::read.xlsx(temp.file.path, 
-                              sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
+  file.dat <- file.all[c((row.start+1):(row.end-2)), ]
+  #file.dat <- xlsx::read.xlsx(temp.file.path, 
+  #                            sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
   
 
 # define rows where names of columns are
@@ -82,7 +83,7 @@ sample.end <- sample.start + 1
 field <- grep('field', names.3, ignore.case = TRUE)
 start <- grep('storm times', names.2, ignore.case = TRUE)
 stop <- start + 1
-labid <- grep('uwsp', names.3, ignore.case = TRUE)
+labid <- grep('uwsp|#', names.3, ignore.case = TRUE)
 numsubsamples <- grep('subsample', names.1, ignore.case = TRUE)
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
 stormtype <- grep('storm type', names.1, ignore.case = TRUE)
@@ -213,7 +214,8 @@ dat.keep$comments <- comments3
 
 dat.keep$comments <- gsub('\n', '',dat.keep$comments)
 
-sheet.dat[[k]] <- dat.keep                        
+sheet.dat[[k]] <- dat.keep
+remove()
 } # closes k loop
 cleaned.dat[[j]] <- sheet.dat
 } # closes j loop
