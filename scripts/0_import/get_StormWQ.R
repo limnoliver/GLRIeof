@@ -193,7 +193,11 @@ for (i in 1:nrow(comments3)){
 
 # create a new column in dat.keep for comments
 dat.keep$comments <- comments.formatted
- 
+
+# clean up comments to keep commenter name but remove '\n'
+
+dat.keep$comments <- gsub('\n', '',dat.keep$comments)
+
 sheet.dat[[k]] <- dat.keep                        
 } # closes k loop
 cleaned.dat[[j]] <- sheet.dat
