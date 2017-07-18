@@ -251,6 +251,27 @@ names.list <- lapply(temp.c, names)
 extracted.dat <- rbindlist(temp.c)
 # warning that this can go wrong if columns are not in the same order
 
+# turn numeric dates into readable dates
+.origin <- ifelse(Sys.info()[['sysname']] == "Windows", "1899-12-30", "1904-01-01")
+test <- as.Date(as.numeric(as.character(extracted.dat$sample_start)), origin = as.POSIXct(.origin, tz='Etc/GMT+6'), tz = 'Etc/GMT+6')
+test2 <- as.POSIXct(test, tz = "Etc/GMT+6")
+test2 <- as.character(test2)
+test2 <- as.POSIXct(test, tz = 'Etc/GMT-6')
+
+test <- as.numeric(as.character(extracted.dat$sample_start))
+test2 <- as.Date(test,  origin = .origin)
+test3 <- as.POSIXct(test2)
+tz(test3) <- 'GMT'
+library(lubridate)
+force_tz(test3, tzone = "Etc/GMT")
+with_tz(test3, tz = 'America/Chicago')
+attr(test3, 'tzone') <- "GMT"
+
+
+extracted.dat$sample_end <- as.POSIXct(as.Date(as.numeric(as.character(extracted.dat$sample_end)), origin = .origin, tz = "Etc/GMT"), tz = "Etc/GMT")
+extracted.dat$storm_start <- as.POSIXct(as.Date(as.numeric(as.character(extracted.dat$storm_start)), origin = .origin, tz = 'Etc/GMT-6'))
+extracted.dat$storm_end <- as.POSIXct(as.Date(as.numeric(as.character(extracted.dat$storm_end)), origin = .origin, tz = 'Etc/GMT-6'))
+
 # write data
 setwd("H:/Projects/GLRIeof")
 write.csv(extracted.dat, 'data_raw/WQdata.csv', row.names = FALSE)
