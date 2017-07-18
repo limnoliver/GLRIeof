@@ -97,6 +97,7 @@ stop <- start + 1
 labid <- grep('uwsp|#', names.3, ignore.case = TRUE)
 numsubsamples <- grep('subsample', names.1, ignore.case = TRUE)
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
+runoff.vol <- grep('storm runoff.*cubic feet', names.1, ignore.case = TRUE)
 stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 
 # consider changing the next grep to only include the variable names instead
@@ -104,11 +105,11 @@ stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 wqvars <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = FALSE)
 
 # set which column indices to keep
-col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, stormtype, wqvars)
+col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, runoff.vol, stormtype, wqvars)
 # filter data frame with columns to keep
 dat.keep <- file.dat[,col.keep]
 
-df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'storm_type')
+df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'runoff_volume', 'storm_type')
 wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
 
 names(dat.keep) <- c(df.names, wqvars.names)
