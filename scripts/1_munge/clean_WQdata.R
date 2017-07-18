@@ -24,6 +24,15 @@ wq$site <- substr(wq$site, 1, 3)
 wq$unique_storm_id <- gsub("(^.*)(SW1-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$storm_id, ignore.case = TRUE)
 wq$unique_storm_id <- gsub("(^.*)(SW3-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$unique_storm_id, ignore.case= TRUE)
 
+# clean up names
+names.wq <- names(wq)
+# remove lab analysis numbers
+names.wq <- gsub('[[:digit:]]{2,}', "", names.wq)
+# turn periods into underscores
+names.wq <- gsub('\\.+', '_', names.wq)
+# clean up units
+names.wq <- gsub('Load_in_pounds', 'load_pounds', names.wq, ignore.case = TRUE)
+names(wq) <- names.wq
 write.csv(wq,'data_cached/cleaned_WQdata.csv', row.names = FALSE)
 
 plot(log10(wq$Total.Nitrogen.Load..in.pounds)~log10(wq$peak_discharge))
