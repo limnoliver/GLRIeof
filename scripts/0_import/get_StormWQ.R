@@ -262,36 +262,3 @@ for (i in 1:length(temp.c)){
   temp <- temp.c[[i]]
   temp.f <- do.call('rbind', temp)
 }
-
-##############################
-# end of useful script
-#############################
-
-styles <- sapply(cells, xlsx::getCellStyle)
-
-
-
-
-values <- lapply(cells, xlsx::getCellValue(keepFormulas = TRUE))
-
-test <- getCellValue(rows[row.not.frozen])
-# 
-
-cellColor <- function(style) {
-  fg  <- style$getFillForegroundXSSFColor()
-  rgb <- tryCatch(fg$getRgb(), error = function(e) NULL)
-  rgb <- paste(rgb, collapse = "")
-  return(rgb)
-}
-table.cols <- sapply(styles, cellColor)
-
-table.cols <- unique(as.character(sapply(styles, cellColor)))
-table.cols <- table.cols[c(1,3:9)]
-table.cols <- paste('#', table.cols, sep = "")
-plot(1:length(table.cols), 1:length(table.cols), pch = 16, col = table.cols, cex = 4)
-
-
-
-# iterate through each WY and get site files
-# i = wy
-# j = site
