@@ -10,6 +10,10 @@ library(XLConnect)
 library(xlsx)
 #detach('package:XLConnect', unload = TRUE)
 
+jgc <- function()
+{
+  .jcall("java/lang/System", method = "gc")
+}  
 # point to folder where data are stored
 wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
 
@@ -226,6 +230,39 @@ remove()
 } # closes k loop
 cleaned.dat[[j]] <- sheet.dat
 } # closes j loop
+
+##############################
+# extract data from list and save
+#################################
+temp.c <- list()
+
+for (i in 1:length(cleaned.dat)) {
+  temp <- cleaned.dat[[i]]
+  temp.c[[i]] <- do.call("rbind", temp)
+}
+
+# look at names
+# only difference is orthophosphate turns into dissolved reactive 
+
+names.list <- lapply(temp.c, names)
+
+# make list of dataframes into one data frame
+
+extracted.dat <- rbindlist(temp.c)
+# warning that this can go wrong if columns are not in the same order
+
+# write data
+setwd("H:/Projects/GLRIeof")
+write.csv(extracted.dat, 'data_raw/WQdata.csv', row.names = FALSE)
+
+
+extracted.dat <- do.call("rbind", temp.c)
+
+for (i in 1:length(temp.c)){
+  temp <- temp.c[[i]]
+  temp.f <- do.call('rbind', temp)
+}
+
 ##############################
 # end of useful script
 #############################
