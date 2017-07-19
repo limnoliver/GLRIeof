@@ -98,6 +98,7 @@ labid <- grep('uwsp|#', names.3, ignore.case = TRUE)
 numsubsamples <- grep('subsample', names.1, ignore.case = TRUE)
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
 runoff.vol <- grep('storm runoff.*cubic feet', names.1, ignore.case = TRUE)
+instant.discharge <- grep('instant', names.1, ignore.case = TRUE)
 stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 
 # consider changing the next grep to only include the variable names instead
@@ -105,11 +106,11 @@ stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 wqvars <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = FALSE)
 
 # set which column indices to keep
-col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, runoff.vol, stormtype, wqvars)
+col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, runoff.vol, instant.discharge, stormtype, wqvars)
 # filter data frame with columns to keep
 dat.keep <- file.dat[,col.keep]
 
-df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'runoff_volume', 'storm_type')
+df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'runoff_volume', 'instant_discharge', 'storm_type')
 wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
 
 names(dat.keep) <- c(df.names, wqvars.names)
@@ -173,7 +174,9 @@ dat.keep$water_year <- wy[j]
 dat.keep$estimated <- is.na(dat.keep$lab_id)&is.na(dat.keep$num_subsamples)
 # 2016 documented differently, so above line results in estimated = TRUE for all samples
 # below code is a way around this
-dat.keep$estimated[dat.keep$water_year == 'WY16'] <- is.na(dat.keep$storm_id)
+dat.keep$estimated[dat.keep$water_year == 'WY16'] <- is.na(dat.keep$runoff_volume[dat.keep$water_year == 'WY16']) & is.na(dat.keep$instant_discharge[dat.keep$water_year == 'WY16']) 
+# 2015 also has slightly different populated cells for estimated values
+dat.keep$estimated[dat.keep$water_year == 'WY15'] <- is.na(dat.keep$sample_start[dat.keep$water_year == 'WY15'])
 dat.keep$discrete <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
 
 #####################################
