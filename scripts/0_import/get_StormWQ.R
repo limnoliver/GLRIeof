@@ -174,9 +174,12 @@ dat.keep$water_year <- wy[j]
 dat.keep$estimated <- is.na(dat.keep$lab_id)&is.na(dat.keep$num_subsamples)
 # 2016 documented differently, so above line results in estimated = TRUE for all samples
 # below code is a way around this
-dat.keep$estimated[dat.keep$water_year == 'WY16'] <- is.na(dat.keep$runoff_volume[dat.keep$water_year == 'WY16']) & is.na(dat.keep$instant_discharge[dat.keep$water_year == 'WY16']) 
+dat.keep$estimated[dat.keep$water_year == 'WY16'] <- is.na(dat.keep$storm_id[dat.keep$water_year == 'WY16']) & is.na(dat.keep$instant_discharge[dat.keep$water_year == 'WY16']) 
+# this filter for 2016 misses one estimated sample that I can't get with filter, so manually will do it:
+dat.keep$estimated[dat.keep$storm_id == "ESW1-57a"] <- TRUE
 # 2015 also has slightly different populated cells for estimated values
 dat.keep$estimated[dat.keep$water_year == 'WY15'] <- is.na(dat.keep$sample_start[dat.keep$water_year == 'WY15'])
+
 dat.keep$discrete <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
 
 #####################################
