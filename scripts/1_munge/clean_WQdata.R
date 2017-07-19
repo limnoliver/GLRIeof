@@ -35,4 +35,3 @@ names.wq <- gsub('Load_in_pounds', 'load_pounds', names.wq, ignore.case = TRUE)
 names(wq) <- names.wq
 write.csv(wq,'data_cached/cleaned_WQdata.csv', row.names = FALSE)
 
-plot(log10(wq$Total.Nitrogen.Load..in.pounds)~log10(wq$peak_discharge))
