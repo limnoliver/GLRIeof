@@ -259,11 +259,3 @@ extracted.dat <- rbindlist(temp.c)
 # write data
 setwd("H:/Projects/GLRIeof")
 write.csv(extracted.dat, 'data_raw/WQdata.csv', row.names = FALSE)
-
-
-extracted.dat <- do.call("rbind", temp.c)
-
-for (i in 1:length(temp.c)){
-  temp <- temp.c[[i]]
-  temp.f <- do.call('rbind', temp)
-}
