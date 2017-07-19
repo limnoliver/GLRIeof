@@ -43,6 +43,9 @@ wq <- mutate(wq, vol_weight = runoff_volume/sum_runoff)
 # conc weighted by sum(load)/sum(runoff volume)
 loadvars <- grep('load', names(wq), ignore.case = TRUE, value = TRUE)
 concvars <- grep('mg_L', names(wq), ignore.case = TRUE, value = TRUE)
+storm.desc <- grep('start|_end|peak', names(wq), ignore.case = TRUE, value = TRUE)
+flagvars <- grep('flag|frozen|comment', names(wq), ignore.case = TRUE, value = TRUE)
+
 
 loadbystorm <- wq %>% 
   group_by(unique_storm_id) %>%
@@ -55,7 +58,16 @@ concbystorm <- concbystorm %>%
   group_by(unique_storm_id) %>%
   summarise_at(vars(concvars), sum, na.rm = TRUE)
 
-flagvars <- grep('flag|frozen|comment', names(wq), ignore.case = TRUE, value = TRUE)
+stormdesc <- wq %>%
+  group_by(unique_storm_id) %>%
+  summarise(
+    sample_start = min(sample_start),
+    sample_end = max(sample_end),
+    storm_start = min(storm_start),
+    storm_end = max(storm_end),
+    peak_discharge = max(peak_discharge)
+  )
+
 flagsbystorm <- wq %>%
   group_by(unique_storm_id) %>%
   summarise_at(vars(flagvars), toString) 
@@ -64,3 +76,6 @@ wq.bystorm <- merge(concbystorm, loadbystorm)
 wq.bystorm <- merge(wq.bystorm, storm.vols)
 wq.bystorm <- merge(wq.bystorm, flagsbystorm)
 wq.bystorm <- merge(wq.bystorm, unique(wq[,c('site', 'water_year', 'unique_storm_id')]), all.x = TRUE)
+wq.bystorm <- merge(wq.bystorm, stormdesc)
+
+write.csv(wq.bystorm, 'data_cached/prepped_WQbystorm.csv')
