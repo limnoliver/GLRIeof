@@ -1,0 +1,8 @@
+install.packages("USGSHydroTools")
+library("USGSHydroTools", lib.loc="~/R/R-3.4.0/library")
+
+#TS Stats to calculate antecedent flow conditions
+data_sub <-TSstats(df=flowData, date = "pdate", varnames = "Q",dates = data_sub,
+                   starttime = "Start", times=c(1,3,5,7), units = "days",
+                   stats.return = c("sum","sd","maxdiff","mean","median"),out.varname = "AntecedentQ")
+                   
