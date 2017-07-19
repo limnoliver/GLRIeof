@@ -78,4 +78,4 @@ wq.bystorm <- merge(wq.bystorm, flagsbystorm)
 wq.bystorm <- merge(wq.bystorm, unique(wq[,c('site', 'water_year', 'unique_storm_id')]), all.x = TRUE)
 wq.bystorm <- merge(wq.bystorm, stormdesc)
 
-write.csv(wq.bystorm, 'data_cached/prepped_WQbystorm.csv')
+write.csv(wq.bystorm, 'data_cached/prepped_WQbystorm.csv', row.names = FALSE)
