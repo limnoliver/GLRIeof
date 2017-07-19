@@ -161,6 +161,9 @@ dat.keep$frozen <- NA
 dat.keep$frozen[frozen.all.rows] <- TRUE
 dat.keep$frozen[not.frozen.all.rows] <- FALSE
 
+# create a site and water year column
+dat.keep$site <- sheet.names[k]
+dat.keep$water_year <- wy[j]
 #########################################
 # find rows that are estimated, not measured
 # also find rows that are discrete
@@ -168,6 +171,9 @@ dat.keep$frozen[not.frozen.all.rows] <- FALSE
 # not going to use color but other clues from populated/unpopulated cells
 
 dat.keep$estimated <- is.na(dat.keep$lab_id)&is.na(dat.keep$num_subsamples)
+# 2016 documented differently, so above line results in estimated = TRUE for all samples
+# below code is a way around this
+dat.keep$estimated[dat.keep$water_year == 'WY16'] <- is.na(dat.keep$storm_id)
 dat.keep$discrete <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
 
 #####################################
@@ -221,8 +227,7 @@ for (i in 1:length(rows)) {
 
 # create a new column in dat.keep for comments
 dat.keep$comments <- comments3
-dat.keep$site <- sheet.names[k]
-dat.keep$water_year <- wy[j]
+
 
 sheet.dat[[k]] <- dat.keep
 remove()
