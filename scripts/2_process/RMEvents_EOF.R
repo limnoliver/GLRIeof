@@ -11,7 +11,12 @@
 #' @param time string column with as.POSIXctdate, defaults to "pdate"
 #' @return list of all rain events that surpass rainthresh (storms2) and all rain events (storms)
 #' @export
-RMevents_sko <- function(df,ieHr=6,rainthresh=5.1,rain="rain",time="pdate"){
+#' 
+storm.start <- round_date(wq.dat$storm_start, unit = 'minutes')
+# for now, limit storm starts to dates after 2012-03-06
+storm.start <- storm.start[which(storm.start >= min(precip_prep$pdate))]
+
+RMevents_sko <- function(df, start.times, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
   
   if(!time %in% names(df)){
     stop("Supplied 'time' column name not in df")
@@ -28,10 +33,11 @@ RMevents_sko <- function(df,ieHr=6,rainthresh=5.1,rain="rain",time="pdate"){
   df <- df[df[rain] != 0,]
   df <- df[df[rain] > 0.00001,]
   df["event"] <- NA
-  df[1, "event"] <- 1
+  #df[1, "event"] <- 1
   
   dif_time <- diff(df[[time]])
   timeInterval <- min(dif_time)
+  df$dif_time[2:nrow(df)] <- dif_time
   
   # loop that assigns each row to an event number based on dif_time
   for (i in 2:nrow(df)){
@@ -42,6 +48,51 @@ RMevents_sko <- function(df,ieHr=6,rainthresh=5.1,rain="rain",time="pdate"){
     }
   }
   
+  # loop that uses every every start time to define where to start looking for storm
+  start.rain <- c()
+  for (i in 1:length(start.times)) {
+    start.index <- which.min(abs(df[[time]]-start.times[i]))
+    if(start.index==1) {
+      start.index[i] = NA
+      next
+    }
+    for (j in start.index:2){
+      if(df[j, 'dif_time'] >= ieMin) {
+        start.rain[i] <- j
+        break
+      } else if (j == 2) {
+        start.rain[i] <- 2
+      } else if (j == 1) {
+        start.rain[i] <- 1
+      } else {
+        next
+      }
+    }
+  }
+  
+
+  end.rain <- c()
+  for (i in 1:length(start.rain)) {
+    if (is.na(start.rain[i])) {
+      end.rain[i] = NA
+      next
+    }
+    for (j in start.rain[i]:nrow(df)) {
+      if (df[j+1, 'dif_time'] >= ieMin) {
+        end.rain[i] <- j
+        break
+      } else {
+        next
+      }
+    }
+  }
+  
+  for (i in 1:length(start.rain)) {
+    if (is.na(start.rain[i])){
+      next
+    }
+    df$event[start.rain[i]:end.rain[i]] <- i
+  }
 
   rain.events <- aggregate(x = df[[rain]], by = list(df$event), sum) #find sum of rain in each event
   start.dates <- aggregate(x = df[[time]], by = list(df$event), min)[,2] #find minimum date for each event
