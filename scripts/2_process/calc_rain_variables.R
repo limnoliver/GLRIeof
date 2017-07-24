@@ -1,9 +1,8 @@
 library(Rainmaker)
-source('H:/Projects/Rainmaker')
 library("dataRetrieval")
 library(lubridate)
+source('scripts/2_process/fxn_RMevents_EOF.R')
 
-library(Rainmaker, lib.loc = 'H:/Projects/Rainmaker')
 # read in WQ data to define storm start/end times
 wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE)
 
@@ -33,16 +32,10 @@ precip_raw_sw3 <- read.csv(file = paste('data_raw/', precip.sw3, sep = ""), head
 
 # prep data for other RM functions
 precip_prep_sw1 <- RMprep(precip_raw_sw1, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
-                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw_sw1), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
 precip_prep_sw3 <- RMprep(precip_raw_sw3, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
-                          dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+                          dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw_sw3), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
 
-rain <- 'rain'
-precip_prep <- precip_prep[precip_prep[rain] > 0.00001,]
-ieHr <- 2 
-rainthresh <- 0.008
-rain <- "rain"
-time <- "pdate"
 
 # get rain events
 
@@ -60,9 +53,9 @@ StormSummary <- RMIntense(df=precip_prep_sw1, date=time, rain=rain, df.events=ev
 
 # calculate erosivity 
 timeInterval <- 5
-StormSummary.1 <- as.data.frame(RMerosivity(df=precip_prep_sw1, ieHr=ieHr, rain=rain, 
+StormSummary.1 <- as.data.frame(Rainmaker::RMerosivity(df=precip_prep_sw1, ieHr=ieHr, rain=rain, 
                                             timeInterval=timeInterval, StormSummary=StormSummary, method=1))
-#'
-StormSummary.2 <- as.data.frame(RMerosivity(df=precip_prep, ieHr=ieHr, rain=rain, 
+# calculate erosivity using method 2
+StormSummary.2 <- as.data.frame(RMerosivity(df=precip_prep_sw3, ieHr=ieHr, rain=rain, 
                                             timeInterval=timeInterval, StormSummary=StormSummary, method=2))
   
