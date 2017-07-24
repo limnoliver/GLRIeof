@@ -20,7 +20,7 @@ RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", 
   storms <- storms[wq.dat$site == site, ]
   storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
   # for now, limit storm starts to dates after 2012-03-06
-  storms <- storms[which(storms$storm_start >= min(precip_prep$pdate)), ]
+  storms <- storms[which(storms$storm_start >= min(df[[time]])), ]
   start.times <- storms$storm_start  
   
   if(!time %in% names(df)){
