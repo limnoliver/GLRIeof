@@ -12,13 +12,17 @@
 #' @return list of all rain events that surpass rainthresh (storms2) and all rain events (storms)
 #' @export
 #' 
-storms <- wq.dat[,c('storm_start', 'unique_storm_id')]
-storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
-# for now, limit storm starts to dates after 2012-03-06
-storms <- storms[which(storms$storm_start >= min(precip_prep$pdate)), ]
 
-RMevents_sko <- function(df, storms, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
+
+
+RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
+  storms <- storms[,c('storm_start', 'unique_storm_id')]
+  storms <- storms[wq.dat$site == site, ]
+  storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
+  # for now, limit storm starts to dates after 2012-03-06
+  storms <- storms[which(storms$storm_start >= min(precip_prep$pdate)), ]
   start.times <- storms$storm_start  
+  
   if(!time %in% names(df)){
     stop("Supplied 'time' column name not in df")
   }
