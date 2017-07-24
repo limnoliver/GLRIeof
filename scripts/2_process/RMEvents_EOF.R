@@ -12,12 +12,13 @@
 #' @return list of all rain events that surpass rainthresh (storms2) and all rain events (storms)
 #' @export
 #' 
-storm.start <- round_date(wq.dat$storm_start, unit = 'minutes')
+storms <- wq.dat[,c('storm_start', 'unique_storm_id')]
+storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
 # for now, limit storm starts to dates after 2012-03-06
-storm.start <- storm.start[which(storm.start >= min(precip_prep$pdate))]
+storms <- storms[which(storms$storm_start >= min(precip_prep$pdate)), ]
 
-RMevents_sko <- function(df, start.times, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
-  
+RMevents_sko <- function(df, storms, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
+  start.times <- storms$storm_start  
   if(!time %in% names(df)){
     stop("Supplied 'time' column name not in df")
   }
@@ -40,13 +41,13 @@ RMevents_sko <- function(df, start.times, ieHr=6, rainthresh=5.1, rain="rain", t
   df$dif_time[2:nrow(df)] <- dif_time
   
   # loop that assigns each row to an event number based on dif_time
-  for (i in 2:nrow(df)){
-    if (dif_time[[i-1]] >= ieMin) {
-      df$event[i] <- df$event[i-1] + 1
-    } else {
-      df$event[i] <- df$event[i-1]
-    }
-  }
+  # for (i in 2:nrow(df)){
+  #   if (dif_time[[i-1]] >= ieMin) {
+  #     df$event[i] <- df$event[i-1] + 1
+  #   } else {
+  #     df$event[i] <- df$event[i-1]
+  #   }
+  # }
   
   # loop that uses every every start time to define where to start looking for storm
   start.rain <- c()
@@ -91,7 +92,7 @@ RMevents_sko <- function(df, start.times, ieHr=6, rainthresh=5.1, rain="rain", t
     if (is.na(start.rain[i])){
       next
     }
-    df$event[start.rain[i]:end.rain[i]] <- i
+    df$event[start.rain[i]:end.rain[i]] <- as.character(storms$unique_storm_id[i])
   }
 
   rain.events <- aggregate(x = df[[rain]], by = list(df$event), sum) #find sum of rain in each event
