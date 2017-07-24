@@ -1,7 +1,9 @@
 library(Rainmaker)
+source('H:/Projects/Rainmaker')
 library("dataRetrieval")
 library(lubridate)
 
+library(Rainmaker, lib.loc = 'H:/Projects/Rainmaker')
 # read in WQ data to define storm start/end times
 wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE)
 
