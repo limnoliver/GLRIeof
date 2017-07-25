@@ -23,26 +23,38 @@ precip.files <- grep('precip', files, value = TRUE, ignore.case = TRUE)
 precip.sw1 <- grep(sw1.id, precip.files, value = TRUE)
 precip.sw3 <- grep(sw3.id, precip.files, value = TRUE)
 
+# set working directory to location of precip data
+precip.wd <- 'H:/Projects/GLRIeof'
 
-run.rain <- function(files, ieHr = 2, ) {
+# function to run through all Rainmaker functions and extract rain variables
+# precip.dir location of rain gauge files
+# precip.files vector of file names with rain gauge data
+# siteid unique identifier for site, atleast last four digits, should be in names of precip.files
+# sitename unique site names, should be in same order of siteids
+# ieHr time between storms to ID new events
+# wq.dat dataframe that identifies storm start/end from EOF WQ data
 
-# set some universal variables 
-ieHr = 2
-
-#read in raw precip data
-precip_raw_sw1 <- read.csv(file = paste('data_raw/', precip.sw1, sep = ""), header = TRUE, skip = 14)
-precip_raw_sw3 <- read.csv(file = paste('data_raw/', precip.sw3, sep = ""), header = TRUE, skip = 14)
-
-# prep data for other RM functions
-precip_prep_sw1 <- RMprep(precip_raw_sw1, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
-                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw_sw1), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
-precip_prep_sw3 <- RMprep(precip_raw_sw3, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
-                          dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw_sw3), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+run.rain <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.files, 
+                     siteid = c(5601, 5001), sitename = c('SW1', 'SW3'), ieHr = 2, wq.dat = wq.dat) {
+  
+  for (i in 1:length(precip.files)) {
+    
+    # read in raw rain gauge data for site[i]
+    precip.raw.file <- grep(siteid[i], precip.files, value = TRUE)
+    precip_raw <- read.csv(file = paste(precip.dir, precip.raw.file, sep = "/"), header = TRUE, skip = 14)
+    
+    # prep data
+    precip_prep <- RMprep(precip_raw, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
+                              dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+    
+    events_sw1 <- RMevents_eof(df=precip_prep, storms = wq.dat, site = 'SW1', ieHr=2, rainthresh=0.008, rain='rain', time='pdate')
+    
+    
+    }
 
 
 # get rain events
 
-events_sw1 <- RMevents_eof(df=precip_prep_sw1, storms = wq.dat, site = 'SW1', ieHr=2, rainthresh=0.008, rain='rain', time='pdate')
 events_sw3 <- RMevents_eof(df=precip_prep_sw3, storms = wq.dat, site = 'SW3', ieHr=2, rainthresh=0.008, rain='rain', time='pdate')
 
 # using storms instead of storms 2 incase some get filtered out
