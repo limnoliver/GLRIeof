@@ -63,5 +63,6 @@ run.rainmaker <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.fi
     
     rain.by.site[[i]] <- merged.rain
   }
-  return(rain.by.site)
+  
+  return(do.call("rbind", rain.by.site))
 }
