@@ -32,10 +32,14 @@ precip.wd <- 'H:/Projects/GLRIeof'
 # siteid unique identifier for site, atleast last four digits, should be in names of precip.files
 # sitename unique site names, should be in same order of siteids
 # ieHr time between storms to ID new events
+# rainthresh minimum rain amount that constitutes an event
 # wq.dat dataframe that identifies storm start/end from EOF WQ data
+# xmin minutes over which to calculate storm intensity
+# antecedentDays days over which to calculate antecedent rainfall
 
-run.rain <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.files, 
-                     siteid = c(5601, 5001), sitename = c('SW1', 'SW3'), ieHr = 2, wq.dat = wq.dat) {
+run.rainmaker <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.files, 
+                     siteid = c(5601, 5001), sitename = c('SW1', 'SW3'), ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
+                     xmin = c(5,10,15,30,60), antecedentDays = c(1,2,3,7,14)) {
   
   for (i in 1:length(precip.files)) {
     
@@ -46,41 +50,39 @@ run.rain <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.files,
     # prep data
     precip_prep <- RMprep(precip_raw, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
                               dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+    # calculate events
+    events <- RMevents_eof(df=precip_prep, storms = wq.dat, site = sitename[i], ieHr=ieHr, 
+                           rainthresh=rainthresh, rain='rain', time='pdate')
+    # extract data from events output
+    events_list <- events$storms
+    tipsbystorm <- events$tipsbystorm
+   
+    # calculate storm intensity at different time intervals
+    StormSummary <- RMIntense(df=tipsbystorm, date="pdate", rain="rain", df.events=events_list,
+                              sdate="StartDate", edate="EndDate", depth="rain", xmin=xmin)
     
-    events_sw1 <- RMevents_eof(df=precip_prep, storms = wq.dat, site = 'SW1', ieHr=2, rainthresh=0.008, rain='rain', time='pdate')
+    # calculate erosivity 
+    StormSummary.1 <- RMerosivity(df = tipsbystorm, ieHr=ieHr, rain='rain', StormSummary=StormSummary, method=1)
+    erosivity.col <- grep('erosivity', names(StormSummary.1))
+    names(StormSummary.1)[erosivity.col] <- 'erosivity_m1'
+    
+    # calculate erosivity using method 2
+    StormSummary.2 <- RMerosivity(df= tipsbystorm, ieHr=ieHr, rain="rain", StormSummary=StormSummary, method=2)
+    erosivity.col <- grep('erosivity', names(StormSummary.2))
+    names(StormSummary.2)[erosivity.col] <- 'erosivity_m2'
+    
+    # calculate antecedent rain
+    ARF <- RMarf(df = tipsbystorm, date = 'pdate', rain = 'rain', df.events = StormSummary, 
+                 sdate = "StartDate", days = antecedentDays, varnameout = "ARFdays")
+    
+    
     
     
     }
 
 
-# get rain events
 
-events_sw3 <- RMevents_eof(df=precip_prep_sw3, storms = wq.dat, site = 'SW3', ieHr=2, rainthresh=0.008, rain='rain', time='pdate')
 
-# using storms instead of storms 2 incase some get filtered out
-events_list_sw1 <- events_sw1$storms
-events_list_sw3 <- events_sw3$storms
-tipsbystorm <- events_sw1$tipsbystorm
-# calculate storm intensity at different time intervals
-
-StormSummary <- RMIntense(df=precip_prep_sw1, date="pdate", rain="rain", df.events=events_list_sw1,
-                          sdate="StartDate", edate="EndDate", depth="rain", xmin=c(5,10,15,30,60))
-
-# calculate erosivity 
-timeInterval <- 5
-StormSummary.1 <- RMerosivity(df = tipsbystorm, ieHr=ieHr, rain='rain', StormSummary=StormSummary, method=1)
-erosivity.col <- grep('erosivity', names(StormSummary.1))
-names(StormSummary.1)[erosivity.col] <- 'erosivity_m1'
-
-# calculate erosivity using method 2
-StormSummary.2 <- RMerosivity(df= tipsbystorm, ieHr=ieHr, rain="rain", StormSummary=StormSummary, method=2)
-erosivity.col <- grep('erosivity', names(StormSummary.2))
-names(StormSummary.2)[erosivity.col] <- 'erosivity_m2'
-
-# calculate antecedent rain
-antecedentDays <- c(1,2,3,7,14)
-ARF <- RMarf(df = tipsbystorm, date = 'pdate', rain = 'rain', df.events = StormSummary, 
-             sdate = "StartDate", days = antecedentDays, varnameout = "ARFdays")
 
 # merge rain summary data 
 arf.cols <- grep('arf', names(ARF), ignore.case = TRUE, value = TRUE)
