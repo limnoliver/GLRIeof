@@ -109,6 +109,6 @@ RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", 
                        EndDate = end.dates,
                        rain = rain.events[,2])
   out2 <- subset(out, rain >= rainthresh, row.names = FALSE)
-  return(list(storms2 = out2, storms = out))
+  return(list(storms2 = out2, storms = out, tipsbystorm = df[,'pdate', 'rain', 'dif_time', 'event']))
 }
   
