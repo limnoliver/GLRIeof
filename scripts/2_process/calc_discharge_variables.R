@@ -18,7 +18,7 @@ ant.discharge <- ant.discharge.bysite(discharge.dir = discharge.dir, discharge.f
                                       storms = storms, start.col = 'StartDate', stats = c('mean', 'max'))
 
 # rename columns
-names(ant.discharge) <- c(names(ant.discharge)[1:2], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
+names(ant.discharge) <- c(names(ant.discharge)[1:3], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
                                                        'ant_dis_2day_mean', 'ant_dis_2day_max',
                                                        'ant_dis_7day_mean', 'ant_dis_7day_max',
                                                        'ant_dis_14day_mean', 'ant_dis_14day_max'))
