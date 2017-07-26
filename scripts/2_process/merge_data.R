@@ -16,3 +16,7 @@ discharge <- discharge[,c(2, 4:12)]
 
 all.eof <- merge(wq, rain, by = 'unique_storm_id', all.x = TRUE)
 all.eof <- merge(all.eof, discharge, by = 'unique_storm_id', all.x = TRUE)
+
+# write dat
+
+write.csv(all.eof, 'data_cached/merged_wq_rain_discharge.csv', row.names = FALSE)
