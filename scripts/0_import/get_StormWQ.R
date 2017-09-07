@@ -22,7 +22,7 @@ files.wd <- list.files(wd)
 wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
 
 # right now, overwride wy to only include through 2016
-wy <- wy[1:5]
+# wy <- wy[1:5]
 
 # set site names to find in tab names
 # for now, will use test cases of SW1 and SW3
@@ -47,6 +47,7 @@ if (length(files.drop) > 0){
 }
 
 cleaned.dat <- list()
+# j is essentially years
 for (j in 1:length(all.files)) {
 
 temp.file.path <- paste(wd, wy[j], all.files[j], sep = "/")
@@ -94,7 +95,7 @@ sample.end <- sample.start + 1
 field <- grep('field', names.3, ignore.case = TRUE)
 start <- grep('storm times', names.2, ignore.case = TRUE)
 stop <- start + 1
-labid <- grep('uwsp|#', names.3, ignore.case = TRUE)
+labid <- grep('uwsp|#|number', names.3, ignore.case = TRUE)
 numsubsamples <- grep('subsample', names.1, ignore.case = TRUE)
 discharge <- grep('peak discharge', names.1, ignore.case = TRUE)
 runoff.vol <- grep('storm runoff.*cubic feet', names.1, ignore.case = TRUE)
@@ -105,6 +106,15 @@ stormtype <- grep('storm type', names.1, ignore.case = TRUE)
 # because if vars are in different order in each spreadsheet - vars might be off
 wqvars <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = FALSE)
 
+# create filter for discarding TOC and DOC in SW3 in 2017 -- add this back in later
+# and generalize it to take all vars that a spreadsheet gives
+discard <- grep('TOC|DOC', names.1[wqvars])
+
+if (length(discard) > 0) {
+  wqvars <- wqvars[-discard]
+  
+}
+
 # set which column indices to keep
 col.keep <- c(field, labid, numsubsamples, sample.start, sample.end, start, stop, discharge, runoff.vol, instant.discharge, stormtype, wqvars)
 # filter data frame with columns to keep
@@ -112,7 +122,9 @@ dat.keep <- file.dat[,col.keep]
 
 df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'runoff_volume', 'instant_discharge', 'storm_type')
 wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
-
+if (length(discard)>0){
+  wqvars.names <- wqvars.names[-discard]
+}
 names(dat.keep) <- c(df.names, wqvars.names)
 
 #######################################
