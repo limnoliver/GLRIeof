@@ -10,23 +10,27 @@ eof$frozen  <- as.logical(substr(eof$frozen, 1, 1))
 response <- 'Suspended_Sediment_mg_L'
 predictors <- names(eof)[c(20,36,37:51, 53:60)]
 
-  
+
 # get rid of correlated variables using a variance inflation factor (VIF)
 # vif source code from https://gist.github.com/fawda123/4717702#file-vif_fun-r
 
 sub.dat <- subset(eof, frozen == FALSE)
 sub.dat <- subset(sub.dat, site == 'SW1')
 
+# calculate a column of before/after
+sub.dat$storm_start <- as.POSIXct(sub.dat$storm_start)
+sub.dat$intervention <- ifelse(sub.dat$storm_start >= as.POSIXct('2014-11-01 00:00:01'), 'after', 'before')
+
 sub.dat[,predictors] <- data.frame(scale(sub.dat[,predictors], center = TRUE, scale = TRUE))
 sub.dat[,response] <- log(sub.dat[,response])
 
 vars.keep <- vif_func(sub.dat[,predictors])
 
-sub.dat <- sub.dat[,c(response, vars.keep)]
+sub.dat2 <- sub.dat[,c(response, vars.keep)]
 
 mod.equation <- paste(response, paste(vars.keep, collapse = " + "), sep = " ~ ")
 mod.equation <- createFullFormula(sub.dat, response)
-keep.rows <- complete.cases(sub.dat)
+keep.rows <- complete.cases(sub.dat2)
 sub.dat <- sub.dat[complete.cases(sub.dat),]
 
 # kitchen sink 
@@ -35,7 +39,14 @@ returnPrelim <- prelimModelDev(sub.dat, "Suspended_Sediment_mg_L", mod.equation,
                                k = "BIC", transformResponse = 'normal', autoSinCos = FALSE)
 
 mod2 <- lm(mod.equation, data = sub.dat, y = TRUE)
-plot(as.numeric(mod2$fitted.values) ~ mod2$y)
+
+BorA <- sub.dat$intervention[keep.rows]
+plot(as.numeric(mod2$fitted.values) ~ mod2$y, col = as.factor(BorA))
+
+mod.resids <- data.frame(residuals = mod2$residuals,
+                         intervention = BorA)
+
+boxplot(mod.resids$residuals ~ mod.resids$intervention)
 abline(0,1, col = 'red')
 simple.mod <- lm(Suspended_Sediment_mg_L ~ peak_discharge, data = sub.dat)
 sub.dat.all <- left_join(sub.dat, )
