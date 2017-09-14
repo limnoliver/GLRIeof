@@ -1,0 +1,33 @@
+wateryear,date,activity,activity_group,current_crop,last_year_crop
+12,10/1/2011,"Liquid dairy manure applied, 14-15,000 gal/acre, incorporated  with field cultivator",manure application,corn,corn
+12,5/1/2012,Field cultivation,cultivation,corn,corn
+12,5/5/2012,Field cultivation,cultivation,corn,corn
+12,5/6/2012,Field cultivation,cultivation,corn,corn
+12,5/7/2012,"Corn planted, starter fertilizer (9N-23P-30K) applied at 100 lb/acre",planting + fertilizer,corn,corn
+12,5/9/2012,Roundup applied (1 qt/acre?),pesticide application,corn,corn
+12,6/20/2012,Field cultivation,cultivation,corn,corn
+12,10/15/2012,Corn harvested for silage,harvest,corn,corn
+13,10/20/2012,"Liquid dairy manure applied, 14,000 gal/acre, incorporated  with field cultivator",manure application,corn,corn
+13,6/1/2013,Field cultivation (3x),cultivation,corn,corn
+13,6/8/2013,"Corn planted, starter fertilizer (10N-14P-26K) applied at 120 lb/acre",planting + fertilizer,corn,corn
+13,6/9/2013,Field cultivation,cultivation,corn,corn
+13,,Corn harvested for silage,harvest,corn,corn
+14,10/15/2013,"Liquid dairy manure applied, 14,000 gal/acre, deep-tilled 8"" DMI ripper",manure application,corn,corn
+14,6/9/2014,Field cultivation,cultivation,corn,corn
+14,6/11/2014,Field cultivation,cultivation,corn,corn
+14,6/12/2014,"Corn planted, starter fertilizer (9N-23P-30K) applied at 100 lb/acre",planting + fertilizer,corn,corn
+14,7/7/2014,Added 40 units N per acre? Not sure what this is. Anhydrous?,fertilizer application,corn,corn
+14,9/24/2014,Corn harvested for silage,harvest,corn,corn
+15,11/12/2014,"Liquid dairy manure applied, 15,000 gal/acre, deep-tilled 8"" DMI ripper",manure application,corn,corn
+15,5/10/2015,Field cultivation (3x),cultivation,corn,corn
+15,5/10/2015,Grass waterway construction begins,intervention,corn ,corn
+15,5/20/2015,"Corn planted, starter fertilizer (9N-23P-30K) applied at 100 lb/acre",planting + fertilizer,corn,corn
+15,6/25/2015,Added 7 gal/acre of 2890? Not sure what this is. Anyhydrous?,fertilizer application,corn,corn
+15,,Corn harvested for silage,harvest,corn,corn
+16,10/9/2015,"Liquid dairy manure applied, 4,000 gal/acre, chisel plow incorporated",manure application,alfalfa,corn
+16,5/4/2016,Field cultivation (3x),cultivation,alfalfa,corn
+16,5/9/2016,Alfalfa direct seeded,planting,alfalfa,corn
+16,8/2/2016,First cutting,cutting,alfalfa,corn
+16,,Second cutting,cutting,alfalfa,corn
+16,,Third cutting,cutting,alfalfa,corn
+17,,,,alfalfa,alfalfa
