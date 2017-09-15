@@ -25,6 +25,12 @@ nit.cens.val <- as.numeric(gsub('<', '', wq$NO2_NO3_N_mg_L[nit.censored]))
 wq[nit.censored, 'NO2_NO3_N_mg_L'] <- 0.5*nit.cens.val
 wq$NO2_NO3_N_mg_L <- as.numeric(wq$NO2_NO3_N_mg_L)
 
+chl.censored <- grep('<', wq$Chloride_mg_L)
+chl.cens.val <- as.numeric(gsub('<', '', wq$Chloride_mg_L[chl.censored]))
+wq[chl.censored, 'Chloride_mg_L'] <- 0.5*chl.cens.val
+wq$Chloride_mg_L <- as.numeric(wq$Chloride_mg_L)
+
+
 # add a column that will be used for weighting concentrations by total runoff volume
 storm.vols <- wq[,c('unique_storm_id', 'runoff_volume')]
 storm.vols <- storm.vols %>%
@@ -33,6 +39,10 @@ storm.vols <- storm.vols %>%
 
 wq <- merge(wq, storm.vols, by = 'unique_storm_id', all.x = TRUE)
 wq <- mutate(wq, vol_weight = runoff_volume/sum_runoff)
+# get rid of any samples that do not have a volume weight, 
+# which will give us NA values later on
+wq <- filter(wq, !is.na(vol_weight))
+wq <- filter(wq, !is.na(Suspended_Sediment_mg_L))
 
 # Handle sub storms
 # when combining sub events, take:
@@ -52,7 +62,7 @@ loadbystorm <- wq %>%
   summarise_at(vars(loadvars), sum, na.rm = TRUE) 
 
 concbystorm <- wq[,c(concvars, 'unique_storm_id', 'vol_weight')]
-concbystorm[, concvars] <- concbystorm[,concvars]*concbystorm$vol_weight
+concbystorm[, concvars] <- concbystorm[,concvars]*concbystorm[,'vol_weight']
 
 concbystorm <- concbystorm %>%
   group_by(unique_storm_id) %>%
