@@ -17,9 +17,10 @@ cleaned.timeline <- data.frame(
 
 # can add events
 # see example: https://github.com/jbryer/timeline
-png('figures/SW1_timeline.png')
+pdf('figures/SW1_timeline.pdf', height = 4, width = 10)
 timeline(cleaned.timeline, timeline.events, text.size = 6, event.col = 'date', event.label.col = 'activity_group', event.above = FALSE) +
   theme_classic() +
-  scale_fill_manual(values = c(rgb(135,193,137,max = 255), rgb(206,200,69,max = 255), rgb(27,113,68,max = 255),  rgb(158,101,32,max = 255)))
+  scale_fill_manual(values = c(rgb(135,193,137,max = 255), rgb(206,200,69,max = 255), rgb(27,113,68,max = 255),  rgb(158,101,32,max = 255))) +
+  theme(legend.position="none")
 
 dev.off()
