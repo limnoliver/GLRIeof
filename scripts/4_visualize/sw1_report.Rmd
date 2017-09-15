@@ -1,0 +1,48 @@
+---
+title: "Water Quality at site SW1 before and after grass waterway implementation."
+author: "Samantha K Oliver"
+date: "September 15, 2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, results = 'hide', warning=FALSE, echo = FALSE, message=FALSE}
+
+library(timeline)
+library(knitr)
+source('field_timelines.R')
+source('')
+
+start_date <- "2017-07-01"
+end_date <- "2017-07-31"
+
+knitr::opts_chunk$set(fig.width = 12, fig.height = 6)
+```
+
+## Site history
+
+At site SW1, edge-of-field monitoring begain in 2012, and corn was produced from 2011-2015. On May 10, 2015, a grass
+waterway was installed on the field, and corn was planted that same year. In 2016 and 2017, alfalfa was planted. This analysis describes
+water quality before and after implementation of the grass waterway.
+
+
+```{r timeline, echo=FALSE, warning=FALSE, fig.cap=paste('Timeline for site SW1, including plantings and field activity.')}
+timeline(cleaned.timeline, timeline.events, text.size = 6, event.col = 'date', event.label.col = 'activity_group', event.above = FALSE) +
+  theme_classic() +
+  scale_fill_manual(values = c(rgb(135,193,137,max = 255), rgb(206,200,69,max = 255), rgb(27,113,68,max = 255),  rgb(158,101,32,max = 255))) +
+  theme(legend.position="none")
+
+```
+
+## Before and After Analysis
+
+Pre-intervention data included all storms prior to May 10, 2015. From May 10 to May 31 of 2015, field disturbance from the manipulation occured, and so we 
+excluded all storms during this period. Post-intervention data include the growing season of 2015 when corn was planted, and years 2016 and 2017 when alfalfa was planted. Here, we show a summary of rain events before and after intervention, excluding events when temperatures were below freezing. 
+
+```{r echo = FALSE, results = 'asis'}
+
+
+```
+
+Loads and concentrations were modeled using storm data, including total rain, peak discharge, duration and intensity of the storm, and antecedent discharge and rain. Additionally, because manure and fertilizer application logs were not complete, we used chloride as a proxy for manure application and was included in the model.  
