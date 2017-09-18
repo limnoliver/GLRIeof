@@ -1,25 +1,52 @@
 # this script creates a linear model between water quality and hydrologic variables, 
 # including variables output by Rainmaker, as well as storm characteristics
-source('scripts/3_analyze/fxn_vif.R')
-library(GSqwsr)
-library(randomForest)
+
+# read in libraries
+#library(GSqwsr)
+#library(randomForest)
 library(dplyr)
+library(caret)
+
+# source functions
+source('scripts/3_analyze/fxn_vif.R')
+
 # read in merged data
-eof <- read.csv('data_cached/merged_wq_rain_discharge.csv', header = TRUE)
-eof$frozen  <- as.logical(substr(eof$frozen, 1, 1))
+eof <- read.csv('data_cached/merged_wq_rain_discharge.csv', header = TRUE, stringsAsFactors = FALSE,
+                colClasses = c(sample_start = 'POSIXct'))
+
+# set responses and predictors
 response <- 'Suspended_Sediment_mg_L'
-predictors <- names(eof)[c(20,36,37:51, 53:60)]
+predictors <- names(eof)[c(3,20,36:51, 53:60)]
 
+# remove highly correlated predictors
+predictors.cor <- cor(eof[,predictors], use = 'complete.obs')
+drop.predictors <- findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
+# reduce data to the site of interest, non-frozen periods
+# also add before/transition/after BMP
+
+sw1 <- eof %>%
+  mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
+  filter(site == 'SW1') %>%
+  filter(frozen == FALSE) %>%
+  mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
+
+sw1$period[sw1$storm_start > as.POSIXct('2015-05-10 00:00:01')& sw1$storm_start < as.POSIXct('2015-06-01 00:00:01')] <- 'transition'
+
+sw1 <- filter(sw1, period != 'transition')
+
+# first, get rid of highly correlated predictors
+
+for (i in 1:length(responses)) {
+  t.response <- sw1[responses[i],]
+  
+  
+  
+  
+}
 # get rid of correlated variables using a variance inflation factor (VIF)
 # vif source code from https://gist.github.com/fawda123/4717702#file-vif_fun-r
 
-sub.dat <- subset(eof, frozen == FALSE)
-sub.dat <- subset(sub.dat, site == 'SW1')
-
-# calculate a column of before/after
-sub.dat$storm_start <- as.POSIXct(sub.dat$storm_start)
-sub.dat$intervention <- ifelse(sub.dat$storm_start >= as.POSIXct('2014-11-01 00:00:01'), 'after', 'before')
 
 sub.dat[,predictors] <- data.frame(scale(sub.dat[,predictors], center = TRUE, scale = TRUE))
 sub.dat[,response] <- log(sub.dat[,response])
