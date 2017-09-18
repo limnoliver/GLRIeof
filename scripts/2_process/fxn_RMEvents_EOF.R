@@ -16,8 +16,8 @@
 
 
 RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
-  storms <- storms[,c('storm_start', 'unique_storm_id')]
-  storms <- storms[wq.dat$site == site, ]
+  storms2 <- storms[,c('storm_start', 'unique_storm_id')]
+  storms2 <- storms2[storms$site == site, ]
   storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
   # for now, limit storm starts to dates after 2012-03-06
   storms <- storms[which(storms$storm_start >= min(df[[time]])), ]
@@ -109,6 +109,6 @@ RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", 
                        EndDate = end.dates,
                        rain = rain.events[,2])
   out2 <- subset(out, rain >= rainthresh, row.names = FALSE)
-  return(list(storms2 = out2, storms = out, tipsbystorm = df[,c('pdate', 'rain', 'dif_time', 'event')]))
+  return(list(storms2 = out2, storms = out, tipsbystorm = df[,c(time, rain, 'dif_time', 'event')]))
 }
   
