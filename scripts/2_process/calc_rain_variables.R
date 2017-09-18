@@ -23,9 +23,9 @@ for (i in 1:length(date.vars)) {
 # get precipitation data from NWIS using dataretrieval
 siteNumber <- c("441624088045601", "441520088045001")
 parameterCd <- "00045"  # Precipitation
-startDate <- "2010-06-30"
-endDate <- "2017-09-18"
-precip_raw <- readNWISuv(siteNumber, parameterCd, startDate, endDate, tz = "Etc/GMT+6")
+#startDate <- "2010-06-30"
+#endDate <- "2017-09-18"
+precip_raw <- readNWISuv(siteNumber, parameterCd, tz = "Etc/GMT+6")
 precip_raw <- renameNWISColumns(precip_raw)
 
 # rename columns
