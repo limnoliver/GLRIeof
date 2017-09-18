@@ -1,9 +1,8 @@
 # create a visual timeline for site
-library(timeline)
+#library(timeline)
 
-timeline <- read.csv('data_raw/SW1_field_activity.csv', stringsAsFactors = FALSE, strip.white = TRUE)
+timeline <- read.csv('H:/Projects/GLRIeof/data_raw/SW1_field_activity.csv', stringsAsFactors = FALSE, strip.white = TRUE)
 timeline$date <- as.Date(timeline$date, format = '%m/%d/%Y')
-head(timeline)
 timeline.events <- timeline[,c('date', 'activity_group')]
 timeline.events <- timeline.events[!is.na(timeline.events$date), ]
 timeline.events <- timeline.events[grep('application', timeline.events$activity_group),]
@@ -17,10 +16,6 @@ cleaned.timeline <- data.frame(
 
 # can add events
 # see example: https://github.com/jbryer/timeline
-pdf('figures/SW1_timeline.pdf', height = 4, width = 10)
-timeline(cleaned.timeline, timeline.events, text.size = 6, event.col = 'date', event.label.col = 'activity_group', event.above = FALSE) +
-  theme_classic() +
-  scale_fill_manual(values = c(rgb(135,193,137,max = 255), rgb(206,200,69,max = 255), rgb(27,113,68,max = 255),  rgb(158,101,32,max = 255))) +
-  theme(legend.position="none")
+#pdf('figures/SW1_timeline.pdf', height = 4, width = 10)
 
-dev.off()
+#dev.off()
