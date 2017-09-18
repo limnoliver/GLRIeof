@@ -12,24 +12,27 @@
 # wq.dat dataframe that identifies storm start/end from EOF WQ data
 # xmin minutes over which to calculate storm intensity
 # antecedentDays days over which to calculate antecedent rainfall
-
-run.rainmaker <- function(precip.dir = 'H:/Projects/GLRIeof/data_raw', precip.files, 
-                          siteid = c(5601, 5001), sitename = c('SW1', 'SW3'), ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
-                          xmin = c(5,10,15,30,60), antecedentDays = c(1,2,3,7,14)) {
+library(dplyr)
+library(Rainmaker)
+run.rainmaker <- function(precip_raw = precip_raw,
+                          siteid = c('441624088045601', '441520088045001'), sitename = c('SW1', 'SW3'), ieHr = 2, rainthresh = 0.008, 
+                          wq.dat = wq.dat, xmin = c(5,10,15,30,60), antecedentDays = c(1,3,7,14)) {
   
   rain.by.site <- list()
-  for (i in 1:length(precip.files)) {
+  for (i in 1:length(siteid)) {
     
+    sites <- siteid
     # read in raw rain gauge data for site[i]
-    precip.raw.file <- grep(siteid[i], precip.files, value = TRUE)
-    precip_raw <- read.csv(file = paste(precip.dir, precip.raw.file, sep = "/"), header = TRUE, skip = 14)
+    
+    precip_temp <- filter(precip_raw, site_no == sites[i])
+    wq.dat.temp <- filter(wq.dat, site == sitename[i])
     
     # prep data
-    precip_prep <- RMprep(precip_raw, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
-                          dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
+    #precip_prep <- RMprep(precip_temp, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
+    #                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
     # calculate events
-    events <- RMevents_eof(df=precip_prep, storms = wq.dat, site = sitename[i], ieHr=ieHr, 
-                           rainthresh=rainthresh, rain='rain', time='pdate')
+    events <- RMevents_eof(df=precip_temp, storms = wq.dat.temp, site = sites[i], ieHr=ieHr, 
+                           rainthresh=rainthresh)
     # extract data from events output
     events_list <- events$storms
     tipsbystorm <- events$tipsbystorm
