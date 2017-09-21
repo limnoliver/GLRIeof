@@ -1,5 +1,5 @@
 # create a visual timeline for site
-#library(timeline)
+library(timeline)
 
 timeline <- read.csv('H:/Projects/GLRIeof/data_raw/SW1_field_activity.csv', stringsAsFactors = FALSE, strip.white = TRUE)
 timeline$date <- as.Date(timeline$date, format = '%m/%d/%Y')
@@ -8,14 +8,21 @@ timeline.events <- timeline.events[!is.na(timeline.events$date), ]
 timeline.events <- timeline.events[grep('application', timeline.events$activity_group),]
 
 cleaned.timeline <- data.frame(
-  content = c("Pre-Grass Waterway", "Post-Grass Waterway", "Corn", "Corn", "Corn", "Corn", "Alfalfa"),
-  id = c("Intervention", "Intervention", 'Crop', 'Crop', "Crop", 'Crop', "Crop"),
-  StartDate = c( timeline$date[1], as.Date('2015-06-01'), timeline$date[5], timeline$date[11], timeline$date[17], timeline$date[23], timeline$date[28]),
-  EndDate = c(as.Date('2015-05-09'), as.Date('2017-09-14'), timeline$date[8],as.Date('2013-10-15'), timeline$date[19],  as.Date('2015-10-01'), as.Date('2017-09-14'))
+  content = c("Pre-Grass Waterway", "Post-Grass Waterway", rep('corn', 4), '','alfalfa', rep('', 3)),
+  id = c("Intervention", "Intervention", rep('crop', 9)),
+  StartDate = c(timeline$date[1], as.Date('2015-06-01'), timeline$date[c(5,11,17,23)], timeline$date[28:32]),
+  EndDate = c(as.Date('2015-05-09'), as.Date('2017-09-14'), timeline$date[c(8,13, 19, 25)], timeline$date[29:33])
 )
 
 # can add events
 # see example: https://github.com/jbryer/timeline
 #pdf('figures/SW1_timeline.pdf', height = 4, width = 10)
 
+timeline(cleaned.timeline, timeline.events, text.size = 6, event.col = 'date', 
+         event.label.col = 'activity_group', event.above = FALSE, border.color = 'black', border.linetype = 1,
+         num.label.steps = 2) +
+  theme_classic() +
+  scale_fill_manual(values = c(rep(rgb(135,193,137,max = 255), rgb(206,200,69,max = 255), 
+                               rgb(27,113,68,max = 255),  rgb(158,101,32,max = 255))) +
+  theme(legend.position="none")
 #dev.off()
