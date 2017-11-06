@@ -18,6 +18,7 @@ run.rainmaker <- function(precip_raw = precip_raw,
                           siteid = c('441624088045601', '441520088045001'), sitename = c('SW1', 'SW3'), ieHr = 2, rainthresh = 0.008, 
                           wq.dat = wq.dat, xmin = c(5,10,15,30,60), antecedentDays = c(1,3,7,14)) {
   
+
   rain.by.site <- list()
   for (i in 1:length(siteid)) {
     
