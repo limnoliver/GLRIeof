@@ -96,7 +96,7 @@ precip_raw_fixed <- bind_rows(precip_raw, replacement_dates) %>%
 
 
 # summarize precip data site(s) of interest
-precip.dat <- run.rainmaker(precip_raw, siteid = '441624088045601',
+precip.dat <- run.rainmaker(precip_raw_fixed, siteid = '441624088045601',
                             sitename = "SW1", ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
 # precip.dat <- run.rainmaker(precip_raw, siteid = c('441624088045601', '441520088045001'),
