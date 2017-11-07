@@ -8,13 +8,13 @@ storms <- read.csv('data_cached/rain_variables.csv', colClasses = c(StartDate = 
 storms <- storms[,c('site', 'stormnum', 'StartDate')]
 
 # set discharge directory and files
-discharge.dir <- 'H:/Projects/GLRIeof/data_raw'
+discharge.dir <- 'L:/Oliver'
 files <- list.files(discharge.dir)
 discharge.files <- grep('discharge', files, value = TRUE, ignore.case = TRUE)
 
 # run antecedent discharge function
 ant.discharge <- ant.discharge.bysite(discharge.dir = discharge.dir, discharge.files = discharge.files, 
-                                      siteid = c(5601, 5001), sitename = c('SW1', 'SW3'), antecedentDays = c(1,2,7,14), 
+                                      siteid = 5601, sitename = 'SW1', antecedentDays = c(1,2,7,14), 
                                       storms = storms, start.col = 'StartDate', stats = c('mean', 'max'))
 
 # rename columns
