@@ -3,6 +3,7 @@
 wq <- read.csv('data_cached/prepped_WQbystorm.csv')
 rain <- read.csv('data_cached/rain_variables.csv')
 discharge <- read.csv('data_cached/discharge_variables.csv')
+weather <- read.csv('data_cached/weather_by_storm.csv')
   
 # subset and rename columns to reduce duplicate cols
 
@@ -16,7 +17,8 @@ discharge <- discharge[,c(2, 4:12)]
 
 all.eof <- merge(wq, rain, by = 'unique_storm_id', all.x = TRUE)
 all.eof <- merge(all.eof, discharge, by = 'unique_storm_id', all.x = TRUE)
+all.eof <- merge(all.eof, weather, by = 'unique_storm_id', all.x = TRUE)
 
 # write dat
 
-write.csv(all.eof, 'data_cached/merged_wq_rain_discharge.csv', row.names = FALSE)
+write.csv(all.eof, 'data_cached/merged_dat.csv', row.names = FALSE)
