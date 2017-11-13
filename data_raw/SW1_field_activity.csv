@@ -24,7 +24,7 @@ wateryear,date,activity,activity_group,current_crop,last_year_crop
 15,5/20/2015,"Corn planted, starter fertilizer (9N-23P-30K) applied at 100 lb/acre",planting + fertilizer,corn,corn
 15,6/25/2015,Added 7 gal/acre of anyhydrous ammonia,fertilizer application,corn,corn
 15,10/4/2015,Corn harvested for silage,harvest,corn,corn
-16,10/9/2015,"Liquid dairy manure applied, 4,000 gal/acre, chisel plow incorporated",manure application,alfalfa,corn
+16,10/9/2015,"Liquid dairy manure applied, 4,000 gal/acre, chisel plow incorporated",manure application,corn,corn
 16,5/4/2016,Field cultivation (3x),cultivation,alfalfa,corn
 16,5/9/2016,Alfalfa direct seeded,planting,alfalfa,corn
 16,8/2/2016,First cutting,cutting,alfalfa,corn
