@@ -14,6 +14,9 @@ rain <- rain[,c(1, c(4:18))]
 names(discharge)[2] <- 'unique_storm_id'
 discharge <- discharge[,c(2, 4:12)]
 
+weather <- weather[,c(2:9)]
+
+field <- field[,c(1,4:7)]
 # merge dat
 
 all.eof <- merge(wq, rain, by = 'unique_storm_id', all.x = TRUE)
