@@ -35,6 +35,8 @@ calculated as the sum of the loads from all sub events. Each substorm was given 
 that sub event by the sum of runoff for all sub events. The storm concentration for each constituent was then calculated as the weighted
 mean concentration from all subevents. 
 
+Daily snow and temperature data from a nearby weather station (Green Bay) was used to characterize the weather during each storm event. 
+
 
 ```{r timeline, echo=FALSE, warning=FALSE, fig.cap=paste('Timeline for site SW1, including plantings and field activity.')}
 timeline(cleaned.timeline, timeline.events, text.size = 6, event.col = 'date', event.label.col = 'activity_group', event.above = FALSE) +
