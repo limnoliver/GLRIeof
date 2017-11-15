@@ -16,6 +16,11 @@ eof <- read.csv('data_cached/merged_dat.csv', header = TRUE, stringsAsFactors = 
 eof$crop <- eof$period_crop
 eof$crop <- ifelse(eof$crop == "after (alfalfa)", "alfalfa", "corn")
 eof$crop <- as.factor(eof$crop)
+
+# create a water equivalent var that sums rain and 
+# water equivalent of snow, estimated as 1:10
+eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10))
+
 # set responses and predictors
 response <- 'Suspended_Sediment_mg_L'
 # start with all predictors - 34 in total
@@ -27,9 +32,9 @@ predictors <- names(eof)[c(3,20,36:51, 53:60, 62:65, 68, 73:75)]
 
 sw1 <- eof %>%
   mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
-  filter(site.y == 'SW1') %>%
-  filter(frozen == FALSE) %>%
-  mutate(period = ifelse(storm_start.x >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
+  filter(site == 'SW1') %>%
+  #filter(frozen == FALSE) %>%
+  mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
 
 # remove highly correlated predictors
 predictors.cor <- cor(eof[,predictors[-34]], use = 'complete.obs')
