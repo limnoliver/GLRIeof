@@ -8,7 +8,7 @@ source('scripts/2_process/fxn_runrainmaker.R')
 # read in WQ data to define storm start/end times
 wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE)
 
-# read in dates as CST/CDT, but then convert to GMT
+# read in dates as CST/CDT, but then convert to GMT+6 to get rid of CDT
 date.vars <- c('sample_start', 'sample_end', 'storm_start', 'storm_end')
 for (i in 1:length(date.vars)) {
   temp <- as.POSIXct(as.character(wq.dat[,date.vars[i]]), tz = 'America/Chicago')
@@ -96,9 +96,12 @@ precip_raw_fixed <- bind_rows(precip_raw, replacement_dates) %>%
 
 
 # summarize precip data site(s) of interest
-precip.dat <- run.rainmaker(precip_raw_fixed, siteid = '441624088045601',
+precip.dat <- run.rainmaker(precip_raw = precip_raw_fixed, siteid = '441624088045601',
                             sitename = "SW1", ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
+
+test <- filter(precip_raw_fixed, pdate >= as.POSIXct('2017-03-05 13:59:59', tz = "Etc/GMT+6") & 
+                 pdate <= as.POSIXct('2017-03-07 12:45:00', tz = "Etc/GMT+6"))
 # precip.dat <- run.rainmaker(precip_raw, siteid = c('441624088045601', '441520088045001'),
 #                             sitename = c("SW1", "SW3"), ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
 #                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
