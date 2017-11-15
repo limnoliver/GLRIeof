@@ -11,31 +11,39 @@ library(caret)
 source('scripts/3_analyze/fxn_vif.R')
 
 # read in merged data
-eof <- read.csv('data_cached/merged_wq_rain_discharge.csv', header = TRUE, stringsAsFactors = FALSE,
+eof <- read.csv('data_cached/merged_dat.csv', header = TRUE, stringsAsFactors = FALSE,
                 colClasses = c(sample_start = 'POSIXct'))
-
+eof$crop <- eof$period_crop
+eof$crop <- ifelse(eof$crop == "after (alfalfa)", "alfalfa", "corn")
+eof$crop <- as.factor(eof$crop)
 # set responses and predictors
 response <- 'Suspended_Sediment_mg_L'
-predictors <- names(eof)[c(3,20,36:51, 53:60)]
+# start with all predictors - 34 in total
+predictors <- names(eof)[c(3,20,36:51, 53:60, 62:65, 68, 73:75)]
 
-# remove highly correlated predictors
-predictors.cor <- cor(eof[,predictors], use = 'complete.obs')
-drop.predictors <- findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
 # reduce data to the site of interest, non-frozen periods
 # also add before/transition/after BMP
 
 sw1 <- eof %>%
   mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
-  filter(site == 'SW1') %>%
+  filter(site.y == 'SW1') %>%
   filter(frozen == FALSE) %>%
-  mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
+  mutate(period = ifelse(storm_start.x >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
+
+# remove highly correlated predictors
+predictors.cor <- cor(eof[,predictors[-34]], use = 'complete.obs')
+names.cor <- row.names(predictors.cor)
+drop.predictors <- findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
+
 
 sw1$period[sw1$storm_start > as.POSIXct('2015-05-10 00:00:01')& sw1$storm_start < as.POSIXct('2015-06-01 00:00:01')] <- 'transition'
 
 sw1 <- filter(sw1, period != 'transition')
 
-# first, get rid of highly correlated predictors
+# transform variables that need it - was determined with simple histograms
+
+vars.transform <- c('peak_discharge', 'Chloride_mg_L', 'sum_runoff', 'Ievent', )
 
 for (i in 1:length(responses)) {
   t.response <- sw1[responses[i],]
