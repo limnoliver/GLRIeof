@@ -16,12 +16,12 @@ storms$doy <- yday(storms$sample_start)
 for (i in 1:nrow(storms)) {
   dates <- as.Date(unique(c(format(storms$storm_start[i], format = "%Y-%m-%d"), format(storms$storm_end[i], format = "%Y-%m-%d"))))
   weather <- filter(gb, date %in% dates)
-  storms$tmax[i] <- max(weather$tmax)
-  storms$tmin[i] <- min(weather$tmin)
-  storms$prcp[i] <- sum(weather$prcp)
-  storms$snow[i] <- sum(weather$snow)
-  storms$snwd[i] <- mean(weather$snwd)
-  storms$snwd_diff[i] <- sum(weather$snwd_diff)
+  storms$tmax[i] <- max(weather$tmax)/10 #convert from tenths of degrees C to degrees C
+  storms$tmin[i] <- min(weather$tmin)/10 #convert from tenths of degrees C to degrees C
+  storms$prcp[i] <- sum(weather$prcp)*(0.0393701/10) # convert from tenths of mm to inches
+  storms$snow[i] <- sum(weather$snow)*0.0393701 # convert from mm to inches
+  storms$snwd[i] <- mean(weather$snwd)*0.0393701 # convert from mm to inches
+  storms$snwd_diff[i] <- sum(weather$snwd_diff)*0.0393701 # convert from mm to inches
   
 }
 
