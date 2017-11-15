@@ -53,7 +53,7 @@ RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", 
   #   }
   # }
   
-  # loop that uses every every start time to define where to start looking for storm
+  # loop that uses every start time to define where to start looking for storm
   start.rain <- c()
   for (i in 1:length(start.times)) {
     start.index <- which.min(abs(df[[time]]-start.times[i]))
