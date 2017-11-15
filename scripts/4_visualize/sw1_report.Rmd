@@ -24,7 +24,16 @@ knitr::opts_chunk$set(fig.width = 12, fig.height = 6)
 
 At site SW1, edge-of-field monitoring begain in 2012, and corn was produced from 2011-2015. On May 10, 2015, a grass
 waterway was installed on the field, and corn was planted that same year. In 2016 and 2017, alfalfa was planted. This analysis describes
-water quality before and after implementation of the grass waterway.
+water quality before and after implementation of the grass waterway. 
+
+This analysis dropped those samples that were estimated, from the frozen period, or were discrete samples. Additionally,
+this analysis attempted to combined substorm events that should be considered a single storm, though this process is somewhat 
+subjective. Censored water quality observations were set to one half detection limit. 
+
+To combine substorms as a single storm, peak discharge was calculate as the maximum peak discharge of the sub events. Loads were
+calculated as the sum of the loads from all sub events. Each substorm was given a volume weighting factor by dividing the runoff from
+that sub event by the sum of runoff for all sub events. The storm concentration for each constituent was then calculated as the weighted
+mean concentration from all subevents. 
 
 
 ```{r timeline, echo=FALSE, warning=FALSE, fig.cap=paste('Timeline for site SW1, including plantings and field activity.')}
