@@ -17,7 +17,7 @@
 
 RMevents_eof <- function(df, storms, site, ieHr=6, rainthresh=5.1, rain="rain", time="pdate"){
   storms2 <- storms[,c('storm_start', 'unique_storm_id')]
-  storms2 <- storms2[storms$site == site, ]
+  #storms2 <- storms2[storms$site == site, ]
   storms$storm_start <- round_date(storms$storm_start, unit = 'minutes')
   # for now, limit storm starts to dates after 2012-03-06
   storms <- storms[which(storms$storm_start >= min(df[[time]])), ]
