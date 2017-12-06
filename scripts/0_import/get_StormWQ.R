@@ -21,8 +21,8 @@ wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
 files.wd <- list.files(wd)
 wy <- grep('WY[[:digit:]]{2}', files.wd, value = TRUE)
 
-# right now, overwride wy to only include through 2016
-# wy <- wy[1:5]
+# right now, overwride wy to only include through 2017 (exclude 2018)
+wy <- wy[1:6]
 
 # set site names to find in tab names
 # for now, will use test cases of SW1 and SW3
@@ -35,8 +35,8 @@ all.files <- c()
 
 for (i in 1:length(wy)) {
   # read in workbook
-setwd(paste(wd, wy[i], sep = "/"))
-files <- list.files()
+# setwd(paste(wd, wy[i], sep = "/"))
+files <- list.files(paste(wd, wy[i], sep = "/"))
 files <- grep('Loads and Yields with Formulas', files, value = TRUE, ignore.case = TRUE)
 files.drop <- grep('\\$|copy|working|updated', files, ignore.case = TRUE)
 if (length(files.drop) > 0){
@@ -193,8 +193,8 @@ dat.keep$estimated[dat.keep$storm_id == "ESW1-57a"] <- TRUE
 dat.keep$estimated[dat.keep$water_year == 'WY15'] <- is.na(dat.keep$sample_start[dat.keep$water_year == 'WY15'])
 
 # in 2016, there was no lab id for any samples, so need to designate "discrete" differently
-dat.keep$discrete[dat.keep$water_year != 'WY16'] <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
-dat.keep$discrete[dat.keep$water_year == 'WY16'] <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)
+dat.keep$discrete[dat.keep$water_year != 'WY16'] <- !is.na(dat.keep$sample_start[dat.keep$water_year != 'WY16'])&is.na(dat.keep$sample_end[dat.keep$water_year != 'WY16'])& !is.na(dat.keep$lab_id[dat.keep$water_year != 'WY16'])
+dat.keep$discrete[dat.keep$water_year == 'WY16'] <- !is.na(dat.keep$sample_start[dat.keep$water_year == 'WY16'])&is.na(dat.keep$sample_end[dat.keep$water_year == 'WY16'])
 
 #####################################
 # extract comments from cells in excel
@@ -277,5 +277,5 @@ extracted.dat <- rbindlist(temp.c)
 # warning that this can go wrong if columns are not in the same order
 
 # write data
-setwd("H:/Projects/GLRIeof")
+# setwd("H:/Projects/GLRIeof")
 write.csv(extracted.dat, 'data_raw/WQdata.csv', row.names = FALSE)
