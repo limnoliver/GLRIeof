@@ -144,7 +144,31 @@ for (i in 1:length(responses)) {
 # fit each model to the "pre" data, and then
 # predict concentrations/loads from the storm characteristics of the 
 # post data - then calculate percent decrease from predicted post events
-# useing the pre model and observed events
+# using the pre model and observed events
+sw1.pre.df <- filter(sw1, period == "before")
+sw1.post.df <- filter(sw1, period == "after")
+
+with.intervention <- c()
+without.intervention <- c()
+percent.change <- c()
+for (i in 1:length(responses)) {
+  
+  mod.equation <- as.formula(paste(responses[i], paste(pred.keep, collapse = " + "), sep = " ~ "))
+  # now run through lm model
+  temp.mod <- lm(mod.equation, data = sw1.pre.df)
+  post.pred <- predict(temp.mod, sw1.post.df)
+  if (i < 9) { # treat concentrations and loads differently
+    # concentrations take mean
+    without.intervention[i] <- mean(10^(sw1.post.df[,responses[i]]))
+    with.intervention[i] <- mean(10^post.pred)
+  } else {
+    without.intervention[i] <- sum(10^sw1.post.df[,responses[i]])
+    with.intervention[i] <- sum(10^post.pred)
+  }
+  percent.change[i] <- (with.intervention[i] - without.intervention[i])/without.intervention[i]
+  
+}
+
 sub.dat[,predictors] <- data.frame(scale(sub.dat[,predictors], center = TRUE, scale = TRUE))
 sub.dat[,response] <- log(sub.dat[,response])
 
