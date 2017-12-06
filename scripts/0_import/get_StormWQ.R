@@ -192,7 +192,9 @@ dat.keep$estimated[dat.keep$storm_id == "ESW1-57a"] <- TRUE
 # 2015 also has slightly different populated cells for estimated values
 dat.keep$estimated[dat.keep$water_year == 'WY15'] <- is.na(dat.keep$sample_start[dat.keep$water_year == 'WY15'])
 
-dat.keep$discrete <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
+# in 2016, there was no lab id for any samples, so need to designate "discrete" differently
+dat.keep$discrete[dat.keep$water_year != 'WY16'] <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)& !is.na(dat.keep$lab_id)
+dat.keep$discrete[dat.keep$water_year == 'WY16'] <- !is.na(dat.keep$sample_start)&is.na(dat.keep$sample_end)
 
 #####################################
 # extract comments from cells in excel
