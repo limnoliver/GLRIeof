@@ -57,19 +57,20 @@ ggplot(pred.keep.df, aes(x = value)) +
 # vars to transform
 # removed ARFdays from transformation even though they were lognormally distributed
 # they have true zeros, so will just keep them unstransformed
-# also do not transform ant_dis_2day_max
+# also do not transform ant_dis_2day_max and erosivity_m1
 # vars.transform <- c('peak_discharge', 'Chloride_mg_L', 'sum_runoff', 'Ievent', 'I5', 'erosivity_m1', 'ARFdays1', 'ARFdays2',
 #                     'ARFdays7', 'ARFdays14', 'ant_dis_2day_max', 'ant_dis_7day_mean', 'ant_dis_7day_max', 'ant_dis_14day_mean',
 #                     'ant_dis_14day_max')
-vars.transform <- c('peak_discharge', 'Chloride_mg_L', 'Ievent', 'I5', 'erosivity_m1', 'ant_dis_7day_mean', 'ant_dis_7day_max', 'ant_dis_14day_mean',
+vars.transform <- c('peak_discharge', 'Chloride_mg_L', 'Ievent', 'I5', 'ant_dis_7day_mean', 'ant_dis_7day_max', 'ant_dis_14day_mean',
                     'ant_dis_14day_max')
 
 
 # get rid of zeros from database - this should be fixed at some point
 # should not be zeros for erosivity, etc, but there is an issue with getting sub events to count as a single event
 #################Fix this after subevents are fixed, just get rid of next line
-sw1 <- filter(sw1, erosivity_m1 > 0)
 
+#sw1 <- filter(sw1, erosivity_m1 > 0)
+# need to fix storms 60 and 79 from SW1
 
 # transform vars
 sw1[,vars.transform] <- log10(sw1[,vars.transform])
@@ -86,21 +87,17 @@ sw1[,responses] <- log10(sw1[,responses])
 sw1$period_crop <- factor(sw1$period_crop)
 sw1$period_crop <- ordered(sw1$period_crop, levels = c('before', 'after (corn)', 'after (alfalfa)'))
 
+## create a column that marks suspect splits
+sw1$suspect_split <- grepl('split', sw1$comment)
 
+## get rid of events with suspect splits
+sw1 <- filter(sw1, suspect_split == FALSE)
+
+plot(sw1$Suspended_Sediment_Load_pounds ~ sw1$peak_discharge, col = as.factor(sw1$suspect_split))
 ######################################################
 ## create a loop that models all responses
 ######################################################
 
-# test
-mod1 <- lm(sw1$Suspended_Sediment_Load_pounds ~ sw1$Chloride_mg_L + sw1$sum_runoff + sw1$peak_discharge)
-mod2 <- lm(sw1$Suspended_Sediment_mg_L ~ sw1$Chloride_mg_L + sw1$sum_runoff + sw1$peak_discharge)
-
-mod1.2 <- 
-
-plot(mod1$residuals ~ as.Date(sw1$storm_start), col = sw1$period_crop,
-    xlab = 'Year', ylab = 'Residuals')
-plot(mod2$residuals ~ as.Date(sw1$storm_start), col = sw1$period_crop,
-                              xlab = 'Year', ylab = 'Residuals')
 
 for (i in 1:length(responses)) {
   mod.equation <- as.formula(paste(responses[i], paste(pred.keep, collapse = " + "), sep = " ~ "))
@@ -148,24 +145,19 @@ for (i in 1:length(responses)) {
 sw1.pre.df <- filter(sw1, period == "before")
 sw1.post.df <- filter(sw1, period == "after")
 
-with.intervention <- c()
-without.intervention <- c()
+
 percent.change <- c()
 for (i in 1:length(responses)) {
   
   mod.equation <- as.formula(paste(responses[i], paste(pred.keep, collapse = " + "), sep = " ~ "))
   # now run through lm model
-  temp.mod <- lm(mod.equation, data = sw1.pre.df)
-  post.pred <- predict(temp.mod, sw1.post.df)
-  if (i < 9) { # treat concentrations and loads differently
-    # concentrations take mean
-    without.intervention[i] <- mean(10^(sw1.post.df[,responses[i]]))
-    with.intervention[i] <- mean(10^post.pred)
-  } else {
-    without.intervention[i] <- sum(10^sw1.post.df[,responses[i]])
-    with.intervention[i] <- sum(10^post.pred)
-  }
-  percent.change[i] <- (with.intervention[i] - without.intervention[i])/without.intervention[i]
+  temp.mod.pre <- lm(mod.equation, data = sw1.pre.df)
+  temp.mod.post <- lm(mod.equation, data = sw1.post.df)
+  
+  post.pred <- predict(temp.mod.post, sw1)
+  pre.pred <- predict(temp.mod.pre, sw1)
+  
+  percent.change[i] <- median(((post.pred - pre.pred)/post.pred)*100)
   
 }
 
