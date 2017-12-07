@@ -1,9 +1,9 @@
 # run cv.glmnet over different hold out testing sets
 
-run.holdout <- function(predictors, response, df) {
+run.holdout <- function(matIVs, y) {
   #tuning.pars <- list()
   #varimps <- data.frame(var.names = predictors, imp = NA)
-  coefs <- data.frame(var.names = c('intercept', predictors), coef = NA)
+  coefs <- data.frame(var.names = c('intercept', colnames(matIVs)), coef = NA)
   r2.1se <- c()
   r2.2se <- c()
   mse.1se <- c()
@@ -19,7 +19,7 @@ run.holdout <- function(predictors, response, df) {
   
   
   for (i in 1:10){
-    out <- sample(1:nrow(df), size = round(nrow(df)*.2, 0), replace = FALSE)
+    out <- sample(1:nrow(matIVs), size = round(nrow(matIVs)*.2, 0), replace = FALSE)
     y.train <- y[-out]
     matIVs.train <- matIVs[-out,]
     y.test <- y[out]
