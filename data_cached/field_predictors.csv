@@ -56,8 +56,6 @@
 "SW1-56","SW1",2015-12-23 10:59:59,"after","after (corn)",0,75
 "SW1-57","SW1",2016-02-20 10:45:00,"after","after (corn)",0,134
 "sW1-57","SW1",2016-02-21 11:30:00,"after","after (corn)",0,135
-"SW1-1042","SW1",2016-02-27 12:29:59,"after","after (corn)",0,141
-"SW1-1054","SW1",2016-03-06 13:59:59,"after","after (corn)",0,149
 "SW1-58","SW1",2016-03-06 19:59:59,"after","after (corn)",0,149
 "SW1-59","SW1",2016-03-13 17:30:00,"after","after (corn)",0,156
 "SW1-60","SW1",2016-03-26 11:15:00,"after","after (corn)",0,169
@@ -66,11 +64,6 @@
 "SW1-63","SW1",2016-06-26 03:38:00,"after","after (alfalfa)",48,261
 "SW1-64","SW1",2016-07-29 02:19:59,"after","after (alfalfa)",81,294
 "SW1-66","SW1",2016-09-10 04:52:00,"after","after (alfalfa)",39,337
-"SW1-1284","SW1",2016-09-13 04:16:00,"after","after (alfalfa)",42,340
-"SW1-1286","SW1",2016-09-13 04:23:00,"after","after (alfalfa)",42,340
-"SW1-1287","SW1",2016-09-13 04:25:59,"after","after (alfalfa)",42,340
-"SW1-1288","SW1",2016-09-13 04:32:59,"after","after (alfalfa)",42,340
-"SW1-1290","SW1",2016-09-13 07:27:59,"after","after (alfalfa)",42,340
 "SW1-68","SW1",2016-09-21 22:50:59,"after","after (alfalfa)",50,348
 "SW1-69","SW1",2016-10-26 08:59:00,"after","after (alfalfa)",85,383
 "SW1-70","SW1",2016-11-28 01:39:00,"after","after (alfalfa)",118,416
@@ -95,3 +88,6 @@
 "SW1-89","SW1",2017-06-22 01:41:59,"after","after (alfalfa)",18,622
 "SW1-90","SW1",2017-06-22 17:06:59,"after","after (alfalfa)",18,622
 "SW1-91","SW1",2017-07-07 18:00:00,"after","after (alfalfa)",4,637
+"SW1-92","SW1",2017-07-15 20:53:59,"after","after (alfalfa)",12,645
+"SW1-93","SW1",2017-08-03 11:15:59,"after","after (alfalfa)",1,664
+"SW1-94","SW1",2017-08-04 07:59:59,"after","after (alfalfa)",2,665
