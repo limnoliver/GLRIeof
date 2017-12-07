@@ -40,7 +40,7 @@ run.holdout <- function(matIVs, y) {
     lambda.1se[i] <- mod$lambda.1se
     #varimp <- varImp(mod)
     #varimps[,i+1] <- varimp$importance[,1]
-    coefs[,i+1] <- as.numeric(coef(mod, s = lambda.2se[i]))
+    coefs[,i+1] <- as.numeric(coef(mod, s = lambda.1se[i]))
     r2.1se[i] <- mod$glmnet.fit$dev.ratio[best.row]
     r2.2se[i] <- mod$glmnet.fit$dev.ratio[lambda.2se.row]
     mse.1se[i] <- mod$cvm[best.row]
