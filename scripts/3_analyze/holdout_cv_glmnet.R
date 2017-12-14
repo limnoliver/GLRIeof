@@ -60,6 +60,8 @@ run.holdout <- function(matIVs, y) {
     train.mse[i] <- mean((train.predict[[i]][[1]] - train.predict[[i]][[2]])^2)
     
   }
+  #mod <- cv.glmnet(matIVs, y, nfolds = 5)
+  #mod.final <- glmnet(matIVs, y, lambda = mod$lambda.min)
   
   mod.final <- glmnet(matIVs, y, lambda = mean(lambda.1se))
   matIVs.scaled <- scale(matIVs)
@@ -70,7 +72,8 @@ run.holdout <- function(matIVs, y) {
   final.mse <- mean((y - final.predict)^2)
   final.r2 <- mod.final$dev.ratio
   pred.df <- data.frame(observed = y,
-                        predicted = final.predict)
+                        predicted = as.numeric(final.predict),
+                        residual = as.numeric(y - final.predict))
   # mod.reduced <- cv.glmnet(matIVs, y, alpha = tuning.pars[[1]][[1]], nfolds = 5)
   # mod.reduced.noalpha <- cv.glmnet(matIVs, y, nfolds = 5)
   # 
