@@ -76,10 +76,10 @@ n.vals <- sw1.conc.long %>%
                                           ifelse(max(log10(value)) < 0.1, 
                                                  0.15, max(log10(value)) + (.8*max(log10(value))))))
 
-p <- ggplot(sw1.conc.long, aes(y = log10(value), x = frozen, group = interaction(period_crop, frozen))) +
-  geom_boxplot(aes(fill = period_crop)) +
+p <- ggplot(sw1.conc.long, aes(y = log10(value), x = frozen)) +
+  geom_boxplot(aes(group = interaction(period_crop, frozen), fill = period_crop), position = position_dodge2(preserve = "total")) +
+  geom_text(data = n.vals, aes(y = y, x = frozen, label = n, group = period_crop), position = position_dodge(width = .7)) +
   facet_wrap(~variable, scales = 'free_y') +
-  geom_text(data = n.vals, aes(y = y, label = n), position = position_dodge(width = .8)) +
   theme_bw() +
   labs(x = '', y = 'log10 Concentration') +
   theme(axis.title = element_text(size = 14), axis.text = element_text(size = 12),
