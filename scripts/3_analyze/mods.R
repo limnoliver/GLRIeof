@@ -39,6 +39,11 @@ sw1 <- eof %>%
   filter(frozen == FALSE) %>%
   mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
 
+sw1_all <- eof %>% 
+  mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
+  filter(site == 'SW1') %>%
+  mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
+
 # remove highly correlated predictors
 predictors.cor <- cor(eof[,predictors[-31]], use = 'complete.obs') # drop var "crop" from correlation since it's a categorical var
 names.cor <- row.names(predictors.cor)
@@ -148,7 +153,7 @@ for (i in 1:length(responses)) {
        labels = paste0('R2 = ', round(summary(temp.mod)$adj.r.squared, 2)), 
        col = 'blue', pos = 4)
   ####
-  plot(temp.mod$residuals ~ sw1[,responses[i]], 
+  plot(temp.mod$residuals ~ temp.mod$fitted.values, 
        xlab = "Fitted Values", 
        ylab = "Residuals", col = sw1$period)
   abline(h = 0)
@@ -187,12 +192,18 @@ for (i in 1:length(responses)) {
   abline(0,1)
 }
 
+######################
 # colored by crop_period (if crop is not in the model)
 for (i in 1:length(responses)) {
-  fig.name <- paste0('figures/modsum_', responses[i], '.pdf')
   
-  pdf(fig.name, height = 8, width = 5)
-  layout_matrix <- matrix(c(1:3), nrow=3, ncol=1, byrow=TRUE)
+  mod.equation <- as.formula(paste(responses[i], paste(pred.keep, collapse = " + "), sep = " ~ "))
+  
+  temp.mod <- lm(mod.equation, data = sw1)
+  
+  fig.name <- paste0('figures/modsum_bycrop_', responses[i], '.pdf')
+  
+  pdf(fig.name, height = 8, width = 8)
+  layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
   layout(layout_matrix)
   par(mar = c(6,6,3,1), oma = c(0,0,0,0), pch = 16)
   
@@ -200,7 +211,7 @@ for (i in 1:length(responses)) {
   plot(sw1[,responses[i]] ~ temp.mod$fitted.values,
        xlab = "Fitted Values",
        ylab = "Observed Values", 
-       main = paste('log10', responses_clean[i]))
+       main = paste('log10', responses_clean[i]), col = sw1$period_crop)
   
   abline(0,1)
   
@@ -211,6 +222,11 @@ for (i in 1:length(responses)) {
   boxplot(temp.mod$residuals ~ sw1$period_crop, 
           ylab = 'Residuals', col = c('darkgray', 'red', 'green'))
   
+  ###
+  plot(temp.mod$residuals ~ temp.mod$fitted.values, 
+       xlab = "Fitted Values", 
+       ylab = "Residuals", col = sw1$period_crop)
+  abline(h = 0)
   ## #
   plot(temp.mod$residuals ~ as.Date(sw1$storm_start), col = sw1$period_crop,
        xlab = 'Year', ylab = 'Residuals')
