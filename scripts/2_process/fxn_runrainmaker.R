@@ -33,7 +33,7 @@ run.rainmaker <- function(precip_raw = precip_raw,
     #precip_prep <- RMprep(precip_temp, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
     #                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
     # calculate events
-    events <- test_RMevents_sample(df = precip_temp, ieHr = ieHr, rain = 'rain', time = 'pdate', 
+    events <- RMevents_sample(df = precip_temp, ieHr = ieHr, rain = 'rain', time = 'pdate', 
                               dfsamples = wq.dat.temp, bdate = 'storm_start', edate = 'storm_end')
     
     #events <- RMevents_eof(df=precip_temp, storms = wq.dat.temp, site = sites[i], ieHr=ieHr, 
