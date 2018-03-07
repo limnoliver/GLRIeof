@@ -4,8 +4,10 @@
 source('scripts/2_process/fxn_calc_antdischarge.R')
 
 # read in storm start/end times
-storms <- read.csv('data_cached/rain_variables.csv', colClasses = c(StartDate = 'POSIXct', EndDate = 'POSIXct'))
-storms <- storms[,c('site', 'stormnum', 'StartDate')]
+wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE, colClasses = c(storm_start = 'POSIXct'))
+storms <- wq.dat[,c('site', 'unique_storm_id', 'storm_start')]
+#storms <- read.csv('data_cached/rain_variables.csv', colClasses = c(StartDate = 'POSIXct', EndDate = 'POSIXct'))
+#storms <- storms[,c('site', 'stormnum', 'StartDate')]
 
 # set discharge directory and files
 discharge.dir <- 'L:/Oliver'
