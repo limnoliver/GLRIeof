@@ -33,40 +33,39 @@ run.rainmaker <- function(precip_raw = precip_raw,
     #precip_prep <- RMprep(precip_temp, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
     #                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
     # calculate events
-    events <- RMevents_eof(df=precip_temp, storms = wq.dat.temp, site = sites[i], ieHr=ieHr, 
-                           rainthresh=rainthresh)
+    events <- test_RMevents_sample(df = precip_temp, ieHr = ieHr, rain = 'rain', time = 'pdate', 
+                              dfsamples = wq.dat.temp, bdate = 'storm_start', edate = 'storm_end')
+    
+    #events <- RMevents_eof(df=precip_temp, storms = wq.dat.temp, site = sites[i], ieHr=ieHr, 
+    #                       rainthresh=rainthresh)
     # extract data from events output
     events_list <- events$storms
     tipsbystorm <- events$tipsbystorm
     
     # calculate storm intensity at different time intervals
-    StormSummary <- RMIntense(df=tipsbystorm, date="pdate", rain="rain", df.events=events_list,
+    StormSummary <- RMintensity(df=tipsbystorm, date="pdate", rain="rain", df.events=events_list,
                               sdate="StartDate", edate="EndDate", depth="rain", xmin=xmin)
     
     # calculate erosivity 
-    StormSummary.1 <- RMerosivity(df = tipsbystorm, ieHr=ieHr, rain='rain', StormSummary=StormSummary, method=1)
-    erosivity.col <- grep('erosivity', names(StormSummary.1))
-    names(StormSummary.1)[erosivity.col] <- 'erosivity_m1'
+    # method 1
+    StormSummary <- RMerosivity(df = tipsbystorm, ieHr=ieHr, rain='rain', StormSummary=StormSummary, method=1)
+    StormSummary <- rename(StormSummary, 'erosivity_m1' = "erosivity", 'energy_m1' = 'energy')
+
+    # method 2
+    StormSummary <- RMerosivity(df= tipsbystorm, ieHr=ieHr, rain="rain", StormSummary=StormSummary, method=2)
+    StormSummary <- rename(StormSummary, 'erosivity_m2' = "erosivity", 'energy_m2' = 'energy')
     
-    # calculate erosivity using method 2
-    StormSummary.2 <- RMerosivity(df= tipsbystorm, ieHr=ieHr, rain="rain", StormSummary=StormSummary, method=2)
-    erosivity.col <- grep('erosivity', names(StormSummary.2))
-    names(StormSummary.2)[erosivity.col] <- 'erosivity_m2'
     
     # calculate antecedent rain
-    ARF <- RMarf(df = tipsbystorm, date = 'pdate', rain = 'rain', df.events = StormSummary, 
+    StormSummary <- RMarf(df = tipsbystorm, date = 'pdate', rain = 'rain', df.events = StormSummary, 
                  sdate = "StartDate", days = antecedentDays, varnameout = "ARFdays")
-    # id cols where arf was calculated
-    arf.cols <- grep('arf', names(ARF), ignore.case = TRUE, value = TRUE)
+    
     
     # merge all rain data
-    dat.combine <- list(StormSummary.1, StormSummary.2[,c('stormnum', 'erosivity_m2')], ARF[,c('stormnum', arf.cols)])
-    merged.rain <- Reduce(function(...) merge(..., all = T), dat.combine)
+    StormSummary$site <- sitename[i]
+    StormSummary$unique_storm_id <- wq.dat.temp$unique_storm_id
     
-    # include site ID as a column
-    merged.rain$site <- sitename[i]
-    
-    rain.by.site[[i]] <- merged.rain
+    rain.by.site[[i]] <- StormSummary
   }
   
   return(do.call("rbind", rain.by.site))
