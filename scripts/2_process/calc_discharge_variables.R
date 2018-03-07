@@ -17,7 +17,7 @@ discharge.files <- grep('discharge', files, value = TRUE, ignore.case = TRUE)
 # run antecedent discharge function
 ant.discharge <- ant.discharge.bysite(discharge.dir = discharge.dir, discharge.files = discharge.files, 
                                       siteid = 5601, sitename = 'SW1', antecedentDays = c(1,2,7,14), 
-                                      storms = storms, start.col = 'StartDate', stats = c('mean', 'max'))
+                                      storms = storms, start.col = 'storm_start', stats = c('mean', 'max'))
 
 # rename columns
 names(ant.discharge) <- c(names(ant.discharge)[1:3], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
