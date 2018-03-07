@@ -27,7 +27,7 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 # set responses and predictors
 response <- 'Suspended_Sediment_mg_L'
 # start with all predictors - 34 in total
-predictors <- names(eof)[c(39:51, 53:60, 61:63, 70:73)]
+predictors <- names(eof)[c(39:54, 56:66, 73, 74, 76)]
 
 
 # reduce data to the site of interest, non-frozen periods
