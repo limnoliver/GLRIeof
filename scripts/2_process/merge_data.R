@@ -1,4 +1,5 @@
 # script to merge wq, rain, and discharge data
+library(dplyr)
 
 wq <- read.csv('data_cached/prepped_WQbystorm.csv')
 rain <- read.csv('data_cached/rain_variables.csv')
@@ -7,9 +8,8 @@ weather <- read.csv('data_cached/weather_by_storm.csv')
 field <- read.csv('data_cached/field_predictors.csv')
   
 # subset and rename columns to reduce duplicate cols
-
-names(rain)[1] <- 'unique_storm_id'
-rain <- rain[,c(1, c(4:18))]
+rain <- rename(rain, 'rain_startdate' = 'StartDate', 'rain_enddate' = 'EndDate')
+rain <- select(rain, -stormnum, -site)
 
 names(discharge)[2] <- 'unique_storm_id'
 discharge <- discharge[,c(2, 4:12)]
