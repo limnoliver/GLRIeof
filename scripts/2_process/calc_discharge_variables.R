@@ -1,32 +1,33 @@
 # This script calculates antecedent discharge relative to storm starts
 # for EOF work
 
-source('scripts/2_process/fxn_calc_antdischarge.R')
-
 # read in storm start/end times
 wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE, colClasses = c(storm_start = 'POSIXct'))
 storms <- wq.dat[,c('site', 'unique_storm_id', 'storm_start')]
-#storms <- read.csv('data_cached/rain_variables.csv', colClasses = c(StartDate = 'POSIXct', EndDate = 'POSIXct'))
-#storms <- storms[,c('site', 'stormnum', 'StartDate')]
+storms <- filter(storms, site == "SW1") 
 
-# set discharge directory and files
-discharge.dir <- 'L:/Oliver'
-files <- list.files(discharge.dir)
-discharge.files <- grep('discharge', files, value = TRUE, ignore.case = TRUE)
+# get discharge
+library(dataRetrieval)
+discharge.dat <- readNWISdv(siteNumbers = '04085108', parameterCd = '00060')
+discharge.dat <- renameNWISColumns(discharge.dat)
 
+antecedentDays = c(1,2,3,7,14)
+stats = c('mean', 'max')
 # run antecedent discharge function
-ant.discharge <- ant.discharge.bysite(discharge.dir = discharge.dir, discharge.files = discharge.files, 
-                                      siteid = 5601, sitename = 'SW1', antecedentDays = c(1,2,7,14), 
-                                      storms = storms, start.col = 'storm_start', stats = c('mean', 'max'))
+library(USGSHydroTools)
+
+discharge_vars <- TSstats(discharge.dat, date = 'Date', varnames = 'Flow', dates = storms, starttime = "storm_start",
+                          times = antecedentDays, units = 'days', stats.return = stats)
 
 # rename columns
-names(ant.discharge) <- c(names(ant.discharge)[1:3], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
+names(discharge_vars) <- c(names(discharge_vars)[1:3], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
                                                        'ant_dis_2day_mean', 'ant_dis_2day_max',
+                                                       'ant_dis_3day_mean', 'ant_dis_3day_max',
                                                        'ant_dis_7day_mean', 'ant_dis_7day_max',
                                                        'ant_dis_14day_mean', 'ant_dis_14day_max'))
-
+discharge_vars <- select(discharge_vars, -ant_dis_1day_mean)
 # write antecedent discharge data
-write.csv(ant.discharge, 'data_cached/discharge_variables.csv', row.names = FALSE)
+write.csv(discharge_vars, 'data_cached/discharge_variables.csv', row.names = FALSE)
 
  
 
