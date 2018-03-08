@@ -18,7 +18,7 @@ after_date <- asPOSIXct('')
 # e.g., in the case of SW1, some field activities should not be in the model 
 # such as day since manure application - this was changed by the BMP so should 
 # not go into the model.
-predictors.drop <- c('days_since_planting', 'days_since_planting')
+predictors.drop <- c('days_since_planting', 'days_since_fertilizer')
 
 # read in merged data
 eof <- read.csv('data_cached/merged_dat.csv', header = TRUE, stringsAsFactors = FALSE,
@@ -33,6 +33,7 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 # start with all predictors - 30 in total
 predictors <- names(select(eof, rain:ARFdays14, ant_dis_1day_mean:tmin, days_since_planting,
                      days_since_fertilizer,weq))
+predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
 # set responses and set cleaner name to plot for responses
 responses <- names(select(eof, Suspended_Sediment_mg_L:Organic_Nitrogen_Load_pounds))
