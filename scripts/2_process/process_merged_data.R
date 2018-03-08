@@ -9,8 +9,8 @@ site_keep <- "SW1"
 # set the dates for your site that will define your 
 # before and after period. This allows for a "transition period" to also 
 # be define. This should be able to be dropped or included as a seperate designation
-before_date <- asPOSIXct('')
-after_date <- asPOSIXct('')
+#before_date <- asPOSIXct('')
+#after_date <- asPOSIXct('')
 
 # if before and after data aren't equal - a "transition date" will be calculated
 
@@ -31,7 +31,7 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 # set responses and predictors
 
 # start with all predictors - 30 in total
-predictors <- names(select(eof, rain:ARFdays14, ant_dis_1day_max:tmin, days_since_planting,
+predictors <- names(select(eof, duration:ARFdays14, ant_dis_1day_max:tmin, days_since_planting,
                      days_since_fertilizer,weq))
 predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
@@ -81,4 +81,7 @@ sw1 <- filter(sw1, period != 'transition')
 sw1$period <- factor(sw1$period)
 sw1$period <- ordered(sw1$period, levels = c('before', 'after'))
 
+# rain gauge was not online for first two storms, so there is na values for
+# those rain metrics - drop these events for now
 
+sw1 <- filter(sw1, !is.na(rain))
