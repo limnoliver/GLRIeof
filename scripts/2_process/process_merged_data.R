@@ -31,7 +31,7 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 # set responses and predictors
 
 # start with all predictors - 30 in total
-predictors <- names(select(eof, rain:ARFdays14, ant_dis_1day_mean:tmin, days_since_planting,
+predictors <- names(select(eof, rain:ARFdays14, ant_dis_1day_max:tmin, days_since_planting,
                      days_since_fertilizer,weq))
 predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
