@@ -33,6 +33,7 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 # start with all predictors - 30 in total
 predictors <- names(select(eof, duration:ARFdays14, ant_dis_1day_max:tmin, days_since_planting,
                      days_since_fertilizer,weq))
+predictors <- c(predictors, 'frozen')
 predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
 # set responses and set cleaner name to plot for responses
@@ -85,3 +86,4 @@ sw1$period <- ordered(sw1$period, levels = c('before', 'after'))
 # those rain metrics - drop these events for now
 
 sw1 <- filter(sw1, !is.na(rain))
+
