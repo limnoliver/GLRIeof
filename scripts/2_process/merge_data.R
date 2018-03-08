@@ -12,7 +12,7 @@ rain <- rename(rain, 'rain_startdate' = 'StartDate', 'rain_enddate' = 'EndDate')
 rain <- select(rain, -stormnum, -site)
 
 names(discharge)[2] <- 'unique_storm_id'
-discharge <- discharge[,c(2, 4:12)]
+discharge <- select(discharge, unique_storm_id, ant_dis_1day_max:ant_dis_14day_max)
 
 weather <- weather[,c(2:9)]
 
