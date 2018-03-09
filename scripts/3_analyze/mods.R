@@ -14,14 +14,6 @@ library(caret)
 library(ggplot2)
 library(glmnet)
 
-storm_dates <- as.Date(sw1$storm_start)
-total_days <- as.numeric(difftime(max(storm_dates), min(storm_dates)))
-storm_dates_since <- as.numeric(difftime(storm_dates, as.Date("2011-07-01"), unit = 'days'))
-b <- (2*3.14)/365
-
-sw1$sin_sdate <- sin(b*storm_dates_since)
-sw1$cos_sdate <- cos(b*storm_dates_since)
-
 ############################
 # transform response variables
 sw1[,responses] <- log10(sw1[,responses])
