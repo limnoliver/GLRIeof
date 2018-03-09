@@ -1,6 +1,6 @@
 # This script calculates antecedent discharge relative to storm starts
 # for EOF work
-
+library(dplyr)
 # read in storm start/end times
 wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE, colClasses = c(storm_start = 'POSIXct'))
 storms <- wq.dat[,c('site', 'unique_storm_id', 'storm_start')]
