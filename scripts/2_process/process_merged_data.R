@@ -22,7 +22,7 @@ predictors.drop <- c('days_since_planting', 'days_since_fertilizer')
 
 # read in merged data
 eof <- read.csv('data_cached/merged_dat.csv', header = TRUE, stringsAsFactors = FALSE,
-                colClasses = c(sample_start = 'POSIXct', storm_start = 'POSIXct'))
+                colClasses = c(storm_start = 'POSIXct'))
 
 # create a water equivalent var that sums rain and 
 # water equivalent of snow, estimated as 1:10
@@ -30,10 +30,11 @@ eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10
 
 # set responses and predictors
 
-# start with all predictors - 30 in total
-predictors <- names(select(eof, duration:ARFdays14, ant_dis_1day_max:tmin, days_since_planting,
-                     days_since_fertilizer,weq))
+# start with all predictors - 32 in total
+predictors <- names(select(eof, duration:tmin, days_since_planting:weq))
 predictors <- c(predictors, 'frozen')
+
+# drop site-specific predictors that shouldn't be in mod
 predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
 # set responses and set cleaner name to plot for responses
