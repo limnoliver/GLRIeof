@@ -1,6 +1,10 @@
 # this script creates a linear model between water quality and hydrologic variables, 
 # including variables output by Rainmaker, as well as storm characteristics
 source('scripts/3_analyze/holdout_cv_glmnet.R')
+source('scripts/2_process/process_merged_data.R')
+# source functions
+# source('scripts/3_analyze/fxn_vif.R')
+source('scripts/3_analyze/holdout_cv_glmnet.R')
 
 # read in libraries
 #library(GSqwsr)
@@ -10,18 +14,94 @@ library(caret)
 library(ggplot2)
 library(glmnet)
 
-# source functions
-# source('scripts/3_analyze/fxn_vif.R')
-source('scripts/3_analyze/holdout_cv_glmnet.R')
+storm_dates <- as.Date(sw1$storm_start)
+total_days <- as.numeric(difftime(max(storm_dates), min(storm_dates)))
+storm_dates_since <- as.numeric(difftime(storm_dates, as.Date("2011-07-01"), unit = 'days'))
+b <- (2*3.14)/365
+
+sw1$sin_sdate <- sin(b*storm_dates_since)
+sw1$cos_sdate <- cos(b*storm_dates_since)
+
+############################
+# transform response variables
+sw1[,responses] <- log10(sw1[,responses])
+
+# get rid of highly correlated variables
+
+predictors.cor <- cor(sw1[,predictors[-length(predictors)]], use = 'complete.obs') # drop var "crop" from correlation since it's a categorical var
+names.cor <- row.names(predictors.cor)
+drop.predictors <- caret::findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
+
+predictors.keep <- c(names.cor[-drop.predictors], 'frozen', 'sin_sdate', 'cos_sdate')
+predictors.keep <- predictors.keep[-14]
+##############################
+# approach #1 
+# non-linear - random forest model
+library(randomForest)
+
+sw1.mod <- sw1[,predictors.keep]
+sw1.mod <- complete.cases(sw1.mod)
+sw1.mod <- sw1[sw1.mod, ]
+# loop through responses to create equation and model
 
 
+for (i in 1:length(responses)) {
+
+  mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+  
+  mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
+  resid <- sw1.mod[, responses[i]] - mod$predicted
+  
+  top.vars <- pdp::topPredictors(mod, n = 4)
+  
+  pdf(paste0('figures/', 'rf_pp_', responses[i], '.pdf'), heigh = 6, width = 6)
+  par(mfcol = c(2,2), mar = c(4,2,2,2), oma = c(2,2,3,0))
+  for (n in top.vars){
+    partialPlot(mod, pred.data = sw1.mod, x.var = paste(n),
+                xlab = n, main = "")
+  }
+  mtext(paste0("Partial Dependence plots - ", responses_clean[i]), side = 3, outer = T)
+  dev.off()
+  
+  ##########
+  # now create 4 plots
+  # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
+  fig.name = paste0('rf_modsum_', responses[i], '.pdf')
+  pdf(fig.name, height = 8, width = 8)
+  layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
+  layout(layout_matrix)
+  par(mar = c(6,6,3,1), oma = c(0,0,0,0), pch = 16)
+  
+  ####
+  plot(mod$y ~ mod$predicted,
+       xlab = "Fitted Values",
+       ylab = "Observed Values", 
+       main = paste('log10', responses_clean[i]), col = sw1$period_crop)
+  
+  abline(0,1)
+  
+  text(x = min(mod$predicted) + 0.2, y = max(mod$y)-0.2, 
+       labels = paste0('% Var Exp = ', round(mod$rsq[500]*100, 1)), 
+       col = 'blue', pos = 4)
+  ####
+  boxplot(resid ~ sw1.mod$period_crop, 
+          ylab = 'Residuals', col = c('darkgray', 'red', 'green'))
+  
+  ###
+  plot(resid ~ mod$predicted, 
+       xlab = "Fitted Values", 
+       ylab = "Residuals", col = sw1$period_crop)
+  abline(h = 0)
+  ## #
+  plot(resid ~ as.Date(sw1.mod$storm_start), col = sw1$period_crop,
+       xlab = 'Year', ylab = 'Residuals')
+  abline(h = 0, lwd = 2)
+  dev.off()
+}
+
+########################
 # transform data
 
-# do not need to do this if using random forest or other non-linear test
-# remove highly correlated predictors
-predictors.cor <- cor(eof[,predictors[-31]], use = 'complete.obs') # drop var "crop" from correlation since it's a categorical var
-names.cor <- row.names(predictors.cor)
-drop.predictors <- findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
 # transform variables that need it - was determined with simple histograms
 # look at histograms
@@ -52,10 +132,7 @@ sw1$erosivity_m1 <- log10(sw1$erosivity_m1 + (0.5*min(sw1$erosivity_m1[sw1$erosi
 sw1$ARFdays7 <- log10(sw1$ARFdays7 + (0.5*min(sw1$ARFdays7[sw1$ARFdays7 > 0])))
 sw1$ARFdays14 <- log10(sw1$ARFdays14 + (0.5*min(sw1$ARFdays14[sw1$ARFdays14 > 0])))
 
-# still do this if using non-linear techniques - response vars
-# are very clearly skewed
-# log transform responses
-sw1[,responses] <- log10(sw1[,responses])
+
 
 ######################################################
 ## create a loop that models all responses
