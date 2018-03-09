@@ -11,7 +11,14 @@ snowpack_diff <- diff(gb$snwd)
 gb$snwd_diff[2:nrow(gb)] <- snowpack_diff
 
 # calculate time vars for storms df
-storms$doy <- yday(storms$sample_start)
+storm_dates <- as.Date(storms$storm_start)
+total_days <- as.numeric(difftime(max(storm_dates), min(storm_dates)))
+storm_dates_since <- as.numeric(difftime(storm_dates, as.Date("2012-01-01"), unit = 'days'))
+b <- (2*pi)/365 # gets correct period for sin cos waves
+
+storms$sin_sdate <- sin(b*storm_dates_since)
+storms$cos_sdate <- cos(b*storm_dates_since)
+
 
 for (i in 1:nrow(storms)) {
   dates <- as.Date(unique(c(format(storms$storm_start[i], format = "%Y-%m-%d"), format(storms$storm_end[i], format = "%Y-%m-%d"))))
@@ -25,6 +32,6 @@ for (i in 1:nrow(storms)) {
   
 }
 
-weather.dat <- select(storms, unique_storm_id, doy:snwd_diff)
+weather.dat <- select(storms, unique_storm_id, sin_sdate:snwd_diff)
 
-write.csv(weather.dat, 'data_cached/weather_by_storm.csv')
+write.csv(weather.dat, 'data_cached/weather_by_storm.csv', row.names = F)
