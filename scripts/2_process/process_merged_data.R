@@ -38,13 +38,13 @@ predictors <- c(predictors, 'frozen')
 predictors <- predictors[-which(predictors %in% predictors.drop)]
                     
 # set responses and set cleaner name to plot for responses
-responses <- names(select(eof, Suspended_Sediment_mg_L:Organic_Nitrogen_Load_pounds))
+responses <- names(select(eof, Suspended_Sediment_mg_L:Organic_Nitrogen_Load_pounds, peak_discharge))
 
 # make cleaner response names for plotting reasons
 responses_clean <- c('SS (mg/L)', 'Cl (mg/L)', 'NO2 + NO3 (mg/L)','NH4 (mg/L)','TKN (mg/L)',
                      'DRP (mg/L)','TP (mg/L)','TN (mg/L)','Org N (mg/L)',
                      'SS (pounds)', 'Cl (pounds)', 'NO2 + NO3 (pounds)','NH4 (pounds)','TKN (pounds)',
-                     'DRP (pounds)','TP (pounds)','TN (pounds)','Org N (pounds)')
+                     'DRP (pounds)','TP (pounds)','TN (pounds)','Org N (pounds)', "Peak Discharge")
 
 ########################
 # site-specific decisions
