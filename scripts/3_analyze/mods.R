@@ -1,18 +1,14 @@
-# this script creates a linear model between water quality and hydrologic variables, 
-# including variables output by Rainmaker, as well as storm characteristics
-source('scripts/3_analyze/holdout_cv_glmnet.R')
-source('scripts/2_process/process_merged_data.R')
-# source functions
-# source('scripts/3_analyze/fxn_vif.R')
-source('scripts/3_analyze/holdout_cv_glmnet.R')
-
 # read in libraries
 #library(GSqwsr)
-#library(randomForest)
+library(randomForest)
 library(dplyr)
 library(caret)
 library(ggplot2)
 library(glmnet)
+
+# this script creates a linear model between water quality and hydrologic variables, 
+# including variables output by Rainmaker, as well as storm characteristics
+source('scripts/2_process/process_merged_data.R')
 
 ############################
 # transform response variables
@@ -25,24 +21,28 @@ names.cor <- row.names(predictors.cor)
 drop.predictors <- caret::findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
 predictors.keep <- c(names.cor[-drop.predictors], 'frozen', 'sin_sdate', 'cos_sdate')
-predictors.keep <- predictors.keep[-14]
+
 ##############################
 # approach #1 
 # non-linear - random forest model
-library(randomForest)
 
 sw1.mod <- sw1[,predictors.keep]
 sw1.mod <- complete.cases(sw1.mod)
 sw1.mod <- sw1[sw1.mod, ]
+
 # loop through responses to create equation and model
-
-
 for (i in 1:length(responses)) {
 
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
   mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
   resid <- sw1.mod[, responses[i]] - mod$predicted
+  resid.test <- data.frame(resids = resid, 
+                           period = sw1.mod$period_crop)
+  diff.test <- lm(resid.test$resids ~ resid.test$period)
+  diff.test.result <- anova(diff.test)
+  pval <- diff.test.result$`Pr(>F)`[1]
+  test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "Sig. differences between groups")
   
   top.vars <- pdp::topPredictors(mod, n = 4)
   
@@ -58,7 +58,7 @@ for (i in 1:length(responses)) {
   ##########
   # now create 4 plots
   # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
-  fig.name = paste0('rf_modsum_', responses[i], '.pdf')
+  fig.name = paste0('figures/rf_modsum_', responses[i], '.pdf')
   pdf(fig.name, height = 8, width = 8)
   layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
   layout(layout_matrix)
@@ -77,7 +77,9 @@ for (i in 1:length(responses)) {
        col = 'blue', pos = 4)
   ####
   boxplot(resid ~ sw1.mod$period_crop, 
-          ylab = 'Residuals', col = c('darkgray', 'red', 'green'))
+          ylab = 'Residuals', col = c('darkgray', 'red', 'green'),
+          ylim = c(min(resid), max(resid)*1.3))
+  text(x = 2, y = max(resid)*1.1, labels = test.text, col = 'blue', adj=c(0.5, 0))
   
   ###
   plot(resid ~ mod$predicted, 
@@ -89,6 +91,47 @@ for (i in 1:length(responses)) {
        xlab = 'Year', ylab = 'Residuals')
   abline(h = 0, lwd = 2)
   dev.off()
+}
+
+# now split data up into before and after, 
+# and fit RF models. Then run all events through 
+# both models.
+sw1.mod.before <- filter(sw1.mod, period == 'before')
+sw1.mod.after <- filter(sw1.mod, period == 'after')
+
+before.fit <- c()
+after.fit <- c()
+mean.diff <- c()
+mean.diff.sd <- c()
+mean.diff.frozen <- c()
+mean.diff.sd.frozen <- c()
+mean.diff.nonfrozen <- c()
+mean.diff.sd.nonfrozen <- c()
+
+for (i in 1:length(responses)) {
+  
+  mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+  
+  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
+  mod.after <- randomForest(mod.equation, data = sw1.mod.after, importance = T, na.action = na.omit)
+  
+  pred.before <- predict(mod.before, sw1.mod)
+  pred.after <- predict(mod.after, sw1.mod)
+  
+  # output model fit stats
+  before.fit[i] <- round(mod.before$rsq[500]*100, 1)
+  after.fit[i] <- round(mod.after$rsq[500]*100, 1)
+  
+  diff <- (pred.before - pred.after)/pred.before
+  diff.frozen <- (pred.before[sw1.mod$frozen == TRUE] - pred.after[sw1.mod$frozen == TRUE])/pred.before[sw1.mod$frozen == TRUE]
+  diff.nonfrozen <- (pred.before[sw1.mod$frozen == FALSE] - pred.after[sw1.mod$frozen == FALSE])/pred.before[sw1.mod$frozen == FALSE]
+  
+  mean.diff[i] <- mean(diff)
+  mean.diff.sd[i] <- sd(diff)
+  mean.diff.frozen[i] <- mean(diff.frozen)
+  mean.diff.sd.frozen[i] <- sd(diff.frozen)
+  mean.diff.nonfrozen[i] <- mean(diff.nonfrozen)
+  mean.diff.sd.nonfrozen[i] <- sd(diff.nonfrozen)
 }
 
 ########################
