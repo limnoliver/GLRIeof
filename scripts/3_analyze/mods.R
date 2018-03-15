@@ -134,6 +134,20 @@ for (i in 1:length(responses)) {
   mean.diff.sd.nonfrozen[i] <- sd(diff.nonfrozen)
 }
 
+# create data frame of values
+perc_reduction <- data.frame(response = responses,
+                             response_clean = responses_clean,
+                             before_r2 = before.fit,
+                             after_r2 = after.fit,
+                             perc_diff = mean.diff,
+                             sd_perc_diff = mean.diff.sd,
+                             perc_diff_frozen = mean.diff.frozen,
+                             sd_perc_diff_frozen = mean.diff.sd.frozen,
+                             perc_diff_nonfrozen = mean.diff.nonfrozen,
+                             sd_perc_diff_nonfrozen = mean.diff.sd.nonfrozen)
+
+write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
+
 ########################
 # transform data
 
