@@ -96,6 +96,10 @@ for (i in 1:length(responses)) {
 # now split data up into before and after, 
 # and fit RF models. Then run all events through 
 # both models.
+predictors.keep <- c(predictors.keep, "peak_discharge")
+sw1.mod <- sw1[,predictors.keep]
+sw1.mod <- complete.cases(sw1.mod)
+sw1.mod <- sw1[sw1.mod, ]
 sw1.mod.before <- filter(sw1.mod, period == 'before')
 sw1.mod.after <- filter(sw1.mod, period == 'after')
 
@@ -107,16 +111,29 @@ mean.diff.frozen <- c()
 mean.diff.sd.frozen <- c()
 mean.diff.nonfrozen <- c()
 mean.diff.sd.nonfrozen <- c()
+mdc.perc.corn <- c()
+mdc.perc.all <- c()
+median.diff <- c()
+five.diff <- c()
+ninetyfive.diff <- c()
+pvals <- c()
 
-for (i in 1:length(responses)) {
-  
+
+for (i in 1:(length(responses)-1)) {
+
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
   mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
   mod.after <- randomForest(mod.equation, data = sw1.mod.after, importance = T, na.action = na.omit)
   
+  # get residuals from before model for MDC calc
+  resid.before <- sw1.mod.before[, responses[i]] - mod.before$predicted
+  
   pred.before <- predict(mod.before, sw1.mod)
   pred.after <- predict(mod.after, sw1.mod)
+  
+  change.test <- t.test(as.numeric(pred.before), as.numeric(pred.after), paired = T)
+  pvals[i] <- round(change.test$p.value, 3)
   
   # output model fit stats
   before.fit[i] <- round(mod.before$rsq[500]*100, 1)
@@ -127,24 +144,45 @@ for (i in 1:length(responses)) {
   diff.nonfrozen <- (pred.before[sw1.mod$frozen == FALSE] - pred.after[sw1.mod$frozen == FALSE])/pred.before[sw1.mod$frozen == FALSE]
   
   mean.diff[i] <- mean(diff)
+  median.diff[i] <- median(diff)
+  five.diff[i] <- quantile(diff, 0.05)
+  ninetyfive.diff[i] <- quantile(diff, 0.95)
   mean.diff.sd[i] <- sd(diff)
   mean.diff.frozen[i] <- mean(diff.frozen)
   mean.diff.sd.frozen[i] <- sd(diff.frozen)
   mean.diff.nonfrozen[i] <- mean(diff.nonfrozen)
   mean.diff.sd.nonfrozen[i] <- sd(diff.nonfrozen)
+  
+  # calculate minimum detectable change for each constituent based on this model
+  mse.before <- mod.before$mse[length(mod.before$mse)]
+  n.before <- nrow(sw1.mod.before[sw1.mod.before$period_crop == "before", ])
+  n.after <- nrow(sw1.mod.after[sw1.mod.after$period == "after",])
+  n.after.corn <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (corn)",])
+  tval.corn <- qt(0.05, n.before + n.after.corn - 2, lower.tail = FALSE)
+  tval.all <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
+  mdc.corn <- tval.corn*sqrt((mse.before/n.before) + (mse.before/n.after.corn))
+  mdc.all <- tval.all*sqrt((mse.before/n.before) + (mse.before/n.after))
+  mdc.perc.corn[i] <- (1-(10^-mdc.corn))*100
+  mdc.perc.all[i] <- (1-(10^-mdc.all))*100
 }
 
 # create data frame of values
-perc_reduction <- data.frame(response = responses,
-                             response_clean = responses_clean,
+perc_reduction <- data.frame(response = responses[-length(responses)],
+                             response_clean = responses_clean[-length(responses)],
                              before_r2 = before.fit,
                              after_r2 = after.fit,
-                             perc_diff = mean.diff,
-                             sd_perc_diff = mean.diff.sd,
-                             perc_diff_frozen = mean.diff.frozen,
-                             sd_perc_diff_frozen = mean.diff.sd.frozen,
-                             perc_diff_nonfrozen = mean.diff.nonfrozen,
-                             sd_perc_diff_nonfrozen = mean.diff.sd.nonfrozen)
+                             perc_diff = round(mean.diff*100, 1),
+                             sd_perc_diff = round(mean.diff.sd*100,1),
+                             median_diff = round(median.diff*100, 1),
+                             fifth_diff = round(five.diff*100, 1),
+                             ninetyfifth_diff = round(ninetyfive.diff*100, 1),
+                             pval = pvals,
+                             perc_diff_frozen = round(mean.diff.frozen*100, 1),
+                             sd_perc_diff_frozen = round(mean.diff.sd.frozen*100,1),
+                             perc_diff_nonfrozen = round(mean.diff.nonfrozen*100, 1),
+                             sd_perc_diff_nonfrozen = round(mean.diff.sd.nonfrozen*100, 1),
+                             mdc_corn = round(mdc.perc.corn, 0),
+                             mdc_all = round(mdc.perc.all, 0))
 
 write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
 
