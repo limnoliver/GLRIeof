@@ -21,12 +21,12 @@ wq$comments <- gsub('\n', '',wq$comments)
 wq$site <- substr(wq$site, 1, 3)
 
 # create a unique storm id list that does not use subset storms
-wq$unique_storm_id <- gsub("(^.*)(SW1-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$storm_id, ignore.case = TRUE)
-wq$unique_storm_id <- gsub("(^.*)(SW3-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$unique_storm_id, ignore.case= TRUE)
+#wq$unique_storm_id <- gsub("(^.*)(SW1-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$storm_id, ignore.case = TRUE)
+#wq$unique_storm_id <- gsub("(^.*)(SW3-[[:digit:]]+)([[:alpha:]]*)", "\\2", wq$unique_storm_id, ignore.case= TRUE)
 
 # modify substorms with ids SW1-1284 through SW1-1288. These are not identified
 # as substorms but should be. Set them equal to the first storm ID.
-wq$unique_storm_id[wq$unique_storm_id %in% c("SW1-1284", "SW1-1285", "SW1-1286", "SW1-1287", 'SW1-1288')] <- "SW1-1284"
+#wq$unique_storm_id[wq$unique_storm_id %in% c("SW1-1284", "SW1-1285", "SW1-1286", "SW1-1287", 'SW1-1288')] <- "SW1-1284"
 
 # clean up names
 names.wq <- names(wq)
@@ -37,5 +37,6 @@ names.wq <- gsub('\\.+', '_', names.wq)
 # clean up units
 names.wq <- gsub('Load_in_pounds', 'load_pounds', names.wq, ignore.case = TRUE)
 names(wq) <- names.wq
+
 write.csv(wq,'data_cached/cleaned_WQdata.csv', row.names = FALSE)
 
