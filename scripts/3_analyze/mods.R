@@ -132,14 +132,18 @@ for (i in 1:(length(responses)-1)) {
   pred.before <- predict(mod.before, sw1.mod)
   pred.after <- predict(mod.after, sw1.mod)
   
-  change.test <- t.test(as.numeric(pred.before), as.numeric(pred.after), paired = T)
-  pvals[i] <- round(change.test$p.value, 3)
   
   # output model fit stats
   before.fit[i] <- round(mod.before$rsq[500]*100, 1)
   after.fit[i] <- round(mod.after$rsq[500]*100, 1)
   
   diff <- (pred.before - pred.after)/pred.before
+  
+  # test if these percent differences are different from zero
+  change.test <- t.test(diff, alternative = 'greater')
+  pvals[i] <- round(change.test$p.value, 3)
+  
+  
   diff.frozen <- (pred.before[sw1.mod$frozen == TRUE] - pred.after[sw1.mod$frozen == TRUE])/pred.before[sw1.mod$frozen == TRUE]
   diff.nonfrozen <- (pred.before[sw1.mod$frozen == FALSE] - pred.after[sw1.mod$frozen == FALSE])/pred.before[sw1.mod$frozen == FALSE]
   
