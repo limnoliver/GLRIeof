@@ -1,93 +1,105 @@
-"unique_storm_id","site","storm_start","period","period_crop","days_since_planting","days_since_fertilizer"
-"SW1-1","SW1",2012-01-31 12:00:00,"before","before",0,122
-"SW1-2","SW1",2012-02-29 04:30:00,"before","before",0,151
-"SW1-3","SW1",2012-03-06 21:00:00,"before","before",0,157
-"SW1-4","SW1",2012-03-07 21:00:00,"before","before",0,158
-"SW1-5","SW1",2012-03-12 01:34:59,"before","before",0,163
-"SW1-6","SW1",2012-04-19 20:35:00,"before","before",0,201
-"SW1-7","SW1",2012-05-02 05:42:00,"before","before",0,214
-"32","SW1",2012-05-02 23:55:59,"before","before",0,214
-"SW1-10","SW1",2012-05-06 09:15:00,"before","before",0,218
-"SW1-11","SW1",2012-06-18 17:46:00,"before","before",42,42
-"SW1-12","SW1",2012-07-17 15:38:59,"before","before",71,71
-"SW1-13","SW1",2012-07-25 19:27:00,"before","before",79,79
-"SW1-14","SW1",2012-07-26 13:52:59,"before","before",80,80
-"SW1-15","SW1",2012-08-04 16:47:59,"before","before",89,89
-"EST1-11","SW1",2012-08-09 07:39:59,"before","before",94,94
-"SW1-17","SW1",2012-10-14 04:30:00,"before","before",160,160
-"SW1-18","SW1",2012-10-17 21:15:00,"before","before",0,163
-"SW1-19","SW1",2012-11-11 17:30:00,"before","before",0,22
-"SW1-20","SW1",2013-01-10 19:54:59,"before","before",0,82
-"SW1-21","SW1",2013-01-29 00:00:00,"before","before",0,101
-"SW1-22","SW1",2013-03-09 21:09:59,"before","before",0,140
-"SW1-23","SW1",2013-03-27 10:00:00,"before","before",0,158
-"SW1-24","SW1",2013-04-08 09:11:59,"before","before",0,170
-"SW1-25","SW1",2013-04-17 13:14:59,"before","before",0,179
-"SW1-26","SW1",2013-05-02 17:53:00,"before","before",0,194
-"SW1-27","SW1",2013-07-08 06:18:59,"before","before",30,30
-"SW1-28","SW1",2013-10-31 23:06:59,"before","before",0,16
-"SW1-29","SW1",2013-11-05 19:43:00,"before","before",0,21
-"SW1-30","SW1",2013-11-17 10:02:00,"before","before",0,33
-"SW1-31","SW1",2014-03-10 13:45:00,"before","before",0,146
-"SW1-32","SW1",2014-03-27 11:15:00,"before","before",0,163
-"SW1-33","SW1",2014-04-12 12:45:59,"before","before",0,179
-"SW1-34","SW1",2014-05-12 05:24:59,"before","before",0,209
-"SW1-35","SW1",2014-06-01 20:46:59,"before","before",0,229
-"SW1-36","SW1",2014-06-18 05:15:59,"before","before",6,6
-"SW1-37","SW1",2014-08-12 03:22:59,"before","before",61,36
-"SW1-38","SW1",2014-09-04 20:08:59,"before","before",84,59
-"SW1-39","SW1",2014-09-05 05:33:59,"before","before",85,60
-"SW1-40","SW1",2014-09-20 03:26:00,"before","before",100,75
-"SW1-41","SW1",2014-10-03 03:00:00,"before","before",0,88
-"SW1-42","SW1",2014-10-13 19:18:59,"before","before",0,98
-"SW1-43","SW1",2015-04-09 14:21:00,"before","before",0,148
-"SW1-44","SW1",2015-04-09 19:14:59,"before","before",0,148
-"SW1-45","SW1",2015-04-10 01:00:00,"before","before",0,149
-"SW1-46","SW1",2015-05-17 16:54:00,"transition","transition",235,186
-"SW1-47","SW1",2015-05-24 18:45:00,"transition","transition",4,4
-"SW1-48","SW1",2015-05-30 04:00:00,"transition","transition",10,10
-"SW1-49","SW1",2015-06-11 22:27:00,"after","after (corn)",22,22
-"SW1-50","SW1",2015-06-15 15:45:59,"after","after (corn)",26,26
-"SW1-51","SW1",2015-09-08 08:53:59,"after","after (corn)",111,75
-"SW1-52","SW1",2015-09-19 00:56:59,"after","after (corn)",122,86
-"SW1-53","SW1",2015-11-26 15:02:59,"after","after (corn)",0,48
-"SW1-54","SW1",2015-11-30 23:19:59,"after","after (corn)",0,52
-"SW1-55","SW1",2015-12-13 04:50:59,"after","after (corn)",0,65
-"SW1-56","SW1",2015-12-23 10:59:59,"after","after (corn)",0,75
-"SW1-57","SW1",2016-02-20 10:45:00,"after","after (corn)",0,134
-"sW1-57","SW1",2016-02-21 11:30:00,"after","after (corn)",0,135
-"SW1-58","SW1",2016-03-06 19:59:59,"after","after (corn)",0,149
-"SW1-59","SW1",2016-03-13 17:30:00,"after","after (corn)",0,156
-"SW1-60","SW1",2016-03-26 11:15:00,"after","after (corn)",0,169
-"SW1-61","SW1",2016-03-31 00:11:59,"after","after (corn)",0,174
-"SW1-62","SW1",2016-06-15 18:44:00,"after","after (alfalfa)",37,250
-"SW1-63","SW1",2016-06-26 03:38:00,"after","after (alfalfa)",48,261
-"SW1-64","SW1",2016-07-29 02:19:59,"after","after (alfalfa)",81,294
-"SW1-66","SW1",2016-09-10 04:52:00,"after","after (alfalfa)",39,337
-"SW1-68","SW1",2016-09-21 22:50:59,"after","after (alfalfa)",50,348
-"SW1-69","SW1",2016-10-26 08:59:00,"after","after (alfalfa)",85,383
-"SW1-70","SW1",2016-11-28 01:39:00,"after","after (alfalfa)",118,416
-"SW1-71","SW1",2016-11-28 15:00:00,"after","after (alfalfa)",118,416
-"SW1-72","SW1",2016-12-26 01:30:00,"after","after (alfalfa)",146,444
-"SW1-73","SW1",2017-01-19 19:00:00,"after","after (alfalfa)",170,468
-"SW1-74","SW1",2017-02-14 11:15:00,"after","after (alfalfa)",196,494
-"SW1-75","SW1",2017-02-17 11:30:00,"after","after (alfalfa)",199,497
-"SW1-76","SW1",2017-02-18 07:45:00,"after","after (alfalfa)",200,498
-"SW1-77","SW1",2017-02-19 08:30:00,"after","after (alfalfa)",201,499
-"SW1-78","SW1",2017-02-28 00:29:59,"after","after (alfalfa)",210,508
-"SW1-79","SW1",2017-03-05 13:59:59,"after","after (alfalfa)",215,513
-"SW1-80","SW1",2017-03-24 18:15:00,"after","after (alfalfa)",234,532
-"SW1-81","SW1",2017-03-30 04:59:59,"after","after (alfalfa)",240,538
-"SW1-82","SW1",2017-04-03 21:29:59,"after","after (alfalfa)",244,542
-"SW1-83","SW1",2017-04-15 03:11:00,"after","after (alfalfa)",256,554
-"SW1-84","SW1",2017-04-15 23:57:59,"after","after (alfalfa)",256,554
-"SW1-85","SW1",2017-04-20 01:25:59,"after","after (alfalfa)",261,559
-"SW1-86","SW1",2017-04-27 03:51:00,"after","after (alfalfa)",268,566
-"SW1-87","SW1",2017-05-01 00:00:00,"after","after (alfalfa)",272,570
-"SW1-88","SW1",2017-06-03 20:57:59,"after","after (alfalfa)",305,603
-"SW1-89","SW1",2017-06-22 01:41:59,"after","after (alfalfa)",18,622
-"SW1-90","SW1",2017-06-22 17:06:59,"after","after (alfalfa)",18,622
-"SW1-91","SW1",2017-07-07 18:00:00,"after","after (alfalfa)",4,637
-"SW1-92","SW1",2017-07-15 20:53:59,"after","after (alfalfa)",12,645
-"SW1-93","SW1",2017-08-03 11:15:59,"after","after (alfalfa)",1,664
-"SW1-94","SW1",2017-08-04 07:59:59,"after","after (alfalfa)",2,665
+"unique_storm_number","site","storm_start","period","period_crop","days_since_planting","days_since_fertilizer"
+1,"SW1",2012-01-31 12:00:00,"before","before",0,122
+3,"SW1",2012-02-29 04:30:00,"before","before",0,151
+4,"SW1",2012-03-06 21:00:00,"before","before",0,157
+5,"SW1",2012-03-07 21:00:00,"before","before",0,158
+9,"SW1",2012-04-19 20:35:00,"before","before",0,201
+22,"SW1",2012-06-18 17:46:00,"before","before",42,42
+27,"SW1",2012-07-17 15:38:59,"before","before",71,71
+30,"SW1",2012-07-25 19:27:00,"before","before",79,79
+32,"SW1",2012-07-26 13:52:59,"before","before",80,80
+37,"SW1",2012-08-04 16:47:59,"before","before",89,89
+38,"SW1",2012-08-09 07:39:59,"before","before",94,94
+39,"SW1",2012-10-14 04:30:00,"before","before",160,160
+40,"SW1",2012-10-17 21:15:00,"before","before",0,163
+42,"SW1",2012-11-11 17:30:00,"before","before",0,22
+45,"SW1",2013-01-10 19:54:59,"before","before",0,82
+46,"SW1",2013-01-29 00:00:00,"before","before",0,101
+48,"SW1",2013-03-09 21:09:59,"before","before",0,140
+50,"SW1",2013-03-27 10:00:00,"before","before",0,158
+51,"SW1",2013-03-30 09:27:59,"before","before",0,161
+53,"SW1",2013-04-06 09:11:59,"before","before",0,168
+55,"SW1",2013-04-08 09:11:59,"before","before",0,170
+56,"SW1",2013-04-09 09:40:59,"before","before",0,171
+57,"SW1",2013-04-11 08:42:00,"before","before",0,173
+59,"SW1",2013-04-15 01:47:00,"before","before",0,177
+61,"SW1",2013-04-17 13:14:59,"before","before",0,179
+64,"SW1",2013-05-02 17:53:00,"before","before",0,194
+69,"SW1",2013-07-08 06:18:59,"before","before",30,30
+73,"SW1",2013-10-31 23:06:59,"before","before",0,16
+75,"SW1",2013-11-05 19:43:00,"before","before",0,21
+77,"SW1",2013-11-17 10:02:00,"before","before",0,33
+81,"SW1",2014-03-10 13:45:00,"before","before",0,146
+82,"SW1",2014-03-14 02:14:00,"before","before",0,150
+83,"SW1",2014-03-18 10:45:00,"before","before",0,154
+85,"SW1",2014-03-27 11:15:00,"before","before",0,163
+87,"SW1",2014-04-12 12:45:59,"before","before",0,179
+88,"SW1",2014-04-13 01:43:59,"before","before",0,180
+89,"SW1",2014-04-13 18:24:59,"before","before",0,180
+90,"SW1",2014-04-14 06:42:59,"before","before",0,181
+93,"SW1",2014-05-12 05:24:59,"before","before",0,209
+95,"SW1",2014-06-01 20:46:59,"before","before",0,229
+96,"SW1",2014-06-02 10:32:00,"before","before",0,230
+97,"SW1",2014-06-18 05:15:59,"before","before",6,6
+100,"SW1",2014-08-12 03:22:59,"before","before",61,36
+103,"SW1",2014-09-04 20:08:59,"before","before",84,59
+104,"SW1",2014-09-05 05:33:59,"before","before",85,60
+106,"SW1",2014-09-20 03:26:00,"before","before",100,75
+107,"SW1",2014-09-21 04:30:00,"before","before",101,76
+109,"SW1",2014-10-03 03:00:00,"before","before",0,88
+110,"SW1",2014-10-13 19:18:59,"before","before",0,98
+123,"SW1",2015-04-09 14:21:00,"before","before",0,148
+124,"SW1",2015-04-09 19:14:59,"before","before",0,148
+125,"SW1",2015-04-10 01:00:00,"before","before",0,149
+126,"SW1",2015-05-17 16:54:00,"transition","transition",235,186
+127,"SW1",2015-05-24 18:45:00,"transition","transition",4,4
+128,"SW1",2015-05-30 04:00:00,"transition","transition",10,10
+130,"SW1",2015-06-11 22:27:00,"after","after (corn)",22,22
+131,"SW1",2015-06-15 15:45:59,"after","after (corn)",26,26
+133,"SW1",2015-09-08 08:53:59,"after","after (corn)",111,75
+134,"SW1",2015-09-19 00:56:59,"after","after (corn)",122,86
+137,"SW1",2015-11-26 15:02:59,"after","after (corn)",0,48
+138,"SW1",2015-11-30 23:19:59,"after","after (corn)",0,52
+141,"SW1",2015-12-13 04:50:59,"after","after (corn)",0,65
+143,"SW1",2015-12-16 05:26:59,"after","after (corn)",0,68
+144,"SW1",2015-12-23 10:59:59,"after","after (corn)",0,75
+146,"SW1",2016-02-20 10:45:00,"after","after (corn)",0,134
+151,"SW1",2016-03-13 17:30:00,"after","after (corn)",0,156
+152,"SW1",2016-03-15 16:09:00,"after","after (corn)",0,158
+153,"SW1",2016-03-26 11:15:00,"after","after (corn)",0,169
+160,"SW1",2016-06-15 18:44:00,"after","after (alfalfa)",37,250
+161,"SW1",2016-06-26 03:38:00,"after","after (alfalfa)",48,261
+164,"SW1",2016-07-29 02:19:59,"after","after (alfalfa)",81,294
+168,"SW1",2016-09-10 04:52:00,"after","after (alfalfa)",39,337
+174,"SW1",2016-09-21 22:50:59,"after","after (alfalfa)",50,348
+175,"SW1",2016-10-26 08:59:00,"after","after (alfalfa)",85,383
+176,"SW1",2016-11-28 01:39:00,"after","after (alfalfa)",118,416
+177,"SW1",2016-11-28 15:00:00,"after","after (alfalfa)",118,416
+180,"SW1",2016-12-26 01:30:00,"after","after (alfalfa)",146,444
+183,"SW1",2017-01-19 19:00:00,"after","after (alfalfa)",170,468
+184,"SW1",2017-01-21 00:15:00,"after","after (alfalfa)",172,470
+185,"SW1",2017-01-22 08:42:59,"after","after (alfalfa)",173,471
+188,"SW1",2017-02-14 11:15:00,"after","after (alfalfa)",196,494
+189,"SW1",2017-02-17 11:30:00,"after","after (alfalfa)",199,497
+190,"SW1",2017-02-18 07:45:00,"after","after (alfalfa)",200,498
+191,"SW1",2017-02-19 08:30:00,"after","after (alfalfa)",201,499
+194,"SW1",2017-02-28 00:29:59,"after","after (alfalfa)",210,508
+195,"SW1",2017-03-05 13:59:59,"after","after (alfalfa)",215,513
+196,"SW1",2017-03-07 00:09:00,"after","after (alfalfa)",217,515
+198,"SW1",2017-03-24 18:15:00,"after","after (alfalfa)",234,532
+199,"SW1",2017-03-25 15:15:00,"after","after (alfalfa)",235,533
+200,"SW1",2017-03-30 04:59:59,"after","after (alfalfa)",240,538
+201,"SW1",2017-04-03 21:29:59,"after","after (alfalfa)",244,542
+202,"SW1",2017-04-15 03:11:00,"after","after (alfalfa)",256,554
+203,"SW1",2017-04-15 23:57:59,"after","after (alfalfa)",256,554
+204,"SW1",2017-04-20 01:25:59,"after","after (alfalfa)",261,559
+205,"SW1",2017-04-27 03:51:00,"after","after (alfalfa)",268,566
+206,"SW1",2017-05-01 00:00:00,"after","after (alfalfa)",272,570
+207,"SW1",2017-05-01 15:04:59,"after","after (alfalfa)",272,570
+208,"SW1",2017-06-03 20:57:59,"after","after (alfalfa)",305,603
+209,"SW1",2017-06-22 01:41:59,"after","after (alfalfa)",18,622
+210,"SW1",2017-06-22 17:06:59,"after","after (alfalfa)",18,622
+211,"SW1",2017-07-07 18:00:00,"after","after (alfalfa)",4,637
+212,"SW1",2017-07-15 20:53:59,"after","after (alfalfa)",12,645
+213,"SW1",2017-08-03 11:15:59,"after","after (alfalfa)",1,664
+214,"SW1",2017-08-04 07:59:59,"after","after (alfalfa)",2,665

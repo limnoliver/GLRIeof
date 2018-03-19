@@ -26,7 +26,7 @@ field_events$period_crop[field_events$period_crop == 'after'] <- "after (corn)"
 field_events$period_crop[field_events$storm_start >= as.POSIXct('2016-05-04 00:00:01')] <- "after (alfalfa)"
 
 field_events <- arrange(field_events, storm_start) %>%
-  select(unique_storm_id, site, storm_start, period, period_crop) %>%
+  select(unique_storm_number, site, storm_start, period, period_crop) %>%
   filter(site == "SW1")
 
 # calculate days since manure/fertilizer
@@ -40,7 +40,7 @@ for (i in 1:nrow(field_events)) {
   
   temp.date <- as.Date(format(field_events$storm_start[i], "%Y-%m-%d"))
   
-  temp_timeline <- filter(timeline, activity_group == "fertilizer application" |activity_group == "planting + fertilizer"|activity_group == "manure application") %>%
+  temp_timeline <- filter(timeline, activity_group == "fertilizer application"|activity_group == "planting + fertilizer"|activity_group == "manure application") %>%
     filter(date <= temp.date)
   
   fert_diff <- temp.date - temp_timeline$date
