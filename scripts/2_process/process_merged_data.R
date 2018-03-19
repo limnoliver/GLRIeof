@@ -68,13 +68,6 @@ sw1$crop <- sw1$period_crop
 sw1$crop <- ifelse(sw1$crop == "after (alfalfa)", "alfalfa", "corn")
 sw1$crop <- as.factor(sw1$crop)
 
-
-## create a column that marks suspect splits
-sw1$suspect_split <- grepl('split', sw1$comment)
-
-## get rid of events with suspect splits
-sw1 <- filter(sw1, suspect_split == FALSE)
-
 # find transition period, and drop
 # change level order for before and after
 sw1$period[sw1$storm_start > as.POSIXct('2015-05-10 00:00:01')& sw1$storm_start < as.POSIXct('2015-06-01 00:00:01')] <- 'transition'
