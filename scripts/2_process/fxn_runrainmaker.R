@@ -63,7 +63,7 @@ run.rainmaker <- function(precip_raw = precip_raw,
     
     # merge all rain data
     StormSummary$site <- sitename[i]
-    StormSummary$unique_storm_id <- wq.dat.temp$unique_storm_id
+    StormSummary$unique_storm_number <- wq.dat.temp$unique_storm_number
     
     rain.by.site[[i]] <- StormSummary
   }
