@@ -11,8 +11,7 @@ field <- read.csv('data_cached/field_predictors.csv')
 rain <- rename(rain, 'rain_startdate' = 'StartDate', 'rain_enddate' = 'EndDate')
 rain <- select(rain, -stormnum, -site)
 
-names(discharge)[2] <- 'unique_storm_id'
-discharge <- select(discharge, unique_storm_id, ant_dis_1day_max:ant_dis_14day_max)
+discharge <- select(discharge, unique_storm_number, ant_dis_1day_max:ant_dis_14day_max)
 
 field <- field[,c(1,4:7)]
 # merge dat
