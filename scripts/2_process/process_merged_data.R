@@ -87,3 +87,5 @@ sw1$period <- ordered(sw1$period, levels = c('before', 'after'))
 
 sw1 <- filter(sw1, !is.na(rain))
 
+write.csv(sw1, 'data_cached/sw1_mod_dat.csv', row.names = F)
+
