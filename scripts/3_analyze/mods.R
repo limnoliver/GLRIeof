@@ -174,10 +174,25 @@ mean.diff.sd.nonfrozen <- c()
 median.diff <- c()
 five.diff <- c()
 ninetyfive.diff <- c()
-pvals <- c()
+pvals.ba <- c()
 
 
 for (i in 1:(length(responses)-1)) {
+  
+  if (pval.differences[i] > 0.05) {
+    before.fit[i] <- NA
+    after.fit[i] <- NA
+    pvals.ba[i] <- NA
+    mean.diff[i] <- NA
+    median.diff[i] <- NA
+    five.diff[i] <- NA
+    ninetyfive.diff[i] <- NA
+    mean.diff.sd[i] <- NA
+    mean.diff.frozen[i] <- NA
+    mean.diff.sd.frozen[i] <- NA
+    mean.diff.nonfrozen[i] <- NA
+    mean.diff.sd.nonfrozen[i] <- NA
+    next}
 
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
@@ -199,7 +214,7 @@ for (i in 1:(length(responses)-1)) {
   
   # test if these percent differences are different from zero
   change.test <- t.test(diff, alternative = 'greater')
-  pvals[i] <- round(change.test$p.value, 3)
+  pvals.ba[i] <- round(change.test$p.value, 3)
   
   
   diff.frozen <- (pred.before[sw1.mod$frozen == TRUE] - pred.after[sw1.mod$frozen == TRUE])/pred.before[sw1.mod$frozen == TRUE]
@@ -228,13 +243,11 @@ perc_reduction <- data.frame(response = responses[-length(responses)],
                              median_diff = round(median.diff*100, 1),
                              fifth_diff = round(five.diff*100, 1),
                              ninetyfifth_diff = round(ninetyfive.diff*100, 1),
-                             pval = pvals,
+                             pval = pvals.ba,
                              perc_diff_frozen = round(mean.diff.frozen*100, 1),
                              sd_perc_diff_frozen = round(mean.diff.sd.frozen*100,1),
                              perc_diff_nonfrozen = round(mean.diff.nonfrozen*100, 1),
-                             sd_perc_diff_nonfrozen = round(mean.diff.sd.nonfrozen*100, 1),
-                             mdc_corn = round(mdc.perc.corn, 0),
-                             mdc_all = round(mdc.perc.all, 0))
+                             sd_perc_diff_nonfrozen = round(mean.diff.sd.nonfrozen*100, 1))
 
 write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
 
