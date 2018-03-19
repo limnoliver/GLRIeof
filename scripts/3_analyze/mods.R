@@ -9,7 +9,7 @@ library(glmnet)
 # this script creates a linear model between water quality and hydrologic variables, 
 # including variables output by Rainmaker, as well as storm characteristics
 source('scripts/2_process/process_merged_data.R')
-
+#sw1 <- read.csv('data_cached/sw1_mod_dat.csv')
 ############################
 # transform response variables
 sw1[,responses] <- log10(sw1[,responses])
@@ -29,6 +29,14 @@ predictors.keep <- c(names.cor[-drop.predictors], 'frozen', 'sin_sdate', 'cos_sd
 sw1.mod <- sw1[,predictors.keep]
 sw1.mod <- complete.cases(sw1.mod)
 sw1.mod <- sw1[sw1.mod, ]
+sw1.mod.before <- filter(sw1.mod, period == 'before')
+sw1.mod.after <- filter(sw1.mod, period == 'after')
+
+# save MDC as output from loop
+mdc.perc.corn <- c()
+mdc.perc.all <- c()
+mdc.perc.alfalfa <- c()
+pval.differences <- c()
 
 # loop through responses to create equation and model
 for (i in 1:length(responses)) {
@@ -36,13 +44,47 @@ for (i in 1:length(responses)) {
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
   mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
+  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
+    
+  # calculate minimum detectable change for each constituent based on this model
+  mse.before <- mod.before$mse[length(mod.before$mse)]
+  
+  n.before <- nrow(sw1.mod.before[sw1.mod.before$period_crop == "before", ])
+  n.after <- nrow(sw1.mod.after[sw1.mod.after$period == "after",])
+  n.after.corn <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (corn)",])
+  n.after.alfalfa <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (alfalfa)",])
+  
+  tval.corn <- qt(0.05, n.before + n.after.corn - 2, lower.tail = FALSE)
+  tval.all <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
+  tval.alfalfa <- qt(0.05, n.before + n.after.alfalfa -2, lower.tail = FALSE)
+  
+  mdc.corn <- tval.corn*sqrt((mse.before/n.before) + (mse.before/n.after.corn))
+  mdc.all <- tval.all*sqrt((mse.before/n.before) + (mse.before/n.after))
+  mdc.alfalfa <- tval.alfalfa*sqrt((mse.before/n.before) + (mse.before/n.after.alfalfa))
+  mdc.perc.corn[i] <- (1-(10^-mdc.corn))*100
+  mdc.perc.all[i] <- (1-(10^-mdc.all))*100
+  mdc.perc.alfalfa[i] <- (1-(10^-mdc.alfalfa))*100
+  
+  
   resid <- sw1.mod[, responses[i]] - mod$predicted
   resid.test <- data.frame(resids = resid, 
                            period = sw1.mod$period_crop)
-  diff.test <- lm(resid.test$resids ~ resid.test$period)
+  resid.test.after <- data.frame(resids = resid[sw1$period == 'after'],
+                                 period = 'after')
+  resid.test.all <- bind_rows(resid.test, resid.test.after)
+  
+  diff.test <- lm(resid.test.all$resids ~ resid.test.all$period)
   diff.test.result <- anova(diff.test)
   pval <- diff.test.result$`Pr(>F)`[1]
-  test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "Sig. differences between groups")
+  pval.differences[i] <- pval
+  test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "")
+  
+  # pairwise tests for denoting which groups are different
+  resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after', 'after (corn)', 'after (alfalfa)'))
+  pair.test <- pairwise.t.test(resid.test.all$resids, resid.test.all$period, alternative = 'less')
+  pval.after <- pair.test$p.value[1,1]
+  pval.corn <- pair.test$p.value[2,1]
+  pval.alfalfa <- pair.test$p.value[3,1]
   
   top.vars <- pdp::topPredictors(mod, n = 4)
   
@@ -59,10 +101,10 @@ for (i in 1:length(responses)) {
   # now create 4 plots
   # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
   fig.name = paste0('figures/rf_modsum_', responses[i], '.pdf')
-  pdf(fig.name, height = 8, width = 8)
+  pdf(fig.name, height = 10, width = 10)
   layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
   layout(layout_matrix)
-  par(mar = c(6,6,3,1), oma = c(0,0,0,0), pch = 16)
+  par(mar = c(5,5,3,1), oma = c(0,0,0,0), pch = 16)
   
   ####
   plot(mod$y ~ mod$predicted,
@@ -76,10 +118,28 @@ for (i in 1:length(responses)) {
        labels = paste0('% Var Exp = ', round(mod$rsq[500]*100, 1)), 
        col = 'blue', pos = 4)
   ####
-  boxplot(resid ~ sw1.mod$period_crop, 
-          ylab = 'Residuals', col = c('darkgray', 'red', 'green'),
-          ylim = c(min(resid), max(resid)*1.3))
-  text(x = 2, y = max(resid)*1.1, labels = test.text, col = 'blue', adj=c(0.5, 0))
+  temp <- boxplot(resid.test.all$resids ~ resid.test.all$period, 
+          ylab = 'Residuals', col = c('darkgray', 'lightgray', 'red', 'green'),
+          ylim = c(min(resid), max(resid)*1.3), main = test.text)
+  
+  text(x = 2, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.all[i],0), "%"), adj=c(0.5, 0))
+  text(x = 3, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.corn[i],0), "%"), adj=c(0.5, 0))
+  text(x = 4, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%"), adj=c(0.5, 0))
+  
+  if (pval < 0.05) {
+    if (pval.alfalfa < 0.05) {
+      text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+      
+    }
+    if (pval.corn < 0.05) {
+      text(x = 3, y = temp$stats[5,3]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+    }
+    if (pval.alfalfa < 0.05) {
+      text(x = 4, y = temp$stats[5,4]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+    }
+  }
+  
+  
   
   ###
   plot(resid ~ mod$predicted, 
@@ -111,8 +171,6 @@ mean.diff.frozen <- c()
 mean.diff.sd.frozen <- c()
 mean.diff.nonfrozen <- c()
 mean.diff.sd.nonfrozen <- c()
-mdc.perc.corn <- c()
-mdc.perc.all <- c()
 median.diff <- c()
 five.diff <- c()
 ninetyfive.diff <- c()
@@ -157,17 +215,7 @@ for (i in 1:(length(responses)-1)) {
   mean.diff.nonfrozen[i] <- mean(diff.nonfrozen)
   mean.diff.sd.nonfrozen[i] <- sd(diff.nonfrozen)
   
-  # calculate minimum detectable change for each constituent based on this model
-  mse.before <- mod.before$mse[length(mod.before$mse)]
-  n.before <- nrow(sw1.mod.before[sw1.mod.before$period_crop == "before", ])
-  n.after <- nrow(sw1.mod.after[sw1.mod.after$period == "after",])
-  n.after.corn <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (corn)",])
-  tval.corn <- qt(0.05, n.before + n.after.corn - 2, lower.tail = FALSE)
-  tval.all <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
-  mdc.corn <- tval.corn*sqrt((mse.before/n.before) + (mse.before/n.after.corn))
-  mdc.all <- tval.all*sqrt((mse.before/n.before) + (mse.before/n.after))
-  mdc.perc.corn[i] <- (1-(10^-mdc.corn))*100
-  mdc.perc.all[i] <- (1-(10^-mdc.all))*100
+  
 }
 
 # create data frame of values
