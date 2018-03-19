@@ -15,7 +15,7 @@ jgc <- function()
   .jcall("java/lang/System", method = "gc")
 }  
 # point to folder where data are stored
-wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Upper East River GLRI'
+wd <- 'M:/NonPoint Evaluation/GLRI Edge-of-field/Wisconsin'
 
 # retrive all water years from folder
 files.wd <- list.files(wd)
