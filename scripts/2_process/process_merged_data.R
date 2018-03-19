@@ -26,7 +26,7 @@ eof <- read.csv('data_cached/merged_dat.csv', header = TRUE, stringsAsFactors = 
 
 # create a water equivalent var that sums rain and 
 # water equivalent of snow, estimated as 1:10
-eof$weq <- ifelse(eof$snwd_diff > 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10))
+eof$weq <- ifelse(eof$snwd_diff >= 0, eof$rain, eof$rain + (abs(eof$snwd_diff)/10))
 
 # set responses and predictors
 
@@ -58,7 +58,6 @@ responses_clean <- c('SS (mg/L)', 'Cl (mg/L)', 'NO2 + NO3 (mg/L)','NH4 (mg/L)','
 sw1 <- eof %>%
   mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
   filter(site == 'SW1') %>%
-  #filter(frozen == FALSE) %>%
   mutate(period = ifelse(storm_start >= as.POSIXct('2015-06-01 00:00:01'), 'after', 'before'))
 
 sw1$period_crop <- factor(sw1$period_crop)
