@@ -21,7 +21,9 @@ storms$cos_sdate <- cos(b*storm_dates_since)
 
 
 for (i in 1:nrow(storms)) {
-  dates <- as.Date(unique(c(format(storms$storm_start[i], format = "%Y-%m-%d"), format(storms$storm_end[i], format = "%Y-%m-%d"))))
+  dates <- as.Date(c(format(storms$storm_start[i], format = "%Y-%m-%d"), format(storms$storm_end[i], format = "%Y-%m-%d")))
+  dates <- seq(dates[1], dates[2], by = 'days')
+  dates <- unique(dates)
   weather <- filter(gb, date %in% dates)
   storms$tmax[i] <- max(weather$tmax)/10 #convert from tenths of degrees C to degrees C
   storms$tmin[i] <- min(weather$tmin)/10 #convert from tenths of degrees C to degrees C
@@ -32,6 +34,6 @@ for (i in 1:nrow(storms)) {
   
 }
 
-weather.dat <- select(storms, unique_storm_id, sin_sdate:snwd_diff)
+weather.dat <- select(storms, unique_storm_number, sin_sdate:snwd_diff)
 
 write.csv(weather.dat, 'data_cached/weather_by_storm.csv', row.names = F)
