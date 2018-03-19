@@ -22,4 +22,4 @@ all.eof <- merge(all.eof, weather, by = 'unique_storm_number', all.x = TRUE)
 all.eof <- merge(all.eof, field, by = "unique_storm_number", all.x = TRUE)
 # write dat
 
-write.csv(all.eof, 'data_cached/merged_dat.csv', row.names = FALSE)
+#write.csv(all.eof, 'data_cached/merged_dat.csv', row.names = FALSE)
