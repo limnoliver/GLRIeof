@@ -16,10 +16,10 @@ discharge <- select(discharge, unique_storm_number, ant_dis_1day_max:ant_dis_14d
 field <- field[,c(1,4:7)]
 # merge dat
 
-all.eof <- merge(wq, rain, by = 'unique_storm_id', all.x = TRUE)
-all.eof <- merge(all.eof, discharge, by = 'unique_storm_id', all.x = TRUE)
-all.eof <- merge(all.eof, weather, by = 'unique_storm_id', all.x = TRUE)
-all.eof <- merge(all.eof, field, by = "unique_storm_id", all.x = TRUE)
+all.eof <- merge(wq, rain, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, discharge, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, weather, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, field, by = "unique_storm_number", all.x = TRUE)
 # write dat
 
 write.csv(all.eof, 'data_cached/merged_dat.csv', row.names = FALSE)
