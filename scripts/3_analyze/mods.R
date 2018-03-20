@@ -4,7 +4,7 @@ library(randomForest)
 library(dplyr)
 library(caret)
 library(ggplot2)
-library(glmnet)
+#library(glmnet)
 
 # this script creates a linear model between water quality and hydrologic variables, 
 # including variables output by Rainmaker, as well as storm characteristics
