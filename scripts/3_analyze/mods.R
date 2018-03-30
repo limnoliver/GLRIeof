@@ -37,6 +37,10 @@ mdc.perc.corn <- c()
 mdc.perc.all <- c()
 mdc.perc.alfalfa <- c()
 pval.differences <- c()
+pval.after <- c()
+pval.corn <- c()
+pval.alfalfa <- c()
+perc.var <- c()
 
 # loop through responses to create equation and model
 for (i in 1:length(responses)) {
@@ -45,7 +49,8 @@ for (i in 1:length(responses)) {
   
   mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
   mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
-    
+  
+  perc.var[i] <- round(mod$rsq[500]*100, 1)
   # calculate minimum detectable change for each constituent based on this model
   mse.before <- mod.before$mse[length(mod.before$mse)]
   
@@ -82,9 +87,9 @@ for (i in 1:length(responses)) {
   # pairwise tests for denoting which groups are different
   resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after', 'after (corn)', 'after (alfalfa)'))
   pair.test <- pairwise.t.test(resid.test.all$resids, resid.test.all$period, alternative = 'less')
-  pval.after <- pair.test$p.value[1,1]
-  pval.corn <- pair.test$p.value[2,1]
-  pval.alfalfa <- pair.test$p.value[3,1]
+  pval.after[i] <- pair.test$p.value[1,1]
+  pval.corn[i] <- pair.test$p.value[2,1]
+  pval.alfalfa[i] <- pair.test$p.value[3,1]
   
   top.vars <- pdp::topPredictors(mod, n = 4)
   
@@ -127,14 +132,14 @@ for (i in 1:length(responses)) {
   text(x = 4, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%"), adj=c(0.5, 0))
   
   if (pval < 0.05) {
-    if (pval.alfalfa < 0.05) {
+    if (pval.alfalfa[i] < 0.05) {
       text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
       
     }
-    if (pval.corn < 0.05) {
+    if (pval.corn[i] < 0.05) {
       text(x = 3, y = temp$stats[5,3]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
     }
-    if (pval.alfalfa < 0.05) {
+    if (pval.alfalfa[i] < 0.05) {
       text(x = 4, y = temp$stats[5,4]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
     }
   }
@@ -153,6 +158,16 @@ for (i in 1:length(responses)) {
   dev.off()
 }
 
+# create a dataframe describing the residual models
+before_after_resid <- data.frame(variable = responses_clean,
+                                 perc_var = perc.var,
+                                 mdc_all = round(mdc.perc.all, 0),
+                                 mdc_corn = round(mdc.perc.corn, 0),
+                                 mdc_alfalfa = round(mdc.perc.alfalfa, 0),
+                                 pval_groups = round(pval.differences, 2),
+                                 pval_after = round(pval.after, 2),
+                                 pval_corn = round(pval.corn, 2),
+                                 pval_alfalfa = round(pval.alfalfa, 2))
 # now split data up into before and after, 
 # and fit RF models. Then run all events through 
 # both models.
