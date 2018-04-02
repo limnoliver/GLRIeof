@@ -48,7 +48,7 @@ for (i in 1:length(responses)) {
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
   mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
-  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
+  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit, ntree = 1000)
   
   perc.var[i] <- round(mod$rsq[500]*100, 1)
   # calculate minimum detectable change for each constituent based on this model
@@ -132,7 +132,7 @@ for (i in 1:length(responses)) {
   text(x = 4, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%"), adj=c(0.5, 0))
   
   if (pval < 0.05) {
-    if (pval.alfalfa[i] < 0.05) {
+    if (pval.after[i] < 0.05) {
       text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
       
     }
@@ -168,6 +168,8 @@ before_after_resid <- data.frame(variable = responses_clean,
                                  pval_after = round(pval.after, 2),
                                  pval_corn = round(pval.corn, 2),
                                  pval_alfalfa = round(pval.alfalfa, 2))
+
+write.csv(before_after_resid, 'data_cached/residual_results.csv')
 # now split data up into before and after, 
 # and fit RF models. Then run all events through 
 # both models.
@@ -187,9 +189,12 @@ mean.diff.sd.frozen <- c()
 mean.diff.nonfrozen <- c()
 mean.diff.sd.nonfrozen <- c()
 median.diff <- c()
+diff.sum <- c()
 five.diff <- c()
 ninetyfive.diff <- c()
 pvals.ba <- c()
+load.before <- c()
+load.after <- c()
 
 
 for (i in 1:(length(responses)-1)) {
@@ -200,6 +205,7 @@ for (i in 1:(length(responses)-1)) {
     pvals.ba[i] <- NA
     mean.diff[i] <- NA
     median.diff[i] <- NA
+    diff.sum[i] <- NA
     five.diff[i] <- NA
     ninetyfive.diff[i] <- NA
     mean.diff.sd[i] <- NA
@@ -207,6 +213,8 @@ for (i in 1:(length(responses)-1)) {
     mean.diff.sd.frozen[i] <- NA
     mean.diff.nonfrozen[i] <- NA
     mean.diff.sd.nonfrozen[i] <- NA
+    load.before[i] <- NA
+    load.after[i] <- NA
     next}
 
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
@@ -225,7 +233,10 @@ for (i in 1:(length(responses)-1)) {
   before.fit[i] <- round(mod.before$rsq[500]*100, 1)
   after.fit[i] <- round(mod.after$rsq[500]*100, 1)
   
-  diff <- (pred.before - pred.after)/pred.before
+  diff <- (10^pred.before - 10^pred.after)/10^pred.before
+  diff.sum[i] <- (sum(10^pred.before) - sum(10^pred.after))/sum(10^pred.before)
+  load.before[i] <- sum(10^pred.before)
+  load.after[i] <- sum(10^pred.after)
   
   # test if these percent differences are different from zero
   change.test <- t.test(diff, alternative = 'greater')
@@ -258,6 +269,9 @@ perc_reduction <- data.frame(response = responses[-length(responses)],
                              median_diff = round(median.diff*100, 1),
                              fifth_diff = round(five.diff*100, 1),
                              ninetyfifth_diff = round(ninetyfive.diff*100, 1),
+                             diff_sum = round(diff.sum*100, 1),
+                             load_before = round(load.before, 0),
+                             load_after = round(load.after, 0),
                              pval = pvals.ba,
                              perc_diff_frozen = round(mean.diff.frozen*100, 1),
                              sd_perc_diff_frozen = round(mean.diff.sd.frozen*100,1),
