@@ -20,7 +20,7 @@ predictors.cor <- cor(sw1[,predictors[-length(predictors)]], use = 'complete.obs
 names.cor <- row.names(predictors.cor)
 drop.predictors <- caret::findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
-predictors.keep <- c(names.cor[-drop.predictors], 'frozen', 'sin_sdate', 'cos_sdate')
+predictors.keep <- c(names.cor[-drop.predictors], 'frozen')
 
 ##############################
 # approach #1 
@@ -280,6 +280,48 @@ perc_reduction <- data.frame(response = responses[-length(responses)],
 
 write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
 
+
+#####################################################
+## Full model to evaluate top predictors
+####################################################
+predictors.keep <- c(predictors.keep, "peak_discharge", 'days_since_planting', 'days_since_fertilizer')
+sw1.mod <- sw1[,predictors.keep]
+sw1.mod <- complete.cases(sw1.mod)
+sw1.mod <- sw1[sw1.mod, ]
+
+fit <- c()
+ranks <- data.frame(matrix(ncol = length(responses)-1, nrow = length(predictors.keep)))
+
+for (i in 1:(length(responses)-1)) {
+  
+  mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+  
+  mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit, ntrees = 1000)
+
+  # output model fit stats
+  fit[i] <- round(mod$rsq[500]*100, 1)
+  
+  varimp <- as.data.frame(mod$importance)
+  varimp$variable <- row.names(varimp)
+  varimp$rank <- rank(-varimp$`%IncMSE`)
+  ranks[,i] <- varimp$rank
+  
+  
+  top.vars <- pdp::topPredictors(mod, n = 4)
+  
+  pdf(paste0('figures/', 'rf_fullmod_pp_', responses[i], '.pdf'), heigh = 6, width = 6)
+  par(mfcol = c(2,2), mar = c(4,2,2,2), oma = c(2,2,3,0))
+  for (n in top.vars){
+    partialPlot(mod, pred.data = sw1.mod, x.var = paste(n),
+                xlab = n, main = "")
+  }
+  mtext(paste0("Partial Dependence plots - ", responses_clean[i]), side = 3, outer = T)
+  dev.off()
+  
+}
+
+names(ranks) <- responses_clean[-length(responses_clean)]
+ranks$predictor <- predictors.keep
 ########################
 # transform data
 
