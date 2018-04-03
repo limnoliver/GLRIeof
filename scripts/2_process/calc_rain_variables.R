@@ -22,9 +22,7 @@ for (i in 1:length(date.vars)) {
   wq.dat[,date.vars[i]] <- temp
 }
 
-if (site == 'sw3') {
-  wq.dat$storm_end[1] <- as.POSIXct('2014-03-12 21:46:00 -06')
-}
+
 
 # list precipitation data files
 #files <- list.files('data_raw')
