@@ -1,9 +1,14 @@
 library(lubridate)
 library(dplyr)
 
-gb <- read.csv('data_raw/GRB_weather_dat.csv', stringsAsFactors = FALSE, 
+# read in site-specific weather data
+site <- 'sw3'
+weather_filename <- file.path('data_raw', paste0(site, '_GRB_weather_dat.csv'))
+storm_filename <- file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv'))
+
+gb <- read.csv(weather_filename, stringsAsFactors = FALSE, 
                colClasses = c(date = 'Date'))
-storms <- read.csv('data_cached/prepped_WQbystorm.csv', stringsAsFactors = FALSE,
+storms <- read.csv(storm_filename, stringsAsFactors = FALSE,
                    colClasses = c(storm_start = 'POSIXct', storm_end = 'POSIXct'))
 names(gb)
 # calculate change in snow depth
@@ -36,4 +41,5 @@ for (i in 1:nrow(storms)) {
 
 weather.dat <- select(storms, unique_storm_number, sin_sdate:snwd_diff)
 
+weather_tempname <- file.path('data_cached', paste0(site, '_weather_by_storm.csv'))
 write.csv(weather.dat, 'data_cached/weather_by_storm.csv', row.names = F)
