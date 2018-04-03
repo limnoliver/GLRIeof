@@ -284,7 +284,7 @@ write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.
 #####################################################
 ## Full model to evaluate top predictors
 ####################################################
-predictors.keep <- c(predictors.keep, "peak_discharge", 'days_since_planting', 'days_since_fertilizer')
+predictors.keep <- c(predictors.keep, "peak_discharge", 'days_since_planting', 'days_since_fertilizer', 'crop')
 sw1.mod <- sw1[,predictors.keep]
 sw1.mod <- complete.cases(sw1.mod)
 sw1.mod <- sw1[sw1.mod, ]
@@ -322,6 +322,22 @@ for (i in 1:(length(responses)-1)) {
 
 names(ranks) <- responses_clean[-length(responses_clean)]
 ranks$predictor <- predictors.keep
+
+ranks$mean_rank <- rowMeans(ranks[,1:18])
+
+
+
+ranks.long <- ranks %>%
+  gather(key = variable, value = rank, -predictor)
+
+rank.order <- group_by(ranks.long, predictor) %>%
+  summarize(median_rank = median(rank)) %>%
+  arrange(median_rank)
+
+ranks.long$predictor <- factor(ranks.long$predictor, levels = rank.order$predictor)
+
+
+  
 ########################
 # transform data
 
