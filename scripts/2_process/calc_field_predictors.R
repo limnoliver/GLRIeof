@@ -132,5 +132,5 @@ for (i in 1:nrow(field_events)) {
     
 }
 
-
-write.csv(field_events, 'data_cached/field_predictors.csv', row.names = FALSE)
+temp_filename <- file.path('data_cached', paste0(site, '_field_predictors.csv'))
+write.csv(field_events, temp_filename, row.names = FALSE)
