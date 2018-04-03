@@ -1,20 +1,30 @@
 # this script preps the WQ data by aggregating by storm
 library(dplyr)
 library(readxl)
+
 # read in cleaned wq data
 
 wq <- read.csv('data_cached/cleaned_WQdata.csv', stringsAsFactors = FALSE)
-wq.storm.sw1 <- read_excel('data_raw/sw1_event_parsing.xlsx')
+site <- 'sw3'
+
+storm_files <- list.files('data_raw')[grep('parsing', list.files('data_raw'))]
+storm_temp <- storm_files[grep(site, storm_files)]
+wq.storm <- read_excel(file.path('data_raw', storm_temp))
 
 # find which storms to keep from storm parsing file
-keep.storms <- filter(wq.storm.sw1, exclude == 0) %>%
+keep.storms <- filter(wq.storm, exclude == 0) %>%
   filter(estimated == 0) %>%
   filter(discrete == 0) %>%
   select(unique_storm_id, unique_storm_number)
 
 wq <- filter(wq, storm_id %in% keep.storms$unique_storm_id) %>%
-  filter(!is.na(runoff_volume)) %>%
-  filter(!(lab_id == '376-13-10' & storm_id == 'ESW1-15')) %>% #some duplicated id's that needed to be removed
+  filter(!is.na(runoff_volume))
+
+if (site == 'sw1') {
+  wq <- filter(wq, !(lab_id == '376-13-10' & storm_id == 'ESW1-15')) #some duplicated id's that needed to be removed
+}
+
+wq <- wq %>% 
   rename(unique_storm_id = storm_id) %>%
   left_join(keep.storms, by = 'unique_storm_id')
 
@@ -103,4 +113,5 @@ wq.bystorm <- merge(wq.bystorm, flagsbystorm)
 wq.bystorm <- merge(wq.bystorm, unique(wq[,c('site', 'water_year', 'unique_storm_number', 'sub_storms')]), all.x = TRUE)
 wq.bystorm <- merge(wq.bystorm, stormdesc)
 
-write.csv(wq.bystorm, 'data_cached/prepped_WQbystorm.csv', row.names = FALSE)
+temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
+write.csv(wq.bystorm, temp_filename, row.names = FALSE)
