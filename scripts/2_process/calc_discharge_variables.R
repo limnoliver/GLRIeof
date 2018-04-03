@@ -2,9 +2,12 @@
 # for EOF work
 library(dplyr)
 # read in storm start/end times
-wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE, colClasses = c(storm_start = 'POSIXct'))
+site <- 'sw3'
+
+wq_files <- file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv'))
+
+wq.dat <- read.csv(wq_files, header = TRUE, colClasses = c(storm_start = 'POSIXct'))
 storms <- wq.dat[,c('site', 'unique_storm_number', 'storm_start')]
-storms <- filter(storms, site == "SW1") 
 
 # get discharge
 library(dataRetrieval)
