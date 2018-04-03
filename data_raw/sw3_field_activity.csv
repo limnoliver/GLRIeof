@@ -1,4 +1,10 @@
 wateryear,date,activity,activity_group,current_crop,last_year_crop
+13,5/20/2013,Spray/kill alfalfa??,herbicide application,corn + alfalfa,alfalfa
+13,5/28/2013,Vertical tilage,cultivation,corn + alfalfa,alfalfa
+13,5/28/2013,"Corn planted, applied 2 gallons (6-24-6)",planting + fertilizer,corn + alfalfa,alfalfa
+13,6/20/2013,Applied fertilizer 60 units N 32%,fertilizer application,corn + alfalfa,alfalfa
+14,10/19/2013,"50 tons/acre liquid dairy manure applied, sand laden manure incorporated??",manure application,corn + alfalfa,alfalfa
+14,10/22/2013,Harvest Corn,harvest,corn + alfalfa,alfalfa
 14,5/20/2014,spray/kill alfalfa,herbicide application,"corn, rye, raddish","corn, rye, radish"
 14,5/28/2014,vertical tillage,cultivation,"corn, rye, raddish","corn, rye, radish"
 14,5/28/2014,"corn planted, applied 2 gallons (6-24-6)",planting + fertilizer,"corn, rye, raddish","corn, rye, radish"
