@@ -20,21 +20,20 @@ run.rainmaker <- function(precip_raw = precip_raw,
                           wq.dat = wq.dat, xmin = c(5,10,15,30,60), antecedentDays = c(1,3,7,14)) {
   
 
-  rain.by.site <- list()
-  for (i in 1:length(siteid)) {
+  
     
-    sites <- siteid
+    #sites <- siteid
     # read in raw rain gauge data for site[i]
     
-    precip_temp <- filter(precip_raw, site_no == sites[i])
-    wq.dat.temp <- filter(wq.dat, site == sitename[i])
+    #precip_temp <- filter(precip_raw, site_no == sites[i])
+    #wq.dat.temp <- filter(wq.dat, site == sitename[i])
     
     # prep data
     #precip_prep <- RMprep(precip_temp, prep.type = 3, date.type = 2, dates.in = 'Timestamp..UTC.06.00.', 
     #                      dates.out = 'pdate', tz = 'Etc/GMT+6', cnames.in = names(precip_raw), cnames.new = c('timestamp_utc', 'timestamp_utc-6', 'rain', 'approval', 'grade', 'qualifiers'))
     # calculate events
-    events <- RMevents_sample(df = precip_temp, ieHr = ieHr, rain = 'rain', time = 'pdate', 
-                              dfsamples = wq.dat.temp, bdate = 'storm_start', edate = 'storm_end')
+    events <- RMevents_sample(df = precip_raw, ieHr = ieHr, rain = 'rain', time = 'pdate', 
+                              dfsamples = wq.dat, bdate = 'storm_start', edate = 'storm_end')
     
     #events <- RMevents_eof(df=precip_temp, storms = wq.dat.temp, site = sites[i], ieHr=ieHr, 
     #                       rainthresh=rainthresh)
@@ -64,9 +63,6 @@ run.rainmaker <- function(precip_raw = precip_raw,
     # merge all rain data
     StormSummary$site <- sitename[i]
     StormSummary$unique_storm_number <- wq.dat.temp$unique_storm_number
-    
-    rain.by.site[[i]] <- StormSummary
-  }
   
-  return(do.call("rbind", rain.by.site))
+  return(StormSummary)
 }
