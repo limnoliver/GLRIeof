@@ -11,4 +11,4 @@ site_end <- '2017-08-31'
 gb <- meteo_pull_monitors('USW00014898', date_min = site_start, date_max = site_end, var = 'all')
 
 temp_filename <- file.path('data_raw', paste0(site, '_GRB_weather_dat.csv'))
-write.csv(gb, 'data_raw/GRB_weather_dat.csv')
+write.csv(gb, temp_filename)
