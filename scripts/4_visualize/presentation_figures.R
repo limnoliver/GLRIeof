@@ -128,3 +128,16 @@ p7 <- ggplot(data = sw1.bar.plot, aes(x = variable, y = percentage, fill = froze
   labs(x = '', y = 'Proportion of Load', linetype = "")
 
 ggsave('figures/seasonal_loads_barchart.png', p7, height = 4.2, width = 8)
+
+#####################################
+## variable ranks
+####################################
+
+p8 <- ggplot(ranks.long, aes(x = predictor, y = rank)) +
+  geom_boxplot() +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()) +
+  labs(x = "", y = 'Rank across all responses\n1 = top predictor')
+
+ggsave('figures/predictor_rank_sw1.png', p8, height = 4, width = 7)
