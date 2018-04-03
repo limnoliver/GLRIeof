@@ -8,7 +8,9 @@ library(ggplot2)
 
 # this script creates a linear model between water quality and hydrologic variables, 
 # including variables output by Rainmaker, as well as storm characteristics
-source('scripts/2_process/process_merged_data.R')
+site <- 'sw3'
+temp_source <- file.path('scripts', '2_process', paste0('process_merged_data_', site, '.R'))
+source(temp_source)
 #sw1 <- read.csv('data_cached/sw1_mod_dat.csv')
 ############################
 # transform response variables
