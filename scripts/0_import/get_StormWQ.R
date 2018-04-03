@@ -73,6 +73,9 @@ for (k in 1:length(sheet.names)){
   row.start <- grep('start', file.all[,1], ignore.case = TRUE)
   row.end <- grep('yearly', file.all[,1], ignore.case = TRUE)
   col.start <- 1
+  #col.names <- droplevels.data.frame(file.all[row.start - 2, ])
+  #col.names <- as.vector(t(col.names)[,1])
+  #col.end <- grep('Organic Nitrogen Yield', col.names)
   file.dat <- file.all[c((row.start+1):(row.end-2)), ]
   #file.dat <- xlsx::read.xlsx(temp.file.path, 
   #                            sheetIndex = sheet.names[k], startRow = row.start+1, endRow = row.end-2, header = FALSE)
@@ -264,6 +267,9 @@ temp.c <- list()
 for (i in 1:length(cleaned.dat)) {
   temp <- cleaned.dat[[i]]
   temp.c[[i]] <- do.call("rbind", temp)
+  
+  tn.cols <- grep('total nitrogen', names(temp.c[[i]]), ignore.case = T)
+  temp.c[[i]][, tn.cols][temp.c[[i]][, tn.cols] == FALSE] <- NA
 }
 
 # look at names
