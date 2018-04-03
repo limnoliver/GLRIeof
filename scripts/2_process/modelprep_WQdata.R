@@ -113,5 +113,9 @@ wq.bystorm <- merge(wq.bystorm, flagsbystorm)
 wq.bystorm <- merge(wq.bystorm, unique(wq[,c('site', 'water_year', 'unique_storm_number', 'sub_storms')]), all.x = TRUE)
 wq.bystorm <- merge(wq.bystorm, stormdesc)
 
+if (site == 'sw3') {
+  wq.bystorm$storm_end[1] <- '2014-03-12 21:46:00'
+}
+
 temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
 write.csv(wq.bystorm, temp_filename, row.names = FALSE)
