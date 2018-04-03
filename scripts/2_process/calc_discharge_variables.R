@@ -2,7 +2,9 @@
 # for EOF work
 library(dplyr)
 # read in storm start/end times
+
 site <- 'sw3'
+site_no <- '04085108'
 
 wq_files <- file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv'))
 
@@ -30,7 +32,9 @@ names(discharge_vars) <- c(names(discharge_vars)[1:3], c('ant_discharge_date', '
                                                        'ant_dis_14day_mean', 'ant_dis_14day_max'))
 discharge_vars <- select(discharge_vars, -ant_dis_1day_mean)
 # write antecedent discharge data
-write.csv(discharge_vars, 'data_cached/discharge_variables.csv', row.names = FALSE)
+
+temp_filename <- file.path('data_cached', paste0(site, '_discharge_variables.csv'))
+write.csv(discharge_vars, temp_filename, row.names = FALSE)
 
  
 
