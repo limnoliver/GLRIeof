@@ -14,164 +14,279 @@ source(temp_source)
 #sw1 <- read.csv('data_cached/sw1_mod_dat.csv')
 ############################
 # transform response variables
-sw1[,responses] <- log10(sw1[,responses])
+dat[,responses] <- log10(dat[,responses])
 
 # get rid of highly correlated variables
 
-predictors.cor <- cor(sw1[,predictors[-length(predictors)]], use = 'complete.obs') # drop var "crop" from correlation since it's a categorical var
+predictors.cor <- cor(dat[,predictors[-length(predictors)]], use = 'complete.obs') # drop var "crop" from correlation since it's a categorical var
 names.cor <- row.names(predictors.cor)
 drop.predictors <- caret::findCorrelation(predictors.cor, cutoff = 0.95, verbose = FALSE, exact = TRUE)
 
-predictors.keep <- c(names.cor[-drop.predictors], 'frozen', 'sin_sdate', 'cos_sdate')
+predictors.keep <- c(names.cor[-drop.predictors], 'frozen')
 
 ##############################
 # approach #1 
 # non-linear - random forest model
 
-sw1.mod <- sw1[,predictors.keep]
-sw1.mod <- complete.cases(sw1.mod)
-sw1.mod <- sw1[sw1.mod, ]
-sw1.mod.before <- filter(sw1.mod, period == 'before')
-sw1.mod.after <- filter(sw1.mod, period == 'after')
+dat.mod <- dat[,predictors.keep]
+dat.mod <- complete.cases(dat.mod)
+dat.mod <- dat[dat.mod, ]
+dat.mod.before <- filter(dat.mod, period == 'before')
+dat.mod.after <- filter(dat.mod, period == 'after')
 
 # save MDC as output from loop
-mdc.perc.corn <- c()
-mdc.perc.all <- c()
-mdc.perc.alfalfa <- c()
-pval.differences <- c()
-pval.after <- c()
-pval.corn <- c()
-pval.alfalfa <- c()
-perc.var <- c()
-
-# loop through responses to create equation and model
-for (i in 1:length(responses)) {
-
-  mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+if (site == 'sw1') {
+  mdc.perc.corn <- c()
+  mdc.perc.all <- c()
+  mdc.perc.alfalfa <- c()
+  pval.differences <- c()
+  pval.after <- c()
+  pval.corn <- c()
+  pval.alfalfa <- c()
+  perc.var <- c()
   
-  mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
-  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit, ntree = 1000)
-  
-  perc.var[i] <- round(mod$rsq[500]*100, 1)
-  # calculate minimum detectable change for each constituent based on this model
-  mse.before <- mod.before$mse[length(mod.before$mse)]
-  
-  n.before <- nrow(sw1.mod.before[sw1.mod.before$period_crop == "before", ])
-  n.after <- nrow(sw1.mod.after[sw1.mod.after$period == "after",])
-  n.after.corn <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (corn)",])
-  n.after.alfalfa <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (alfalfa)",])
-  
-  tval.corn <- qt(0.05, n.before + n.after.corn - 2, lower.tail = FALSE)
-  tval.all <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
-  tval.alfalfa <- qt(0.05, n.before + n.after.alfalfa -2, lower.tail = FALSE)
-  
-  mdc.corn <- tval.corn*sqrt((mse.before/n.before) + (mse.before/n.after.corn))
-  mdc.all <- tval.all*sqrt((mse.before/n.before) + (mse.before/n.after))
-  mdc.alfalfa <- tval.alfalfa*sqrt((mse.before/n.before) + (mse.before/n.after.alfalfa))
-  mdc.perc.corn[i] <- (1-(10^-mdc.corn))*100
-  mdc.perc.all[i] <- (1-(10^-mdc.all))*100
-  mdc.perc.alfalfa[i] <- (1-(10^-mdc.alfalfa))*100
-  
-  
-  resid <- sw1.mod[, responses[i]] - mod$predicted
-  resid.test <- data.frame(resids = resid, 
-                           period = sw1.mod$period_crop)
-  resid.test.after <- data.frame(resids = resid[sw1$period == 'after'],
-                                 period = 'after')
-  resid.test.all <- bind_rows(resid.test, resid.test.after)
-  
-  diff.test <- lm(resid.test.all$resids ~ resid.test.all$period)
-  diff.test.result <- anova(diff.test)
-  pval <- diff.test.result$`Pr(>F)`[1]
-  pval.differences[i] <- pval
-  test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "")
-  
-  # pairwise tests for denoting which groups are different
-  resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after', 'after (corn)', 'after (alfalfa)'))
-  pair.test <- pairwise.t.test(resid.test.all$resids, resid.test.all$period, alternative = 'less')
-  pval.after[i] <- pair.test$p.value[1,1]
-  pval.corn[i] <- pair.test$p.value[2,1]
-  pval.alfalfa[i] <- pair.test$p.value[3,1]
-  
-  top.vars <- pdp::topPredictors(mod, n = 4)
-  
-  pdf(paste0('figures/', 'rf_pp_', responses[i], '.pdf'), heigh = 6, width = 6)
-  par(mfcol = c(2,2), mar = c(4,2,2,2), oma = c(2,2,3,0))
-  for (n in top.vars){
-    partialPlot(mod, pred.data = sw1.mod, x.var = paste(n),
-                xlab = n, main = "")
+  # loop through responses to create equation and model
+  for (i in 1:length(responses)) {
+    
+    mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+    
+    mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
+    mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit, ntree = 1000)
+    
+    perc.var[i] <- round(mod$rsq[500]*100, 1)
+    # calculate minimum detectable change for each constituent based on this model
+    mse.before <- mod.before$mse[length(mod.before$mse)]
+    
+    n.before <- nrow(sw1.mod.before[sw1.mod.before$period_crop == "before", ])
+    n.after <- nrow(sw1.mod.after[sw1.mod.after$period == "after",])
+    n.after.corn <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (corn)",])
+    n.after.alfalfa <- nrow(sw1.mod.after[sw1.mod.after$period_crop == "after (alfalfa)",])
+    
+    tval.corn <- qt(0.05, n.before + n.after.corn - 2, lower.tail = FALSE)
+    tval.all <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
+    tval.alfalfa <- qt(0.05, n.before + n.after.alfalfa -2, lower.tail = FALSE)
+    
+    mdc.corn <- tval.corn*sqrt((mse.before/n.before) + (mse.before/n.after.corn))
+    mdc.all <- tval.all*sqrt((mse.before/n.before) + (mse.before/n.after))
+    mdc.alfalfa <- tval.alfalfa*sqrt((mse.before/n.before) + (mse.before/n.after.alfalfa))
+    mdc.perc.corn[i] <- (1-(10^-mdc.corn))*100
+    mdc.perc.all[i] <- (1-(10^-mdc.all))*100
+    mdc.perc.alfalfa[i] <- (1-(10^-mdc.alfalfa))*100
+    
+    
+    resid <- sw1.mod[, responses[i]] - mod$predicted
+    resid.test <- data.frame(resids = resid, 
+                             period = sw1.mod$period_crop)
+    resid.test.after <- data.frame(resids = resid[sw1$period == 'after'],
+                                   period = 'after')
+    resid.test.all <- bind_rows(resid.test, resid.test.after)
+    
+    diff.test <- lm(resid.test.all$resids ~ resid.test.all$period)
+    diff.test.result <- anova(diff.test)
+    pval <- diff.test.result$`Pr(>F)`[1]
+    pval.differences[i] <- pval
+    test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "")
+    
+    # pairwise tests for denoting which groups are different
+    resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after', 'after (corn)', 'after (alfalfa)'))
+    pair.test <- pairwise.t.test(resid.test.all$resids, resid.test.all$period, alternative = 'less')
+    pval.after[i] <- pair.test$p.value[1,1]
+    pval.corn[i] <- pair.test$p.value[2,1]
+    pval.alfalfa[i] <- pair.test$p.value[3,1]
+    
+    top.vars <- pdp::topPredictors(mod, n = 4)
+    
+    pdf(paste0('figures/', 'rf_pp_', responses[i], '.pdf'), heigh = 6, width = 6)
+    par(mfcol = c(2,2), mar = c(4,2,2,2), oma = c(2,2,3,0))
+    for (n in top.vars){
+      partialPlot(mod, pred.data = sw1.mod, x.var = paste(n),
+                  xlab = n, main = "")
+    }
+    mtext(paste0("Partial Dependence plots - ", responses_clean[i]), side = 3, outer = T)
+    dev.off()
+    
+    ##########
+    # now create 4 plots
+    # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
+    fig.name = paste0('figures/rf_modsum_', responses[i], '.pdf')
+    pdf(fig.name, height = 10, width = 10)
+    layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
+    layout(layout_matrix)
+    par(mar = c(5,5,3,1), oma = c(0,0,0,0), pch = 16)
+    
+    ####
+    plot(mod$y ~ mod$predicted,
+         xlab = "Fitted Values",
+         ylab = "Observed Values", 
+         main = paste('log10', responses_clean[i]), col = sw1$period_crop)
+    
+    abline(0,1)
+    
+    text(x = min(mod$predicted) + 0.2, y = max(mod$y)-0.2, 
+         labels = paste0('% Var Exp = ', round(mod$rsq[500]*100, 1)), 
+         col = 'blue', pos = 4)
+    ####
+    temp <- boxplot(resid.test.all$resids ~ resid.test.all$period, 
+                    ylab = 'Residuals', col = c('darkgray', 'lightgray', 'red', 'green'),
+                    ylim = c(min(resid), max(resid)*1.3), main = test.text)
+    
+    text(x = 2, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.all[i],0), "%"), adj=c(0.5, 0))
+    text(x = 3, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.corn[i],0), "%"), adj=c(0.5, 0))
+    text(x = 4, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%"), adj=c(0.5, 0))
+    
+    if (pval < 0.05) {
+      if (pval.after[i] < 0.05) {
+        text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+        
+      }
+      if (pval.corn[i] < 0.05) {
+        text(x = 3, y = temp$stats[5,3]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+      }
+      if (pval.alfalfa[i] < 0.05) {
+        text(x = 4, y = temp$stats[5,4]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+      }
+    }
+    
+    
+    
+    ###
+    plot(resid ~ mod$predicted, 
+         xlab = "Fitted Values", 
+         ylab = "Residuals", col = sw1$period_crop)
+    abline(h = 0)
+    ## #
+    plot(resid ~ as.Date(sw1.mod$storm_start), col = sw1$period_crop,
+         xlab = 'Year', ylab = 'Residuals')
+    abline(h = 0, lwd = 2)
+    dev.off()
   }
-  mtext(paste0("Partial Dependence plots - ", responses_clean[i]), side = 3, outer = T)
-  dev.off()
   
-  ##########
-  # now create 4 plots
-  # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
-  fig.name = paste0('figures/rf_modsum_', responses[i], '.pdf')
-  pdf(fig.name, height = 10, width = 10)
-  layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
-  layout(layout_matrix)
-  par(mar = c(5,5,3,1), oma = c(0,0,0,0), pch = 16)
+  # create a dataframe describing the residual models
+  before_after_resid <- data.frame(variable = responses_clean,
+                                   perc_var = perc.var,
+                                   mdc_all = round(mdc.perc.all, 0),
+                                   mdc_corn = round(mdc.perc.corn, 0),
+                                   mdc_alfalfa = round(mdc.perc.alfalfa, 0),
+                                   pval_groups = round(pval.differences, 2),
+                                   pval_after = round(pval.after, 2),
+                                   pval_corn = round(pval.corn, 2),
+                                   pval_alfalfa = round(pval.alfalfa, 2))
   
-  ####
-  plot(mod$y ~ mod$predicted,
-       xlab = "Fitted Values",
-       ylab = "Observed Values", 
-       main = paste('log10', responses_clean[i]), col = sw1$period_crop)
-  
-  abline(0,1)
-  
-  text(x = min(mod$predicted) + 0.2, y = max(mod$y)-0.2, 
-       labels = paste0('% Var Exp = ', round(mod$rsq[500]*100, 1)), 
-       col = 'blue', pos = 4)
-  ####
-  temp <- boxplot(resid.test.all$resids ~ resid.test.all$period, 
-          ylab = 'Residuals', col = c('darkgray', 'lightgray', 'red', 'green'),
-          ylim = c(min(resid), max(resid)*1.3), main = test.text)
-  
-  text(x = 2, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.all[i],0), "%"), adj=c(0.5, 0))
-  text(x = 3, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.corn[i],0), "%"), adj=c(0.5, 0))
-  text(x = 4, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%"), adj=c(0.5, 0))
-  
-  if (pval < 0.05) {
-    if (pval.after[i] < 0.05) {
-      text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
-      
-    }
-    if (pval.corn[i] < 0.05) {
-      text(x = 3, y = temp$stats[5,3]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
-    }
-    if (pval.alfalfa[i] < 0.05) {
-      text(x = 4, y = temp$stats[5,4]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
-    }
-  }
-  
-  
-  
-  ###
-  plot(resid ~ mod$predicted, 
-       xlab = "Fitted Values", 
-       ylab = "Residuals", col = sw1$period_crop)
-  abline(h = 0)
-  ## #
-  plot(resid ~ as.Date(sw1.mod$storm_start), col = sw1$period_crop,
-       xlab = 'Year', ylab = 'Residuals')
-  abline(h = 0, lwd = 2)
-  dev.off()
+  write.csv(before_after_resid, 'data_cached/residual_results.csv')
 }
 
-# create a dataframe describing the residual models
-before_after_resid <- data.frame(variable = responses_clean,
-                                 perc_var = perc.var,
-                                 mdc_all = round(mdc.perc.all, 0),
-                                 mdc_corn = round(mdc.perc.corn, 0),
-                                 mdc_alfalfa = round(mdc.perc.alfalfa, 0),
-                                 pval_groups = round(pval.differences, 2),
-                                 pval_after = round(pval.after, 2),
-                                 pval_corn = round(pval.corn, 2),
-                                 pval_alfalfa = round(pval.alfalfa, 2))
+if (site == 'sw3') {
+  mdc.perc.nbefore <- c()
+  mdc.perc.nafter <- c()
+  pval.differences <- c()
+  perc.var <- c()
+  
+  # loop through responses to create equation and model
+  for (i in 1:length(responses)) {
+    
+    mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+    
+    mod <- randomForest(mod.equation, data = dat.mod, importance = T, na.action = na.omit)
+    mod.before <- randomForest(mod.equation, data = dat.mod.before, importance = T, na.action = na.omit, ntree = 1000)
+    
+    perc.var[i] <- round(mod$rsq[500]*100, 1)
+    # calculate minimum detectable change for each constituent based on this model
+    mse.before <- mod.before$mse[length(mod.before$mse)]
+    
+    n.before <- nrow(dat.mod.before[dat.mod.before$period == "before", ])
+    n.after <- nrow(dat.mod.after[dat.mod.after$period == "after",])
+    
+    tval.nbefore <- qt(0.05, n.before + n.before - 2, lower.tail = FALSE)
+    tval.nafter <- qt(0.05, n.before + n.after -2, lower.tail = FALSE)
 
-write.csv(before_after_resid, 'data_cached/residual_results.csv')
+    mdc.nbefore <- tval.nbefore*sqrt((mse.before/n.before) + (mse.before/n.before))
+    mdc.nafter <- tval.nafter*sqrt((mse.before/n.before) + (mse.before/n.after))
+    
+    mdc.perc.nbefore[i] <- (1-(10^-mdc.nbefore))*100
+    mdc.perc.nafter[i] <- (1-(10^-mdc.nafter))*100
+
+    
+    resid <- dat.mod[, responses[i]] - mod$predicted
+    resid.test <- data.frame(resids = resid, 
+                             period = dat.mod$period)
+    
+    resid.test.after <- data.frame(resids = resid[dat$period == 'after'],
+                                   period = 'after')
+    resid.test.all <- bind_rows(resid.test, resid.test.after)
+    
+    diff.test <- t.test(resid.test.all$resids~resid.test.all$period,alternative = 'less')
+ 
+    pval <- diff.test$p.value
+    pval.differences[i] <- pval
+    
+    test.text <- ifelse(pval > 0.05, "No sig. differences between groups", "")
+    
+    top.vars <- pdp::topPredictors(mod, n = 4)
+    
+    pdf(paste0('figures/', site, '_rf_pp_', responses[i], '.pdf'), heigh = 6, width = 6)
+    par(mfcol = c(2,2), mar = c(4,2,2,2), oma = c(2,2,3,0))
+    for (n in top.vars){
+      partialPlot(mod, pred.data = dat.mod, x.var = paste(n),
+                  xlab = n, main = "")
+    }
+    mtext(paste0("Partial Dependence plots - ", responses_clean[i]), side = 3, outer = T)
+    dev.off()
+    
+    # change order of levels
+    resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after'))
+    ##########
+    # now create 4 plots
+    # 1-obs vs pred, 2-residual boxplot, 3-residual~fitted, 4-resid~date
+    fig.name = paste0('figures/', site, '_rf_modsum_', responses[i], '.pdf')
+    pdf(fig.name, height = 10, width = 10)
+    layout_matrix <- matrix(c(1:4), nrow=2, ncol=2, byrow=TRUE)
+    layout(layout_matrix)
+    par(mar = c(5,5,3,1), oma = c(0,0,0,0), pch = 16)
+    
+    ####
+    plot(mod$y ~ mod$predicted,
+         xlab = "Fitted Values",
+         ylab = "Observed Values", 
+         main = paste('log10', responses_clean[i]), col = as.factor(dat$period))
+    
+    abline(0,1)
+    
+    text(x = min(mod$predicted) + 0.2, y = max(mod$y)-0.2, 
+         labels = paste0('% Var Exp = ', round(mod$rsq[500]*100, 1)), 
+         col = 'blue', pos = 4)
+    ####
+    temp <- boxplot(resid.test.all$resids ~ resid.test.all$period, 
+                    ylab = 'Residuals', col = c('darkgray', 'red'),
+                    ylim = c(min(resid), max(resid)*1.3), main = test.text)
+    
+    text(x = 2, y = max(resid)*1.2, labels = paste0("MDC = ", round(mdc.perc.nafter[i],0), "%"), adj=c(0.5, 0))
+
+    if (pval < 0.05) {
+        text(x = 2, y = temp$stats[5,2]*1.1, labels = "*", adj=c(0.5, .5), cex = 3)
+    }
+    
+    ###
+    plot(resid ~ mod$predicted, 
+         xlab = "Fitted Values", 
+         ylab = "Residuals", col = as.factor(dat$period))
+    abline(h = 0)
+    ## #
+    plot(resid ~ as.Date(dat.mod$storm_start), col = as.factor(dat$period),
+         xlab = 'Year', ylab = 'Residuals')
+    abline(h = 0, lwd = 2)
+    dev.off()
+  }
+  
+  # create a dataframe describing the residual models
+  before_after_resid <- data.frame(variable = responses_clean,
+                                   perc_var = perc.var,
+                                   mdc_nbefore = round(mdc.perc.nbefore, 0),
+                                   mdc_nafter = round(mdc.perc.nafter, 0),
+                                   pvals = round(pval.differences, 2))
+  
+  write.csv(before_after_resid, 'data_cached/residual_results.csv')
+}
+
 # now split data up into before and after, 
 # and fit RF models. Then run all events through 
 # both models.
