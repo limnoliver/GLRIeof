@@ -1,24 +1,24 @@
 # figs for presentation
 
-p <- ggplot(sw1, aes(x = energy_m1, y = Suspended_Sediment_Load_pounds)) +
+p <- ggplot(dat, aes(x = I5, y = Suspended_Sediment_Load_pounds)) +
   geom_point(aes(color = frozen)) +
   theme_bw() +
-  labs(x = "Storm Energy", y = 'log10 SS Load (pounds)')
+  labs(x = "Storm Intensity", y = 'log10 SS Load (pounds)')
 
-ggsave('figures/hydro_conditions_example.png', p, height = 3, width = 6)
+ggsave(paste0('figures/', site, '_hydro_conditions_example.png'), p, height = 3, width = 6)
 
 dat <- filter(before_after_resid, variable != "Peak Discharge")
 dat$type = c(rep("concentration", 9), rep("load", 9))
 
-p2 <- ggplot(dat, aes(x = reorder(variable, mdc_all), y = mdc_all)) +
+p2 <- ggplot(dat, aes(x = reorder(variable, mdc_nbefore), y = mdc_nbefore)) +
   geom_col(aes(fill = type)) +
-  geom_hline(yintercept = 50) +
+  #geom_hline(yintercept = 50) +
   theme_bw() +
   labs(y = "% Minimum Detectable Change", x = "") +
-  coord_cartesian(ylim = c(0, 65)) +
+  #coord_cartesian(ylim = c(0, 65)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
-ggsave('figures/MDC_allvars.png', p2, height = 5, width = 8.5)
+ggsave(paste0('figures/', site, '_MDC_allvars.png'), p2, height = 4, width = 6.5)
 
 p3 <- ggplot(dat, aes(x = reorder(variable, mdc_all), y = mdc_corn)) +
   geom_col(aes(fill = type)) +
@@ -33,14 +33,14 @@ plot(before_after_resid$mdc_all ~ before_after_resid$perc_var)
 
 names(sw1)
 
-p4 <- ggplot(sw1, aes(x = storm_start, y = Suspended_Sediment_Load_pounds)) +
+p4 <- ggplot(dat, aes(x = storm_start, y = Suspended_Sediment_Load_pounds)) +
   geom_point(aes(size = sum_runoff, color = frozen), alpha = 0.5) +
   scale_size_continuous(trans = 'log10', breaks = c(200, 2000, 20000), name = 'Total Runoff (cubic ft)') +
-  geom_vline(xintercept = as.POSIXct('2015-05-10 00:00:01')) +
+  geom_vline(xintercept = as.POSIXct('2017-05-26 00:00:01')) +
   theme_bw() +
-  labs(x = "Date", y = "SS Load (pounds)")
+  labs(x = "Date", y = "log 10 SS Load (pounds)")
 
-ggsave('figures/SW1_SS_load_throughtime.png', p4, height = 5, width = 12)
+ggsave('figures/SW3_SS_load_throughtime.png', p4, height = 5, width = 12)
 
 
 #####################################
@@ -52,37 +52,37 @@ gg_color_hue <- function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 df <- data.frame(
-  x = c(2,3,4),
-  y = rep(max(resid)*1.4, 3),
-  y2 = rep(max(resid)*1.2, 3),
-  label = c(paste0("MDC = ", round(mdc.perc.all[i],0), "%"),
-            paste0("MDC = ", round(mdc.perc.corn[i],0), "%"),
-            paste0("MDC = ", round(mdc.perc.alfalfa[i],0), "%")),
-  label2 = c("p = 0.009", "p = 0.54", "p = 0.006"))
+  x = 2,
+  y = max(resid)*1.4,
+  y2 = max(resid)*1.2,
+  label = paste0("MDC = ", round(mdc.perc.nafter[i],0), "%"),
+  label2 = paste0('p = ', round(pval.differences[i], 2)))
 
+resid.test.all$period <- factor(resid.test.all$period, levels = c('before', 'after'))
 p5 <- ggplot(resid.test.all, aes(y = resids, x = period)) +
   geom_boxplot(aes(fill = period)) +
-  scale_fill_manual(values = c('darkgray', 'lightgray', gg_color_hue(2)[1], gg_color_hue(2)[2]), guide = F) +
+  #scale_fill_manual(values = c('darkgray', 'lightgray', gg_color_hue(2)[1], gg_color_hue(2)[2]), guide = F) +
+  scale_fill_manual(values = c('darkgray',  gg_color_hue(2)[1]), guide = F) +
   theme_bw() +
   geom_text(data = df, aes(x = x, y = y, label = label)) + 
-  geom_text(data = df, aes(x = x, y = y2, label = label2), fontface = c('bold', 'plain', 'bold')) +
+  geom_text(data = df, aes(x = x, y = y2, label = label2)) +
   labs(y = 'Residuals', x = '') +
   theme(panel.grid = element_blank())
   
-ggsave('figures/SS_residuals.png', p5, height = 3, width = 6.7)
+ggsave(paste0('figures/', site, '_SS_residuals.png'), p5, height = 2.5, width = 5)
 
-dat <- data.frame(x = as.Date(sw1.mod$storm_start),
+dat <- data.frame(x = as.Date(dat.mod$storm_start),
                   y = resid,
-                  period = sw1$period_crop)
+                  period = factor(dat.mod$period, levels = c('before', 'after')))
 p6 <- ggplot(dat, aes(y = y, x = x)) +
   geom_point(aes(color = period)) +
-  scale_color_manual(values = c('darkgray', gg_color_hue(2)[1], gg_color_hue(2)[2])) +
+  scale_color_manual(values = c('darkgray', gg_color_hue(2)[1])) +
   theme_bw() +
   geom_hline(yintercept = 0) +
   labs(x = "", y = 'Residual') +
   theme(panel.grid.minor.y = element_blank())
 
-ggsave('figures/SS_residuals_time.png', p6, height = 3, width = 8)
+ggsave(paste0('figures/', site, '_SS_residuals_time.png'), p6, height = 2.5, width = 6)
 
 ###########################################
 # figure to show proportion of loads that 
