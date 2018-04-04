@@ -10,7 +10,7 @@
 # e.g., in the case of SW1, some field activities should not be in the model 
 # such as day since manure application - this was changed by the BMP so should 
 # not go into the model.
-predictors.drop <- c('days_since_cultivation')
+predictors.drop <- c('days_since_cultivation', 'days_since_planting')
 
 # read in merged data
 eof <- read.csv('data_cached/sw3_merged_dat.csv', header = TRUE, stringsAsFactors = FALSE,
@@ -55,6 +55,7 @@ sw3 <- eof %>%
 # those rain metrics - drop these events for now
 
 sw3 <- filter(sw3, !is.na(rain))
+dat <- sw3
 
-write.csv(sw3, 'data_cached/sw3_mod_dat.csv', row.names = F)
+#write.csv(sw3, 'data_cached/sw3_mod_dat.csv', row.names = F)
 
