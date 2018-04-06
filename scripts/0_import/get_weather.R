@@ -4,6 +4,11 @@ library(rnoaa)
 # setting key for NOAA: https://cran.r-project.org/web/packages/countyweather/README.html
 options("noaakey" = Sys.getenv("noaakey"))
 
-gb <- meteo_pull_monitors('USW00014898', date_min = '2011-10-01', date_max = '2017-10-01', var = 'all')
+site <- 'sw3'
+site_start <- '2014-03-01'
+site_end <- '2017-08-31'
 
-write.csv(gb, 'data_raw/GRB_weather_dat.csv')
+gb <- meteo_pull_monitors('USW00014898', date_min = site_start, date_max = site_end, var = 'all')
+
+temp_filename <- file.path('data_raw', paste0(site, '_GRB_weather_dat.csv'))
+write.csv(gb, temp_filename)

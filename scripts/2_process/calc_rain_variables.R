@@ -5,8 +5,14 @@ library(dataRetrieval)
 source('scripts/2_process/fxn_RMevents_EOF.R')
 source('scripts/2_process/fxn_runrainmaker.R')
 
+site <- 'sw3'
+site_no <- ifelse(site == 'sw1', "441624088045601", "441520088045001")
+
+wq_filename <- file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv'))
 # read in WQ data to define storm start/end times
-wq.dat <- read.csv('data_cached/prepped_WQbystorm.csv', header = TRUE)
+wq.dat <- read.csv(wq_filename, header = TRUE)
+
+
 
 # read in dates as CST/CDT, but then convert to GMT+6 to get rid of CDT
 date.vars <- c('sample_start', 'sample_end', 'storm_start', 'storm_end')
@@ -15,6 +21,8 @@ for (i in 1:length(date.vars)) {
   temp <- with_tz(temp, tzone = "Etc/GMT+6")
   wq.dat[,date.vars[i]] <- temp
 }
+
+
 
 # list precipitation data files
 #files <- list.files('data_raw')
@@ -25,7 +33,7 @@ for (i in 1:length(date.vars)) {
 # parameterCd <- "00045"  # Precipitation
 # #startDate <- "2010-06-30"
 # #endDate <- "2017-09-18"
-# precip_raw <- readNWISuv(siteNumber, parameterCd, tz = "Etc/GMT+6")
+# precip_raw <- readNWISuv(site_no, parameterCd, tz = "Etc/GMT+6")
 # precip_raw <- renameNWISColumns(precip_raw)
 # 
 # # rename columns
@@ -35,20 +43,21 @@ for (i in 1:length(date.vars)) {
 # data retrieval currently not working for precip data, need to pull from local file
 
 precip.location <- "L:/Oliver"
-precip.file <- "SW1 UV Precipitation 2012-2017.csv"
+precip_files <- list.files(precip.location)[grep('precipitation', list.files(precip.location), ignore.case = T)]
+precip_file <- precip_files[grep(site, precip_files, ignore.case = TRUE)]
 
  
 #colClasses = c(rep("POSIXct", 2), 'numeric', 'character', NA, 'character')
-precip_raw <- read.csv(file.path(precip.location, precip.file), stringsAsFactors = FALSE, skip = 14, 
+precip_raw <- read.csv(file.path(precip.location, precip_file), stringsAsFactors = FALSE, skip = 14, 
                        strip.white = TRUE)
 
 precip_raw$ISO.8601.UTC <- gsub('T', ' ', precip_raw$ISO.8601.UTC)
 precip_raw$ISO.8601.UTC <- gsub('Z', '', precip_raw$ISO.8601.UTC)
 
-
 precip_raw$`Timestamp..UTC.06.00.`<- as.POSIXct(precip_raw$`Timestamp..UTC.06.00.`, tz = "Etc/GMT+6")
 precip_raw$ISO.8601.UTC <- as.POSIXct(precip_raw$ISO.8601.UTC, tz = "UTC")
 
+if (site == 'sw1') {
 # clean up precipitation data that we know is wrong/bad
 # this includes a large event on 2016-09-14 that was a calibration run
 # 2015-07-16 through 2015-07-21 (use SW3 data)
@@ -94,10 +103,13 @@ precip_raw_fixed <- bind_rows(precip_raw, replacement_dates) %>%
   arrange(pdate) %>%
   mutate(site_no = '441624088045601')
 
+}
 
+precip_raw <- rename(precip_raw, pdate = `Timestamp..UTC.06.00.`, rain = Value) %>%
+  arrange(pdate)
 # summarize precip data site(s) of interest
-precip.dat <- run.rainmaker(precip_raw = precip_raw_fixed, siteid = '441624088045601',
-                            sitename = "SW1", ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
+precip.dat <- run.rainmaker(precip_raw = precip_raw, siteid = site_no,
+                            sitename = site, ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
 
 test <- filter(precip_raw_fixed, pdate >= as.POSIXct('2017-03-05 13:59:59', tz = "Etc/GMT+6") & 
@@ -106,6 +118,7 @@ test <- filter(precip_raw_fixed, pdate >= as.POSIXct('2017-03-05 13:59:59', tz =
 #                             sitename = c("SW1", "SW3"), ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
 #                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
 
-write.csv(precip.dat, 'data_cached/rain_variables.csv', row.names = FALSE)
+precip_filename <- file.path('data_cached', paste0(site, '_rain_variables.csv'))
+write.csv(precip.dat, precip_filename, row.names = FALSE)
 
   
