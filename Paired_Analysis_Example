@@ -1,0 +1,44 @@
+setwd("H:/R/Sheboygan/R-PairedW-17")
+pathToSave <- paste("H:/R/Sheboygan/R-PairedW-17/Plots/")
+library("ggplot2")
+
+#load paired data
+TPEvent.17 <- read.csv(file = "event-tp-loads-17.csv")
+SSEvent.17 <- read.csv(file = "event-ss-loads-17.csv")
+
+#Make linear models of the difference after treatment:
+m.TPE = lm((log10(OT.load)) ~ (log10(FS.load))*trt, data=TPEvent.17)#.vegon)
+m.SSE = lm((log10(OT.load)) ~ (log10(FS.load))*trt, data=SSEvent.17)
+
+m.TPE = lm((log10(OT.load)) ~ (log10(FS.load))*veggieTime, data=TPEvent.17)
+m.SSE = lm((log10(OT.load)) ~ (log10(FS.load))*veggieTime, data=SSEvent.17)
+
+#ANOVA to identify a significantly different relationship after intervention:
+anova(m.TPE)
+summary(m.TPE)
+#
+anova(m.SSE)
+summary(m.SSE)
+
+###MINIMUM DETECTABLE CHANGE: +trt instead of *trt forces the trend lines to be parallel:
+#This analysis compares OBSERVED change to MDC
+#T-dist calc: http://stattrek.com/online-calculator/t-distribution.aspx
+#TP
+#m.TPE = lm(OT.logload ~ FS.logload+trt, data=TPEvent)
+mdc.TPE = lm((log10(OT.load)) ~ (log10(FS.load))+trt, data=TPEvent.17)
+summary(mdc.TPE)
+df.17 = 65 #df=npre+npost-3
+s.17 =  0.09923  #from summary results table: trt x std. error
+t.17 = -1.669  #from student t-value table,  analyze primarily at P(T</= t)0.05
+MDCTP.17 <- t.17*s.17
+MDCTP.17.P <- (1-10^(-MDCTP.17))*100 #-67% #this is the updated percent reduction needed to be significant
+MDCTP.17.P #-46%
+
+#SS
+mdc.SS = lm((log10(OT.load)) ~ (log10(FS.load))+trt, data=SSEvent.17)
+summary(mdc.SS)
+s.17 = 0.13709  #from summary results table: trt x std. error
+t.17 = -1.669  #from student t-value table, df=npre+npost-3 analyze primarily at p>0.05
+MDCSS.17 <- t.17*s.17
+MDCSS.17.P <- (1-10^(-MDCSS.17))*100 #-67% #this is the updated percent reduction needed to be significant
+MDCSS.17.P #-69.4%
