@@ -52,26 +52,6 @@ for (i in 1:nrow(field_events)) {
   harvest_filter <- grep(paste0(harvest_keywords, collapse = '|'), field_events$activity_group, ignore.case = T)
   temp_plantings <- temp_timeline[planting_filter, ]
   temp_harvest <- temp_timeline[harvest_filter, ]
-    
-    if (nrow(temp_plantings) > 0) {
-      planting_diff <- temp.date - temp_plantings$date
-      field_events$days_since_planting[i] <- as.numeric(min(planting_diff))
-      
-      harvest_diff <- temp.date - temp_harvest$date
-      harvest_diff <- ifelse(length(harvest_diff) > 0, as.numeric(min(harvest_diff)), NA)
-      
-      if (!is.na(harvest_diff) & harvest_diff < as.numeric(min(planting_diff))) {
-          field_events$days_since_planting[i] <- 0
-      }
-      
-    } else {
-      field_events$days_since_planting[i] <- 0 
-    }
-  }
-  
-
-    } 
-    
 }
 
 temp_filename <- file.path('data_cached', paste0(site, '_field_predictors.csv'))
