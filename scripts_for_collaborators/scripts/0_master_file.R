@@ -63,4 +63,9 @@ cultivation_keywords <- c('cultivation') # words to describe tillage and other f
 planting_keywords <- c('planting') # words to describing planting activities, found in "activity_group" column
 harvest_keywords <- c('cutting', 'harvest') # words describing cutting/harvest activities, found in "activity_group" column.
 
-# 
+# discharge data
+discharge_file <- '' #filename of discharge data of a nearby stream gage to calculate antecedent discharge, NA if pulling from NWIS using site_no
+discharge_site_no <- '' # if not providing a discharge file, the USGS stream gage site to pull discharge data from
+antecedent_days <- c(1,2,3,7,14) # the days over which to calculate antecedent discharge. These are the values used for the WI sites.
+#
+

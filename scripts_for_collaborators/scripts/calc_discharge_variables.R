@@ -1,20 +1,21 @@
 # This script calculates antecedent discharge relative to storm starts
 # for EOF work
-library(dplyr)
 # read in storm start/end times
 
-site <- 'sw3'
-site_no <- '04085108'
-
 wq_files <- file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv'))
-
 wq.dat <- read.csv(wq_files, header = TRUE, colClasses = c(storm_start = 'POSIXct'))
-storms <- wq.dat[,c('site', 'unique_storm_number', 'storm_start')]
+
+storms <- wq.dat[,c('unique_storm_number', 'storm_start')]
 
 # get discharge
-library(dataRetrieval)
-discharge.dat <- readNWISdv(siteNumbers = '04085108', parameterCd = '00060')
-discharge.dat <- renameNWISColumns(discharge.dat)
+if (is.na(discharge_file)) {
+  discharge.dat <- readNWISdv(siteNumbers = discharge_site_no, parameterCd = '00060')
+  discharge.dat <- renameNWISColumns(discharge.dat)
+} else {
+  temp_filepath <- file.path('data_raw', discharge_file)
+  discharge.dat <- read.csv(temp_filepath)
+}
+
 
 antecedentDays = c(1,2,3,7,14)
 stats = c('mean', 'max')

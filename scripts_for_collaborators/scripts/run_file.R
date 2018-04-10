@@ -1,5 +1,10 @@
 # Run this file to run all data processing/analysis steps
 
+# load libraries
+library(dplyr)
+library(Rainmaker)
+library(dataRetrieval)
+
 # source master file
 source('0_master_file.R')
 

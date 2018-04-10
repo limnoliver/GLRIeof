@@ -1,4 +1,3 @@
-library(dplyr)
 # calculate days since field action variables
 # e.g., days since planing corn, alfalfa
 # days since last fertilizer/manure application
