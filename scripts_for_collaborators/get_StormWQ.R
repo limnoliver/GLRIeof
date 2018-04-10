@@ -2,66 +2,125 @@
 # import data from excel files
 ###################################
 
-wq <- read.csv(file.path('data_raw', wq_file))
+wq <- read.csv(file.path('data_raw', wq_file), na.strings = c("", "NA"))
   
 # check to see if all required columns are in data frame 
 # use list in stickies to set this, not quite sure what the complete list is
-must.haves <- c('storm_start', 'storm_end', 'runoff_volume')
-df.names <- c('storm_id', 'lab_id', 'num_subsamples', 'sample_start', 'sample_end', 'storm_start', 'storm_end', 'peak_discharge', 'runoff_volume', 'instant_discharge', 'storm_type')
-wqvars.names <- grep('load|mg/L|flag', names.1, ignore.case = TRUE, value = TRUE)
+must.haves <- c('storm_start', 'storm_end', 'sample_start', 'sample_end', 'runoff_volume', 
+                'unique_storm_number', 'unique_storm_id', 'peak_discharge')
 
+# set concentration, load, and flag variables
+if (!all(must.haves %in% names(wq))) {
+  message(paste0('Not all required variables in data frame. Please check that you have variables ', must.haves))
+}
 
+if (length(loads) == 1){
+  loadvars <- grep(loads, names(storms), ignore.case = TRUE, value = TRUE)
+} else {
+  loadvars <- loads
+}
 
+if (length(concentrations) == 1){
+  concvars <- grep(concentrations, names(storms), ignore.case = TRUE, value = TRUE)
+} else {
+  loadvars <- concentrations
+}
 
-
-
-for (i in 1:length(rows)) {
-  row.sum <- comments2[which(comments.rows == i+row.start)]
-  row.sum <- row.sum[!is.na(row.sum)]
-  
-  if (length(row.sum) == 0) {
-    comments3[i] <- NA
-  } else if (length(row.sum) == 1) {
-    comments3[i] <- row.sum
-  } else {
-    comments3[i] <- paste(row.sum, collapse = ";")
-  }
+if (length(flags) == 1) {
+  flagvars <- grep(flags, names(storms), ignore.case = TRUE, value = TRUE)
+} else {
+  flagvars <- flags
 }
 
 
-# create a new column in dat.keep for comments
-dat.keep$comments <- comments3
+# set dates to time zone
+.origin <- as.POSIXct(ifelse(Sys.info()[['sysname']] == "Windows", "1899-12-30", "1904-01-01"))
+tz(.origin) <- site_tz
 
+date.vars <- c('sample_start', 'sample_end', 'storm_start', 'storm_end')
 
-sheet.dat[[k]] <- dat.keep
-remove()
-} # closes k loop
-cleaned.dat[[j]] <- sheet.dat
-} # closes j loop
-
-##############################
-# extract data from list and save
-#################################
-library(data.table)
-temp.c <- list()
-
-for (i in 1:length(cleaned.dat)) {
-  temp <- cleaned.dat[[i]]
-  temp.c[[i]] <- do.call("rbind", temp)
-  
-  tn.cols <- grep('total nitrogen', names(temp.c[[i]]), ignore.case = T)
-  temp.c[[i]][, tn.cols][temp.c[[i]][, tn.cols] == FALSE] <- NA
+for (i in 1:length(date.vars)) {
+  temp <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz)
 }
 
-# look at names
-# only difference is orthophosphate turns into dissolved reactive 
+# clean up the data to exclude estimated values, combine sub storm events, etc.
+# exclude storms that have a 1 in exclude, are estimated, or are discrete samples
+storms <- filter(wq, exclude == 0) %>%
+  filter(estimated == 0) %>%
+  filter(discrete == 0)
 
-names.list <- lapply(temp.c, names)
+# make "<" values equal to half of the censored value
 
-# make list of dataframes into one data frame
+# first, find which variables have a "<"
+# and replace with 0.5 * value
 
-extracted.dat <- rbindlist(temp.c)
-# warning that this can go wrong if columns are not in the same order
+for (i in 1:length(flagvars)) {
+  flags <- grep('<', storms[, flagvars[i]])
+  storms[flags, concvars[i]] <- 0.5*storms[flags, concvars[i]]
+}
+
+# combine sub storms
+# add a column that will be used for weighting concentrations by total runoff volume
+storm.vols <- wq[,c('unique_storm_number', 'runoff_volume', 'unique_storm_id')]
+storm.vols <- storm.vols %>%
+  group_by(unique_storm_number) %>%
+  summarise(sum_runoff = sum(runoff_volume), 
+            sub_storms = paste(unique_storm_id, collapse = ","))
+
+storms <- merge(storms, storm.vols, by = 'unique_storm_number', all.x = TRUE)
+storms <- mutate(storms, vol_weight = runoff_volume/sum_runoff)
+
+# get rid of any samples that do not have a volume weight, 
+# which will give us NA values later on
+storms <- filter(storms, !is.na(vol_weight))
+
+# Handle sub storms
+# when combining sub events, take:
+# max of peak discharge to report as "peak discharge" for event
+# min start date
+# max end date
+# load = sum of subs
+# conc weighted by sum(load)/sum(runoff volume)
+
+
+loadbystorm <- storms %>% 
+  group_by(unique_storm_number) %>%
+  summarise_at(vars(loadvars), sum, na.rm = TRUE) 
+
+concbystorm <- storms[,c(concvars, 'unique_storm_number', 'vol_weight')]
+concbystorm[, concvars] <- concbystorm[,concvars]*concbystorm[,'vol_weight']
+
+concbystorm <- concbystorm %>%
+  group_by(unique_storm_number) %>%
+  summarise_at(vars(concvars), sum, na.rm = TRUE)
+
+stormdesc <- storms %>%
+  group_by(unique_storm_number) %>%
+  summarise(
+    sample_start = min(sample_start),
+    sample_end = max(sample_end),
+    storm_start = min(storm_start),
+    storm_end = max(storm_end),
+    peak_discharge = max(peak_discharge), 
+    runoff_volume = sum(runoff_volume)
+  )
+
+flagsbystorm <- storms %>%
+  group_by(unique_storm_number) %>%
+  summarise_at(vars(flagvars), toString) 
+
+wq.bystorm <- merge(concbystorm, loadbystorm)
+wq.bystorm <- merge(wq.bystorm, storm.vols)
+wq.bystorm <- merge(wq.bystorm, flagsbystorm)
+wq.bystorm <- merge(wq.bystorm, unique(wq[,c('site', 'water_year', 'unique_storm_number', 'sub_storms')]), all.x = TRUE)
+wq.bystorm <- merge(wq.bystorm, stormdesc)
+
+if (site == 'sw3') {
+  wq.bystorm$storm_end[1] <- '2014-03-12 21:46:00'
+}
+
+temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
+write.csv(wq.bystorm, temp_filename, row.names = FALSE)
 
 # write data
 # setwd("H:/Projects/GLRIeof")
