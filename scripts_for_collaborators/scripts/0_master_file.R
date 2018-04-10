@@ -13,15 +13,26 @@ study_type <- '' # either "before_after" or "paired"
 site_paired <- '' # site abbreviation for paired site - used for file naming conventions
 site_no_paired <- '' # USGS paired (control) site number, 'NA' if no paired site
 
-site_tz <- '' # all data should be converted to the same time zone. Indicate here which timezone that is - e.g. central "America/Chicago" or central without DST "Etc/GMT+6"
+# R likes dates in a very specific format (YYYY-MM-DD, coded in R as "%Y-%m-%d"). The scripts need to know 
+# what time zone your input files are in (these should all be the same), and what format your dates are in.
+# To figure out the R format code for your own dates, see this brief tutorial: https://www.r-bloggers.com/date-formats-in-r/ 
+# you can also see all date codes by looking executing ?strptime in your R Console, 
+# and scrolling down to "Details"
+
+site_tz <- '' # all data should be converted (or called into R) to the same time zone. 
+              # Indicate here which timezone that is - e.g. central "America/Chicago" or central without DST "Etc/GMT+6"
+datetime_format <- '' # format of all datetime columns. For example, 
+date_format <- '' # format of date variables in provided data files. For example, the default in Excel is
+# mm/dd/yyyy, and the coded format of that date in R is "%m/%d/%Y". 
+# dates from Excel are read in the format "" -- but R wants them in the format "YYYY"
 # setting this variable read in NWIS data in the same time zone, but will not verify that all of your data
 # are in a consistent timezone. Please verify that all data are in appropriate time zones.
 
-start_date <- as.POSIXct('') # YYY-MM-DD HH:MM:SS date/time of study start
-bmp_date <- as.POSIXct('') # YYY-MM-DD HH:MM:SS date/time of BMP implementation. All events before
+start_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study start
+bmp_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of BMP implementation. All events before
                            # this date will be considered 'before', all events after this 
                            # date will be considered 'after'
-end_date <- as.POSIXct('') # YYY-MM-DD HH:MM:SS date/time of study end
+end_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study end
 
 ######################################
 ## set wq data parameters
@@ -67,5 +78,9 @@ harvest_keywords <- c('cutting', 'harvest') # words describing cutting/harvest a
 discharge_file <- '' #filename of discharge data of a nearby stream gage to calculate antecedent discharge, NA if pulling from NWIS using site_no
 discharge_site_no <- '' # if not providing a discharge file, the USGS stream gage site to pull discharge data from
 antecedent_days <- c(1,2,3,7,14) # the days over which to calculate antecedent discharge. These are the values used for the WI sites.
-#
+
+dis_date_column <- 'Date' # name of column with dates if providing own file - defaults to NWIS standards
+discharge_column <- 'Flow' # name of column with discharge data if providing own file - defaults to NWIS standards
+
+
 
