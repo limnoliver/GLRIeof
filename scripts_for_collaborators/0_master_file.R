@@ -54,4 +54,13 @@ rain_column <- '' # if using own data, the name of the rain value column
 date_column <- '' # if using own data, the name of the date/time column, should be in standard POSIXct (YYY-MM-DD HH:MM:SS)
 rain_tz <- '' # time zone of date_column. See ?timezones for more information. Central time is
 
+# field activity data
+activity_file <- '' # filename of field activity log and should include .csv extension
+nut_additions_keywords <- c('manure', 'fertilizer') # words used to describe any manure and/or fertilizer additions 
+                                                    # to the field. These should be keywords found in the "activity_group" column
+cultivation_keywords <- c('cultivation') # words to describe tillage and other field cultivation activities
+                                         # this word will be found in the "activity_group"
+planting_keywords <- c('planting') # words to describing planting activities, found in "activity_group" column
+harvest_keywords <- c('cutting', 'harvest') # words describing cutting/harvest activities, found in "activity_group" column.
+
 # 
