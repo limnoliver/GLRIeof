@@ -1,0 +1,67 @@
+storms <- read.csv(storm_filename, stringsAsFactors = FALSE,
+                   colClasses = c(storm_start = 'POSIXct', storm_end = 'POSIXct'))
+
+options("noaakey" = Sys.getenv("noaakey"))
+
+if (!is.na(noaa_site)) {
+  weather_noaa <- rnoaa::meteo_pull_monitors(noaa_site, date_min = start_date - 7, 
+                                        date_max = site_end, var = 'all')
+  
+} 
+
+if (!is.na(weather_file)) {
+  weather_dat <- read.csv(file.path('data_raw', weather_file))
+  weather_dat$date <- as.Date(weather_dat$date, format = date_format)
+}
+
+# calculate change in snow depth
+# check if snow var is in weather_dat
+if (!is.na(weather_file) & 'snwd' %in% names(weather_file)) {
+  snow_in_file <- TRUE
+} else {
+  snow_in_file <- FALSE
+}
+
+if (snow_in_file == FALSE) {
+  snowpack_diff <- diff(weather_noaa$snwd)
+  weather_noaa$snwd_diff[2:nrow(weather_noaa)] <- snowpack_diff
+} else {
+  snowpack_diff <- diff(weather_dat$snwd)
+  weather_dat$snwd_diff[2:nrow(weather_dat)] <- snowpack_diff
+}
+
+if (!is.na(weather_file) & !is.na(noaa_site)) {
+  weather <- left_join(weather_dat, weather_noaa, by = 'date')
+} else if (is.na(weather_file)) {
+  weather <- weather_noaa
+} else {
+  weather <- weather_dat
+}
+
+# calculate time vars for storms df
+storm_dates <- as.Date(storms$storm_start)
+total_days <- as.numeric(difftime(max(storm_dates), min(storm_dates)))
+storm_dates_since <- as.numeric(difftime(storm_dates, as.Date("2012-01-01"), unit = 'days'))
+b <- (2*pi)/365 # gets correct period for sin cos waves
+
+storms$sin_sdate <- sin(b*storm_dates_since)
+storms$cos_sdate <- cos(b*storm_dates_since)
+
+for (i in 1:nrow(storms)) {
+  dates <- as.Date(c(format(storms$storm_start[i], format = "%Y-%m-%d"), format(storms$storm_end[i], format = "%Y-%m-%d")))
+  dates <- seq(dates[1], dates[2], by = 'days')
+  dates <- unique(dates)
+  weather_temp <- filter(weather, date %in% dates)
+  storms$tmax[i] <- max(weather_temp$tmax)/10 #convert from tenths of degrees C to degrees C
+  storms$tmin[i] <- min(weather_temp$tmin)/10 #convert from tenths of degrees C to degrees C
+  #storms$prcp[i] <- sum(weather_temp$prcp)*(0.0393701/10) # convert from tenths of mm to inches
+  #storms$snow[i] <- sum(weather_temp$snow)*0.0393701 # convert from mm to inches
+  #storms$snwd[i] <- mean(weather_temp$snwd)*0.0393701 # convert from mm to inches
+  storms$snwd_diff[i] <- sum(weather_temp$snwd_diff)*0.0393701 # convert from mm to inches
+  
+}
+
+weather.dat <- select(storms, unique_storm_number, sin_sdate:snwd_diff)
+
+weather_tempname <- file.path('data_cached', paste0(site, '_weather_by_storm.csv'))
+write.csv(weather.dat, weather_tempname, row.names = F)

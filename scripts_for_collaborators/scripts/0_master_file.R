@@ -75,13 +75,22 @@ planting_keywords <- c('planting') # words to describing planting activities, fo
 harvest_keywords <- c('cutting', 'harvest') # words describing cutting/harvest activities, found in "activity_group" column.
 
 # discharge data
-discharge_file <- '' #filename of discharge data of a nearby stream gage to calculate antecedent discharge, NA if pulling from NWIS using site_no
+discharge_file <- '' # filename of discharge data of a nearby stream gage to calculate antecedent discharge, NA if pulling from NWIS using site_no
 discharge_site_no <- '' # if not providing a discharge file, the USGS stream gage site to pull discharge data from
 antecedent_days <- c(1,2,3,7,14) # the days over which to calculate antecedent discharge. These are the values used for the WI sites.
 
 dis_date_column <- 'Date' # name of column with dates if providing own file - defaults to NWIS standards
 discharge_column <- 'Flow' # name of column with discharge data if providing own file - defaults to NWIS standards
 
-# 
+# weather data
+weather_file <- '' # filename (ending in .csv) of daily weather data from a nearby met station to calculate storm
+                   # weather characteristics, NA if pulling data directly from NOAA (preferred). 
+                   # At a minimum, this file should include 'date' and 
+                   # daily min (tmin) and max (tmax) temperature in degrees celsius. 
+                   # Can also include snow depth  in milimeters (snwd).
+
+
+noaa_site <- '' # nearest NOAA met station site number. Can use both weather_file and noaa_site if 
+                # weather_file does not contain snow depth. 
 
 
