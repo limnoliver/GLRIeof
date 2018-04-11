@@ -44,6 +44,8 @@ precip.dat <- run.rainmaker(precip_raw = precip_raw, siteid = site_no,
                             sitename = site, ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
 
+precip.dat <- rename(precip.dat, 'rain_startdate' = 'StartDate', 'rain_enddate' = 'EndDate')
+
 precip_filename <- file.path('data_cached', paste0(site, '_rain_variables.csv'))
 write.csv(precip.dat, precip_filename, row.names = FALSE)
 
