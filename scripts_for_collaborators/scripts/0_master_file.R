@@ -50,8 +50,10 @@ flags <- c('') # this can either be a vector of verbatim flag
 # columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
 # columns share in common (e.g., "flag")
 
-
-
+clean_names <- c('') # a vector of "clean" response variables names for all variables you want to 
+                     # model. This will be used for plotting purposes to create nice looking
+                     # axes. For example, if a column was named suspended_sediments_load_pound, a 
+                     # better axis name would be "SS load (pounds)"
 ###########################################################################################
 # If you're using a before-after study design, the variables below should be filled out.
 # If you have a paired site, these data aren't necessary, but can be used to run 
@@ -92,5 +94,14 @@ weather_file <- '' # filename (ending in .csv) of daily weather data from a near
 
 noaa_site <- '' # nearest NOAA met station site number. Can use both weather_file and noaa_site if 
                 # weather_file does not contain snow depth. 
+
+# other
+predictors_drop <- '' # one or more predictor variables that should be dropped from the analysis based
+                      # on site-specific analysis goals. For example, if you expect that the implemented
+                      # BMP will affect field activity (e.g., if the farmer moves to no-till, 'days_since_cultivation'
+                      # will be different before vs after) it should not be included in the residual model.
+                      # to get a full list of variables that that can be included in the model, 
+                      # run the 'processing_run_file.R' and look at the generated 'merged_dat.csv' file 
+                      # stored in data_cached
 
 
