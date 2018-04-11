@@ -1,0 +1,20 @@
+# script to merge wq, rain, and discharge data
+temp_file <- paste0('data_cached/', site)
+
+wq <- read.csv(paste0(temp_file, '_prepped_WQbystorm.csv'))
+rain <- read.csv(paste0(temp_file, '_rain_variables.csv'))
+discharge <- read.csv(paste0(temp_file, '_discharge_variables.csv'))
+weather <- read.csv(paste0(temp_file, '_weather_by_storm.csv'))
+field <- read.csv(paste0(temp_file, '_field_predictors.csv'))
+
+#field <- field[,c(1,4:7)]
+
+# merge dat
+
+all.eof <- merge(wq, rain, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, discharge, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, weather, by = 'unique_storm_number', all.x = TRUE)
+all.eof <- merge(all.eof, field, by = "unique_storm_number", all.x = TRUE)
+
+tempfile_name <- file.path('data_cached', paste0(site, '_merged_dat.csv'))
+write.csv(all.eof, tempfile_name, row.names = FALSE)
