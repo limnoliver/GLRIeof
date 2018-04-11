@@ -4,6 +4,7 @@
 library(dplyr)
 library(Rainmaker)
 library(dataRetrieval)
+library(USGSHydroTools)
 
 # source master file
 source('0_master_file.R')
