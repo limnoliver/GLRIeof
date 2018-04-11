@@ -5,6 +5,8 @@ library(dplyr)
 library(Rainmaker)
 library(dataRetrieval)
 library(USGSHydroTools)
+library(lubridate)
+library(rnoaa)
 
 # source master file
 source('0_master_file.R')
