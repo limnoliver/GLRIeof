@@ -14,13 +14,11 @@ if (is.na(discharge_file)) {
 } else {
   temp_filepath <- file.path('data_raw', discharge_file)
   discharge.dat <- read.csv(temp_filepath)
+  names(discharge.dat)[which(names(discharge.dat) %in% dis_date_column)] <- 'Date'
+  names(discharge.dat)[which(names(discharge.dat) %in% discharge_column)] <- 'Flow'
 }
 
-
-antecedentDays = c(1,2,3,7,14)
 stats = c('mean', 'max')
-# run antecedent discharge function
-library(USGSHydroTools)
 
 discharge_vars <- TSstats(discharge.dat, date = 'Date', varnames = 'Flow', dates = storms, starttime = "storm_start",
                           times = antecedentDays, units = 'days', stats.return = stats)
@@ -32,8 +30,8 @@ names(discharge_vars) <- c(names(discharge_vars)[1:3], c('ant_discharge_date', '
                                                        'ant_dis_7day_mean', 'ant_dis_7day_max',
                                                        'ant_dis_14day_mean', 'ant_dis_14day_max'))
 discharge_vars <- select(discharge_vars, -ant_dis_1day_mean)
-# write antecedent discharge data
 
+# write antecedent discharge data
 temp_filename <- file.path('data_cached', paste0(site, '_discharge_variables.csv'))
 write.csv(discharge_vars, temp_filename, row.names = FALSE)
 
