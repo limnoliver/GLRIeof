@@ -21,10 +21,10 @@ if (is.na(discharge_file)) {
 stats = c('mean', 'max')
 
 discharge_vars <- TSstats(discharge.dat, date = 'Date', varnames = 'Flow', dates = storms, starttime = "storm_start",
-                          times = antecedentDays, units = 'days', stats.return = stats)
+                          times = antecedent_days, units = 'days', stats.return = stats)
 
 # rename columns
-names(discharge_vars) <- c(names(discharge_vars)[1:3], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
+names(discharge_vars) <- c(names(discharge_vars)[1:2], c('ant_discharge_date', 'ant_dis_1day_mean', 'ant_dis_1day_max',
                                                        'ant_dis_2day_mean', 'ant_dis_2day_max',
                                                        'ant_dis_3day_mean', 'ant_dis_3day_max',
                                                        'ant_dis_7day_mean', 'ant_dis_7day_max',
