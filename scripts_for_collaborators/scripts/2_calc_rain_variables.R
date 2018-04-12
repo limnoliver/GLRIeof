@@ -1,10 +1,7 @@
-library(Rainmaker)
-library(lubridate)
-library(dplyr)
-library(dataRetrieval)
 
 # read in WQ data to define storm start/end times
-wq.dat <- read.csv(wq_filename, header = TRUE)
+wq.dat <- read.csv(file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv')), 
+                   header = TRUE, stringsAsFactors = F, colClasses = c(storm_start = 'POSIXct', storm_end = 'POSIXct'))
 
 ############## Get rain data ###############
 # get data from NWIS if file is not provided
@@ -16,7 +13,11 @@ if (is.na(rain_file)) {
   endDate <- as.Date(end_date)
   
   # get NWIS data
-  precip_raw <- readNWISuv(temp_sites[i], parameterCd, tz = site_tz)
+  message('Pulling precip data from NWIS.')
+  start_time <- Sys.time()
+  precip_raw <- readNWISuv(rain_site, parameterCd, tz = site_tz)
+  end_time <- Sys.time()
+  message(paste0(nrow(precip_raw)), ' rows of data pulled from NWIS in ', round(difftime(end_time , start_time, units = 'secs'), 0), ' seconds.')
   
   # rename columns
   precip_raw <- renameNWISColumns(precip_raw)
@@ -24,6 +25,15 @@ if (is.na(rain_file)) {
   # rename columns
   names(precip_raw)[grep('precip_inst$', names(precip_raw), ignore.case = TRUE)] <- 'rain'
   names(precip_raw)[grep('dateTime', names(precip_raw), ignore.case = TRUE)] <- 'pdate'
+  
+  # print warning if dates of rain do not span dates of study
+  if (min(as.Date(precip_raw$pdate)) > start_date) {
+    warning('Data pulled from NWIS does not span the entire study period.')
+  }
+  
+  if (max(as.Date(precip_raw$pdate)) < end_date) {
+    warning('Data pulled from NWIS does not span the entire study period.')
+  }
   
   } else {
     
@@ -40,8 +50,7 @@ if (is.na(rain_file)) {
 # summarize precip data using Rainmaker
 # run.rainmaker is a wrapper function for multiple
 # Rainmaker steps/functions
-precip.dat <- run.rainmaker(precip_raw = precip_raw, siteid = site_no,
-                            sitename = site, ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
+precip.dat <- run.rainmaker(precip_raw = precip_raw, ieHr = 2, rainthresh = 0.008, wq.dat = wq.dat,
                             xmin = c(5,10,15,30,60), antecedentDays = c(1,2,7,14))
 
 precip.dat <- rename(precip.dat, 'rain_startdate' = 'StartDate', 'rain_enddate' = 'EndDate')
