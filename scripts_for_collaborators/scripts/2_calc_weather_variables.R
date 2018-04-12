@@ -1,12 +1,22 @@
-storms <- read.csv(storm_filename, stringsAsFactors = FALSE,
+storms <- read.csv(file.path('data_cached', paste0(site, '_prepped_WQbystorm.csv')), 
+                   stringsAsFactors = FALSE,
                    colClasses = c(storm_start = 'POSIXct', storm_end = 'POSIXct'))
 
+if (nchar(Sys.getenv("noaakey")) == 0) {
+  stop('NOAA key not found. Please see data processing SOP for instructions to set up key.')
+}
 options("noaakey" = Sys.getenv("noaakey"))
 
 if (!is.na(noaa_site)) {
-  weather_noaa <- rnoaa::meteo_pull_monitors(noaa_site, date_min = start_date - 7, 
-                                        date_max = site_end, var = 'all')
-  
+  temp_start <- as.character(as.Date(start_date)-7)
+  temp_end = as.character(as.Date(end_date))
+  message('Pulling weather data from NOAA.')
+  s_time <- Sys.time()
+  weather_noaa <- rnoaa::meteo_pull_monitors(noaa_site, date_min = temp_start, 
+                                        date_max = temp_end, var = 'all')
+  e_time <- Sys.time()
+  d_time <- round(difftime(e_time, s_time, units = 'secs'), 0)
+  message(paste0(nrow(weather_noaa), ' rows of data pulled from NOAA in ', d_time, ' seconds.'))
 } 
 
 if (!is.na(weather_file)) {
