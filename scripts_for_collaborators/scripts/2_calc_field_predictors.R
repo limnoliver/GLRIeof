@@ -33,17 +33,17 @@ for (i in 1:nrow(field_events)) {
   #fert/manure
   man_fert_filter <- grep(paste0(nut_additions_keywords, collapse = '|'), field_events$activity_group, ignore.case = T)
   temp_timeline <- timeline[man_fert_filter, ]
-  temp_timeline <- filter(temp_timeline, date <= temp.date)
+  temp_timeline <- filter(temp_timeline, date <= temp_date)
   
-  fert_diff <- temp.date - temp_timeline$date
+  fert_diff <- temp_date - temp_timeline$date
   field_events$days_since_fertilizer[i] <- as.numeric(min(fert_diff))
   
   # cultivation
   cultivation_filter <- grep(paste0(cultivation_keywords, collapse = '|'), field_events$activity_group, ignore.case = T)
   temp_cultivation <- timeline[cultivation_filter, ]
-  temp_cultivation <- filter(temp_timeline, date <= temp.date)
+  temp_cultivation <- filter(temp_timeline, date <= temp_date)
   
-  cultivation_diff <- temp.date - temp_cultivation$date
+  cultivation_diff <- temp_date - temp_cultivation$date
   field_events$days_since_cultivation[i] <- as.numeric(min(cultivation_diff))
   
   #plantings & harvest
