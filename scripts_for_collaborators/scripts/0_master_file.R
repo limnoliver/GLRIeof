@@ -29,6 +29,7 @@ date_format <- '' # format of date variables in provided data files. For example
 # are in a consistent timezone. Please verify that all data are in appropriate time zones.
 
 start_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study start
+                             # This can be the first second of the day on the date of the first sampling event
 bmp_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of BMP implementation. All events before
                            # this date will be considered 'before', all events after this 
                            # date will be considered 'after'
@@ -51,8 +52,8 @@ loads <- c('') # this can either be a vector of verbatim constituent load
 # columns share in common (e.g., "pounds")
 
 flags <- c('') # this can either be a vector of verbatim flag
-# columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
-# columns share in common (e.g., "flag")
+               # columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
+               # columns share in common (e.g., "flag")  
 
 clean_names <- c('') # a vector of "clean" response variables names for all variables you want to 
                      # model. This will be used for plotting purposes to create nice looking
@@ -72,7 +73,6 @@ rain_file <- '' # filename of rain file, 'NA' if pulling from NWIS. Should be a 
 
 rain_column <- '' # if using own data, the name of the rain value column
 date_column <- '' # if using own data, the name of the date/time column, should be in standard POSIXct (YYY-MM-DD HH:MM:SS)
-rain_tz <- '' # time zone of date_column. See ?timezones for more information. Central time is
 
 # field activity data
 activity_file <- '' # filename of field activity log and should include .csv extension
