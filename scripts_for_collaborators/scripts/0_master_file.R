@@ -38,6 +38,10 @@ end_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study end
 ## set wq data parameters
 wq_file <- '' # file name (with .csv extention) where event-level water quality data are stored
 
+# for setting conentrations and loads, only include the variables you want to 
+# include in the analysis. E.g., if you only want to evaluate loads (not concentrations), 
+# simply put NA for concentrations and fill out the loads variable.
+
 concentrations <- c('') # this can either be a vector of verbatim constituent concentrations
 # columns (e.g, c('SS_mg_L', 'TP_mg_L')) or a character string that all concentration
 # columns share in common (e.g., "mg_L")
@@ -53,7 +57,10 @@ flags <- c('') # this can either be a vector of verbatim flag
 clean_names <- c('') # a vector of "clean" response variables names for all variables you want to 
                      # model. This will be used for plotting purposes to create nice looking
                      # axes. For example, if a column was named suspended_sediments_load_pound, a 
-                     # better axis name would be "SS load (pounds)"
+                     # better axis name would be "SS load (pounds)". These should be in the same order
+                     # as variables listed above, or the order they appear in your spreadsheet if you're 
+                     # using a unique string that all load or concentration columns share. Order should be
+                     # concentrations and then loads. 
 ###########################################################################################
 # If you're using a before-after study design, the variables below should be filled out.
 # If you have a paired site, these data aren't necessary, but can be used to run 
