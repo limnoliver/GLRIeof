@@ -38,7 +38,7 @@ tz(.origin) <- site_tz
 date.vars <- c('sample_start', 'sample_end', 'storm_start', 'storm_end')
 
 for (i in 1:length(date.vars)) {
-  temp <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz, format = datetime_format)
+  wq[,date.vars[i]] <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz, format = datetime_format)
 }
 
 # clean up the data to exclude estimated values, combine sub storm events, etc.
