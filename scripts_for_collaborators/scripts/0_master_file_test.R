@@ -5,13 +5,13 @@
 # all figures will be exported to the same folder 'figures'
 
 # set site-specific information
-site <- '' # site abbreviation that may be used for file naming conventions
-site_no <- '' # USGS site number
+site <- 'test' # site abbreviation that may be used for file naming conventions
+site_no <- "441520088045001" # USGS site number
 
-study_type <- '' # either "before_after" or "paired"
+study_type <- 'before_after' # either "before_after" or "paired"
 
-site_paired <- '' # site abbreviation for paired site - used for file naming conventions
-site_no_paired <- '' # USGS paired (control) site number, 'NA' if no paired site
+site_paired <- NA # site abbreviation for paired site - used for file naming conventions. NA if no paired site.
+site_no_paired <- NA # USGS paired (control) site number, 'NA' if no paired site
 
 # R likes dates in a very specific format (YYYY-MM-DD, coded in R as "%Y-%m-%d"). The scripts need to know 
 # what time zone your input files are in (these should all be the same), and what format your dates are in.
@@ -19,38 +19,39 @@ site_no_paired <- '' # USGS paired (control) site number, 'NA' if no paired site
 # you can also see all date codes by looking executing ?strptime in your R Console, 
 # and scrolling down to "Details"
 
-site_tz <- '' # all data should be converted (or called into R) to the same time zone. 
-              # Indicate here which timezone that is - e.g. central "America/Chicago" or central without DST "Etc/GMT+6"
-datetime_format <- '' # format of all datetime columns. For example, 
-date_format <- '' # format of date variables in provided data files. For example, the default in Excel is
+site_tz <- 'Etc/GMT+6' # all data should be in (or called into R) the same time zone. 
+                       # Indicate here which timezone that is - e.g. central "America/Chicago" or central without DST "Etc/GMT+6"
+datetime_format <- "%m/%d/%Y HH:MM" # format of all datetime columns.
+date_format <- '%m/%d/%Y' # format of date variables in provided data files. For example, the default in Excel is
 # mm/dd/yyyy, and the coded format of that date in R is "%m/%d/%Y". 
 # dates from Excel are read in the format "" -- but R wants them in the format "YYYY"
 # setting this variable read in NWIS data in the same time zone, but will not verify that all of your data
 # are in a consistent timezone. Please verify that all data are in appropriate time zones.
 
-start_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study start
+start_date <- as.POSIXct('2014-03-11 00:00:01') # YYYY-MM-DD HH:MM:SS date/time of study start
+                                                
 bmp_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of BMP implementation. All events before
                            # this date will be considered 'before', all events after this 
                            # date will be considered 'after'
-end_date <- as.POSIXct('') # YYYY-MM-DD HH:MM:SS date/time of study end
+end_date <- as.POSIXct('2017-08-04 00:00:01') # YYYY-MM-DD HH:MM:SS date/time of study end
 
 ######################################
 ## set wq data parameters
-wq_file <- '' # file name (with .csv extention) where event-level water quality data are stored
+wq_file <- 'test_storm_wq.csv' # file name (with .csv extention) where event-level water quality data are stored
 
-concentrations <- c('') # this can either be a vector of verbatim constituent concentrations
+concentrations <- c('mg_L') # this can either be a vector of verbatim constituent concentrations
 # columns (e.g, c('SS_mg_L', 'TP_mg_L')) or a character string that all concentration
 # columns share in common (e.g., "mg_L")
 
-loads <- c('') # this can either be a vector of verbatim constituent load
+loads <- c('pounds') # this can either be a vector of verbatim constituent load
 # columns (e.g, c('SS_load_pounds', 'TP_load_pounds')) or a character string that all load
 # columns share in common (e.g., "pounds")
 
-flags <- c('') # this can either be a vector of verbatim flag
+flags <- c('flag') # this can either be a vector of verbatim flag
 # columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
 # columns share in common (e.g., "flag")
 
-clean_names <- c('') # a vector of "clean" response variables names for all variables you want to 
+clean_names <- c('SS (mg/L)', 'TP (mg/L)', 'SS load (pounds)', 'TP load (pounds)') # a vector of "clean" response variables names for all variables you want to 
                      # model. This will be used for plotting purposes to create nice looking
                      # axes. For example, if a column was named suspended_sediments_load_pound, a 
                      # better axis name would be "SS load (pounds)"
