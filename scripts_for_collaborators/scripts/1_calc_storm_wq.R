@@ -1,5 +1,5 @@
 # import storm-specific water quality data
-wq <- read.csv(file.path('data_raw', wq_file), na.strings = c("", "NA"))
+wq <- read.csv(file.path('data_raw', wq_file), na.strings = c("", "NA"), stringsAsFactors = F)
   
 # check to see if all required columns are in data frame 
 # use list in stickies to set this, not quite sure what the complete list is
@@ -8,23 +8,23 @@ must.haves <- c('storm_start', 'storm_end', 'sample_start', 'sample_end', 'runof
 
 # set concentration, load, and flag variables
 if (!all(must.haves %in% names(wq))) {
-  message(paste0('Not all required variables in data frame. Please check that you have variables ', must.haves))
+  message(paste0('Not all required variables in data frame. Please check that you have variables ', paste0(must.haves, collapse = ', ')))
 }
 
 if (length(loads) == 1){
-  loadvars <- grep(loads, names(storms), ignore.case = TRUE, value = TRUE)
+  loadvars <- grep(loads, names(wq), ignore.case = TRUE, value = TRUE)
 } else {
   loadvars <- loads
 }
 
 if (length(concentrations) == 1){
-  concvars <- grep(concentrations, names(storms), ignore.case = TRUE, value = TRUE)
+  concvars <- grep(concentrations, names(wq), ignore.case = TRUE, value = TRUE)
 } else {
   loadvars <- concentrations
 }
 
 if (length(flags) == 1) {
-  flagvars <- grep(flags, names(storms), ignore.case = TRUE, value = TRUE)
+  flagvars <- grep(flags, names(wq), ignore.case = TRUE, value = TRUE)
 } else {
   flagvars <- flags
 }
@@ -37,7 +37,7 @@ tz(.origin) <- site_tz
 date.vars <- c('sample_start', 'sample_end', 'storm_start', 'storm_end')
 
 for (i in 1:length(date.vars)) {
-  temp <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz)
+  temp <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz, format = datetime_format)
 }
 
 # clean up the data to exclude estimated values, combine sub storm events, etc.
@@ -54,6 +54,7 @@ storms <- filter(wq, exclude == 0) %>%
 for (i in 1:length(flagvars)) {
   flags <- grep('<', storms[, flagvars[i]])
   storms[flags, concvars[i]] <- 0.5*storms[flags, concvars[i]]
+  print(paste0(length(flags), ' observations below detection limit for ', concvars[i]))
 }
 
 # combine sub storms
@@ -109,7 +110,7 @@ flagsbystorm <- storms %>%
 wq.bystorm <- merge(concbystorm, loadbystorm)
 wq.bystorm <- merge(wq.bystorm, storm.vols)
 wq.bystorm <- merge(wq.bystorm, flagsbystorm)
-wq.bystorm <- merge(wq.bystorm, unique(wq[,c('unique_storm_number', 'sub_storms')]), all.x = TRUE)
+wq.bystorm <- merge(wq.bystorm, unique(storms[,c('unique_storm_number', 'sub_storms')]), all.x = TRUE)
 wq.bystorm <- merge(wq.bystorm, stormdesc)
 
 temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
