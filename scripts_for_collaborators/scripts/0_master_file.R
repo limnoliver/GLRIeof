@@ -10,8 +10,12 @@ site_no <- '' # USGS site number
 
 study_type <- '' # either "before_after" or "paired"
 
-site_paired <- '' # site abbreviation for paired site - used for file naming conventions
+site_paired <- '' # site abbreviation for paired site - used for file naming conventions and column identification. 
+                  # This should precede your column name for site-specific variables (e.g.)
 site_no_paired <- '' # USGS paired (control) site number, 'NA' if no paired site
+
+control_site <- '' # If a paired study design, the abbreviation of the control site. This should be the same abbreviation as one of the sites listed above.
+test_site <- '' # If a paired study design, the abbreviation of the test, or BMP implementation, site. This should be the same abbreviation as oneof the sites listed above.
 
 # R likes dates in a very specific format (YYYY-MM-DD, coded in R as "%Y-%m-%d"). The scripts need to know 
 # what time zone your input files are in (these should all be the same), and what format your dates are in.
