@@ -29,7 +29,7 @@ names(discharge_vars) <- c(names(discharge_vars)[1:2], c('ant_discharge_date', '
                                                        'ant_dis_3day_mean', 'ant_dis_3day_max',
                                                        'ant_dis_7day_mean', 'ant_dis_7day_max',
                                                        'ant_dis_14day_mean', 'ant_dis_14day_max'))
-discharge_vars <- select(discharge_vars, -ant_dis_1day_mean)
+discharge_vars <- select(discharge_vars, -ant_dis_1day_mean, -storm_start)
 
 # write antecedent discharge data
 temp_filename <- file.path('data_cached', paste0(site, '_discharge_variables.csv'))
