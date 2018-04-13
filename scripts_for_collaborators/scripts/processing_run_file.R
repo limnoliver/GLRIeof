@@ -56,6 +56,10 @@ message('Prepping merged data for analysis.')
 mod_dat_env <- new.env()
 source('scripts/4_process_merged_data.R', echo = F, local = mod_dat_env)
 message(paste0('Data processing complete. Please check file data_cached/', site, '_mod_dat.csv to verify all import, processing, and merging went as planned prior to entering the analysis phase.'))
-
-
+} else {
+  # import water quality
+  message('Importing and processing the storm water quality data.')
+  wq_env <- new.env()
+  source('scripts/1_calc_storm_wq_paired.R', echo = F, local = wq_env)
+  
 }
