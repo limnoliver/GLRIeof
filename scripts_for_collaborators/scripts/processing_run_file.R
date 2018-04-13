@@ -40,18 +40,22 @@ source('scripts/2_calc_weather_variables.R', echo = F, local = weather_env)
 
 message('Importing and processing discharge metrics.')
 dis_env <- new.env()
-source('scripts/2_calc_discharge_variables.R')
+source('scripts/2_calc_discharge_variables.R', echo = F, local = dis_env)
 
 message('Importing and processing field activity metrics.')
 field_env <- new.env()
-source('scripts/2_calc_field_predictors.R')
+source('scripts/2_calc_field_predictors.R', echo = F, local = field_env)
 
 # source the merge step which uses the CSVs of all processing steps.
 message('Merging all processed data.')
-merge_eng <- new.env()
-source('scripts/3_merge_data.R')
+merge_env <- new.env()
+source('scripts/3_merge_data.R', echo = F, local = merge_env)
 
 # source the merge processing step
+message('Prepping merged data for analysis.')
+mod_dat_env <- new.env()
+source('scripts/4_process_merged_data.R', , echo = F, local = mod_dat_env)
+message(paste0('Data processing complete. Please check file data_cached/,', site, '_mod_dat.csv to verify all import, processing, and merging went as planned prior to entering the analysis phase.'))
 
 
 }
