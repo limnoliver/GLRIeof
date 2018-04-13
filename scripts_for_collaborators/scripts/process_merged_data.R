@@ -40,6 +40,6 @@ site_dat <- eof %>%
   mutate(frozen = as.logical(eof$frozen)) %>%
   mutate(period = ifelse(storm_start >= start_date, 'after', 'before'))
 
-temp_filename <- file.path('date_cached', paste0(site, '_mod_dat.csv'))
-write.csv(site_dat, 'data_cached/sw1_mod_dat.csv', row.names = F)
+temp_filename <- file.path('data_cached', paste0(site, '_mod_dat.csv'))
+write.csv(site_dat, temp_filename, row.names = F)
 
