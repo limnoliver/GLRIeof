@@ -30,7 +30,7 @@ if (length(loads) > 1) {
   load_names <- grep(loads, names(eof), ignore.case = TRUE, value = TRUE)
 }
 
-responses <- names(select_(eof, conc_names, load_names, 'peak_discharge'))
+responses <- names(select(eof, conc_names, load_names, peak_discharge))
 
 ########################
 # turn frozen into logical column
