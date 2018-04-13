@@ -69,7 +69,7 @@ rain_column <- '' # if using own data, the name of the rain value column
 date_column <- '' # if using own data, the name of the date/time column, should be in standard POSIXct (YYY-MM-DD HH:MM:SS)
 
 # field activity data
-activity_file <- 'test_field_activity' # filename of field activity log and should include .csv extension
+activity_file <- 'test_field_activity.csv' # filename of field activity log and should include .csv extension
 nut_additions_keywords <- c('manure', 'fertilizer') # words used to describe any manure and/or fertilizer additions 
                                                     # to the field. These should be keywords found in the "activity_group" column
 cultivation_keywords <- c('cultivation') # words to describe tillage and other field cultivation activities
