@@ -37,7 +37,7 @@ responses <- names(select(eof, conc_names, load_names, peak_discharge))
 # create a period variable that is before/after
 
 site_dat <- eof %>%
-  mutate(frozen = as.logical(substr(eof$frozen, 1, 1))) %>%
+  mutate(frozen = as.logical(eof$frozen)) %>%
   mutate(period = ifelse(storm_start >= start_date, 'after', 'before'))
 
 temp_filename <- file.path('date_cached', paste0(site, '_mod_dat.csv'))
