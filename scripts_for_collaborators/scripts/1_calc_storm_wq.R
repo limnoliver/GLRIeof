@@ -101,8 +101,11 @@ stormdesc <- storms %>%
     storm_start = min(storm_start),
     storm_end = max(storm_end),
     peak_discharge = max(peak_discharge), 
-    runoff_volume = sum(runoff_volume)
+    runoff_volume = sum(runoff_volume), 
+    frozen = paste0(unique(frozen), collapse = ', ')
   )
+
+stormdesc$frozen <- as.numeric(ifelse(nchar(stormdesc$frozen) == 1, stormdesc$frozen, event_over_thaw))
 
 flagsbystorm <- storms %>%
   group_by(unique_storm_number) %>%

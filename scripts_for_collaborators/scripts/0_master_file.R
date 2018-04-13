@@ -62,6 +62,14 @@ clean_names <- c('') # a vector of "clean" response variables names for all vari
                      # as variables listed above, or the order they appear in your spreadsheet if you're 
                      # using a unique string that all load or concentration columns share. Order should be
                      # concentrations and then loads. 
+
+event_over_thaw <- # For subevents that span a thaw, you may have to decide whether to split the events or combine them.
+                     # If you decide to combine events, such that part of the event was during the "frozen" period
+                     # and part was during the "non-frozen" period, then you need to decided how to classify the 
+                     # frozen status of the event. Set this variable to 0 to set the event to "non-frozen" and 1 to 
+                     # set the event to "frozen".
+  
+  
 ###########################################################################################
 # If you're using a before-after study design, the variables below should be filled out.
 # If you have a paired site, these data aren't necessary, but can be used to run 
