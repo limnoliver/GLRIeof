@@ -4,7 +4,7 @@ wq <- read.csv(file.path('data_raw', wq_file), na.strings = c("", "NA"), strings
 # check to see if all required columns are in data frame 
 # use list in stickies to set this, not quite sure what the complete list is
 must.haves <- c('storm_start', 'storm_end', 'sample_start', 'sample_end', 'runoff_volume', 
-                'unique_storm_number', 'unique_storm_id', 'peak_discharge')
+                'unique_storm_number', 'unique_storm_id', 'peak_discharge', 'frozen')
 
 # set concentration, load, and flag variables
 if (!all(must.haves %in% names(wq))) {
