@@ -21,7 +21,7 @@ if (length(loads) == 1){
 if (length(concentrations) == 1){
   concvars <- grep(concentrations, names(wq), ignore.case = TRUE, value = TRUE)
 } else {
-  loadvars <- concentrations
+  convars <- concentrations
 }
 
 if (length(flags) == 1) {
