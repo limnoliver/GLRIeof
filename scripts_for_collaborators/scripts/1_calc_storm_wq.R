@@ -12,20 +12,27 @@ if (!all(must.haves %in% names(wq))) {
   stop(paste0('The water quality data is missing column(s): ', paste0(vars.missing, collapse = ', ')))
 }
 
-if (length(loads) == 1){
+# get conc/load vars
+if (length(loads) == 1 & !is.na(loads)){
   loadvars <- grep(loads, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(loads)) {
+  loadvars <- NA
 } else {
   loadvars <- loads
 }
 
-if (length(concentrations) == 1){
+if (length(concentrations) == 1 & !is.na(concentrations)){
   concvars <- grep(concentrations, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(concentrations)) {
+  concvars <- NA
 } else {
-  convars <- concentrations
+  concvars <- concentrations
 }
 
-if (length(flags) == 1) {
+if (length(flags) == 1 & !is.na(flags)) {
   flagvars <- grep(flags, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(flags)) {
+  flagvars <- NA
 } else {
   flagvars <- flags
 }
