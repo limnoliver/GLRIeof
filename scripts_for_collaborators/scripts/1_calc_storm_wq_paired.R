@@ -5,20 +5,26 @@ wq <- read.csv(file.path('data_raw', wq_file), na.strings = c("", "NA"), strings
 # use list in stickies to set this, not quite sure what the complete list is
 
 # get conc/load vars
-if (length(loads) == 1){
+if (length(loads) == 1 & !is.na(loads)){
   loadvars <- grep(loads, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(loads)) {
+  loadvars <- NA
 } else {
   loadvars <- loads
 }
 
-if (length(concentrations) == 1){
+if (length(concentrations) == 1 & !is.na(concentrations)){
   concvars <- grep(concentrations, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(concentrations)) {
+  concvars <- NA
 } else {
-  loadvars <- concentrations
+  concvars <- concentrations
 }
 
-if (length(flags) == 1) {
+if (length(flags) == 1 & !is.na(flags)) {
   flagvars <- grep(flags, names(wq), ignore.case = TRUE, value = TRUE)
+} else if (is.na(flags)) {
+  flagvars <- NA
 } else {
   flagvars <- flags
 }
@@ -44,5 +50,5 @@ for (i in 1:length(flagvars)) {
   print(paste0(length(flags), ' observations below detection limit for ', concvars[i]))
 }
 
-temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
+temp_filename <- file.path("data_cached", paste0(site, "_", site_paired, "_prepped_WQbystorm.csv"))
 write.csv(wq, temp_filename, row.names = FALSE)
