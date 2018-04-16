@@ -43,11 +43,12 @@ for (i in 1:length(date.vars)) {
 
 # first, find which variables have a "<"
 # and replace with 0.5 * value
-
+if (!is.na(flagvars)){
 for (i in 1:length(flagvars)) {
   flags <- grep('<', storms[, flagvars[i]])
   storms[flags, concvars[i]] <- 0.5*storms[flags, concvars[i]]
   print(paste0(length(flags), ' observations below detection limit for ', concvars[i]))
+}
 }
 
 temp_filename <- file.path("data_cached", paste0(site, "_", site_paired, "_prepped_WQbystorm.csv"))
