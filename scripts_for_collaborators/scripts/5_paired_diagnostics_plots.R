@@ -35,6 +35,20 @@ if (length(concentrations) == 1 & !is.na(concentrations)){
 temp_date <- paste0(site, '_storm_start')
 wq[,temp_date] <- as.POSIXct(wq[,temp_date])
 
+# test discharge
+wq$con_discharge <- rnorm(n = nrow(wq), mean = 300, sd = 1000)
+wq$trt_discharge <- wq$con_discharge*rnorm(n = nrow(wq), mean = 1.5, sd = 1)
+
+plot(wq$con_discharge, wq$trt_discharge)
+if (!is.na(discharge_col)){
+  discharge_con <- paste0(control_site, '_', discharge_col)
+  discharge_trt <- paste0(test_site, '_', discharge_col)
+  
+  discharge <- select_(wq, discharge_con, discharge_trt, temp_date, 'period') %>%
+    gather(key = 'site', value = 'runoff', -temp_date, -period) %>%
+    mutate(site = ifelse(site %in% discharge_trt, 'treatment', 'control'))
+  
+}
 for (i in 1:length(trt_loadvars)) {
   
   temp_trt <-  trt_loadvars[i]
@@ -45,16 +59,21 @@ for (i in 1:length(trt_loadvars)) {
     gather(key = 'site', value = 'value', -temp_date, -period) %>%
     mutate(site = ifelse(site %in% temp_trt, 'treatment', 'control'))
   
-  #names(temp)[which(names(temp) %in% 'value')] <- clean_names[i]
-  
+  if (!is.na(discharge_col)){
+    temp <- left_join(temp, discharge, by = c('site', 'period', con_storm_start))
+  }
+
   p <- ggplot(temp, aes_string(x = temp_date, y = 'value')) +
-    geom_point(aes(color = period, shape = site)) +
     coord_trans(y = 'log10') +
     scale_y_continuous(breaks = c(0.1, 1, 10, 100, 300, 600)) +
     scale_shape_manual(values = c(21, 16)) +
     theme_bw() +
     theme(panel.grid.minor.y = element_blank()) +
     labs(x = 'Storm Date', y = clean_names[i])
+  
+  if (discharge_col) 
+  p <- p + geom_point(aes(color = period, shape = site)) +
+    
   
   short_col_name <- paste0(control_site, '_', temp_trt, '_throughtime.png')
   tempname <- file.path('figures', 'diagnostic', short_col_name)
