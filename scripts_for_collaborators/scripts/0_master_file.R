@@ -65,7 +65,9 @@ clean_names <- c('') # a vector of "clean" response variables names for all vari
                      # better axis name would be "SS load (pounds)". These should be in the same order
                      # as variables listed above, or the order they appear in your spreadsheet if you're 
                      # using a unique string that all load or concentration columns share. Order should be
-                     # concentrations and then loads. 
+                     # concentrations and then loads. For a paired study, just include a single clean name
+                     # for each variable - e.g., only provide "SS load (pounds)" instead of "Control - SS load (pounds)"
+                     # and "Treatment - SS load (pounds)"
 
 event_over_thaw <- # For subevents that span a thaw, you may have to decide whether to split the events or combine them.
                      # If you decide to combine events, such that part of the event was during the "frozen" period
