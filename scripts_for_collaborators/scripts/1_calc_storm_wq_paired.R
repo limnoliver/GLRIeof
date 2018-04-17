@@ -39,6 +39,12 @@ for (i in 1:length(date.vars)) {
   wq[,date.vars[i]] <- as.POSIXct(wq[,date.vars[i]], origin = .origin, tz = site_tz, format = datetime_format)
 }
 
+# create a column for "period" -- before or after BMP implementation
+start_col <- paste0(test_site, '_storm_start')
+wq <- wq %>%
+  #mutate(frozen = as.logical(eof$frozen)) %>%
+  mutate(period = ifelse(wq[,start_col] >= bmp_date, 'after', 'before'))
+
 # make "<" values equal to half of the censored value
 
 # first, find which variables have a "<"
