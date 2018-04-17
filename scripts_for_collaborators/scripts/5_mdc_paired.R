@@ -7,7 +7,7 @@ paired <- read.csv(paired_filename, stringsAsFactors = F)
 if (length(loads) == 1 & !is.na(loads)){
   loadvars <- grep(loads, names(wq), ignore.case = TRUE, value = TRUE)
   trt_loadvars <- grep(test_site, loadvars, ignore.case = TRUE, value = TRUE)
-  con_loadvars <- grep(control_ste, loadvars, ignore.case = TRUE, value = TRUE)
+  con_loadvars <- grep(control_site, loadvars, ignore.case = TRUE, value = TRUE)
 } else if (is.na(loads)) {
   trt_loadvars <- NA
   con_loadvars <- NA
