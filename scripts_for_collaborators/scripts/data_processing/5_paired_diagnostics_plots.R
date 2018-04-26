@@ -3,6 +3,7 @@
 tempfile <- file.path('data_cached', paste0(site, '_', site_paired, "_prepped_WQbystorm.csv"))
 wq <- read.csv(tempfile, stringsAsFactors = F)
 
+
 # for each constituent, plot time vs conc or load, size of dot = discharge
 # get load and conc vars
 if (length(loads) == 1 & !is.na(loads)){
@@ -34,6 +35,8 @@ if (length(concentrations) == 1 & !is.na(concentrations)){
 
 temp_date <- paste0(site, '_storm_start')
 wq[,temp_date] <- as.POSIXct(wq[,temp_date])
+wq$Date <- wq[,temp_date]
+wq <- dataRetrieval::addWaterYear(wq)
 
 # test discharge by making numbers up
 # wq$con_discharge <- rlnorm(n = nrow(wq), mean = 100, sd = 100)
@@ -80,3 +83,6 @@ for (i in 1:length(trt_loadvars)) {
   tempname <- file.path('figures', 'diagnostic', short_col_name)
   ggsave(tempname, p, height = 4, width = 8)
 }
+
+# calculate summary statistics by water year and export to tables/figures for review
+
