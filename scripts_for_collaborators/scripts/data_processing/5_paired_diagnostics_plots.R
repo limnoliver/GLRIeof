@@ -38,11 +38,6 @@ wq[,temp_date] <- as.POSIXct(wq[,temp_date])
 wq$Date <- wq[,temp_date]
 wq <- dataRetrieval::addWaterYear(wq)
 
-# test discharge by making numbers up
-# wq$con_discharge <- rlnorm(n = nrow(wq), mean = 100, sd = 100)
-# wq$trt_discharge <- wq$con_discharge*rnorm(n = nrow(wq), mean = 1.5, sd = .5)
-
-plot(wq$con_discharge, wq$trt_discharge)
 if (!is.na(discharge_col)){
   discharge_con <- paste0(control_site, '_', discharge_col)
   discharge_trt <- paste0(test_site, '_', discharge_col)
@@ -52,7 +47,14 @@ if (!is.na(discharge_col)){
     mutate(site = ifelse(site %in% discharge_trt, 'treatment', 'control'))
   
 }
-for (i in 1:length(trt_loadvars)) {
+
+plot_all_vars <- c(con_concvars, trt_concvars, con_loadvars, trt_loadvars)
+plot_all_vars <- plot_all_vars[!is.na(plot_all_vars)]
+
+plot_trt_vars <- c(trt_concvars, trt_loadvars)
+plot_trt_vars <- plot_trt_vars[!is.na(plot_trt_vars)]
+
+for (i in 1:length(plot_trt_vars)) {
   
   temp_trt <-  trt_loadvars[i]
   temp_con <- gsub(test_site, control_site, temp_trt)
@@ -66,7 +68,7 @@ for (i in 1:length(trt_loadvars)) {
     temp <- left_join(temp, discharge, by = c('site', 'period', temp_date))
   }
 
-  p <- ggplot(temp, aes_string(x = temp_date, y = 'value')) +
+  p <- ggplot(data = temp, aes_string(x = temp_date, y = 'value')) +
     coord_trans(y = 'log10') +
     scale_y_continuous(breaks = c(0.1, 1, 10, 100, 300, 600)) +
     scale_shape_manual(values = c(21, 16)) +
@@ -74,9 +76,11 @@ for (i in 1:length(trt_loadvars)) {
     theme(panel.grid.minor.y = element_blank()) +
     labs(x = 'Storm Date', y = clean_names[i])
   
-  if (discharge_col){ 
+  if (!is.na(discharge_col)){ 
     p <- p + geom_point(aes(color = period, shape = site, size = runoff)) +
       scale_size_continuous(trans = 'log10')
+  } else {
+    p <- p + geom_point(aes(color = period, shape = site))
   }
   
   short_col_name <- paste0(control_site, '_', temp_trt, '_throughtime.png')
@@ -92,10 +96,14 @@ sum_stats <- wq %>%
             n_after = length(which(period == 'after')))
 
 if (!is.na(con_loadvars[1])){
-  sum_stats <- wq %>%
+  temp <- wq %>%
     group_by(waterYear) %>%
-    summarize_at(.vars = c(con_loadvars, trt_loadvars), sum, na.rm = T) %>%
-    left_join(sum_stats)
+    summarize_at(.vars = c(con_loadvars, trt_loadvars), sum, na.rm = T)
+  
+  names(temp)[which(names(temp) %in% c(con_loadvars, trt_loadvars))] <- 
+    paste0('sum_', c(con_loadvars, trt_loadvars))
+
+  sum_stats <- left_join(sum_stats, temp)
 }
 
 if(!is.na(con_concvars[1])) {
@@ -106,9 +114,12 @@ if(!is.na(con_concvars[1])) {
     left_join(sum_stats)
 }
 
+if (!is.na(discharge_col)) {
+  disvars <- grep(discharge_col, names(wq), ignore.case = T, value = T)
+  sum_stats <- wq %>%
+    group_by(waterYear) %>%
+    summarize_at(.vars = disvars, sum, na.rm = T) %>%
+    left_join(sum_stats)
+}
 
 
-
-  
-stats <- left_join(sum_stats, n_stats)
-stats
