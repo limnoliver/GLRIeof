@@ -123,6 +123,6 @@ if (!is.na(discharge_col)) {
 }
 
 temp_table_name <- paste0(site, "_", site_paired, '_response_summary.csv')
-write.csv(sum_stats, file.path('figures', 'diagnostic', temp_table_name))
+write.csv(sum_stats, file.path('figures', 'diagnostic', temp_table_name), row.names = F)
 
 
