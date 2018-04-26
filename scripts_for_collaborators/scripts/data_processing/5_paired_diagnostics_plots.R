@@ -86,3 +86,29 @@ for (i in 1:length(trt_loadvars)) {
 
 # calculate summary statistics by water year and export to tables/figures for review
 
+sum_stats <- wq %>%
+  group_by(waterYear) %>%
+  summarize(n_before = length(which(period == 'before')),
+            n_after = length(which(period == 'after')))
+
+if (!is.na(con_loadvars[1])){
+  sum_stats <- wq %>%
+    group_by(waterYear) %>%
+    summarize_at(.vars = c(con_loadvars, trt_loadvars), sum, na.rm = T) %>%
+    left_join(sum_stats)
+}
+
+if(!is.na(con_concvars[1])) {
+  
+  sum_stats <- wq %>%
+    group_by(waterYear) %>%
+    summarize_at(.vars = c(con_concvars, trt_concvars), mean, na.rm = T) %>%
+    left_join(sum_stats)
+}
+
+
+
+
+  
+stats <- left_join(sum_stats, n_stats)
+stats
