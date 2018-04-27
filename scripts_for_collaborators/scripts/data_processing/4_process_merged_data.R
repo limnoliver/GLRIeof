@@ -38,7 +38,7 @@ responses <- names(select(eof, conc_names, load_names, peak_discharge))
 
 site_dat <- eof %>%
   mutate(frozen = as.logical(eof$frozen)) %>%
-  mutate(period = ifelse(storm_start >= start_date, 'after', 'before'))
+  mutate(period = ifelse(storm_start >= bmp_date, 'after', 'before'))
 
 temp_filename <- file.path('data_cached', paste0(site, '_mod_dat.csv'))
 write.csv(site_dat, temp_filename, row.names = F)
