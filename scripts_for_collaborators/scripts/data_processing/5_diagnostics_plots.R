@@ -1,4 +1,4 @@
-# diagnostic plots for paired design
+# diagnostic plots for before/after design
 
 tempfile <- file.path('data_cached', paste0(site, "_mod_dat.csv"))
 wq <- read.csv(tempfile, stringsAsFactors = F)
@@ -40,26 +40,18 @@ for (i in 1:length(plot_all_vars)) {
   temp_var <-  plot_all_vars[i]
 
   p <- ggplot(data = wq, aes_string(x = 'storm_start', y = temp_var)) +
-    geom_point(aes(color = period, shape = site, size = runoff_volume)) +
-    scale_size_continuous(trans = 'log10') +
-    coord_trans(y = 'log10') +
-    #scale_y_continuous(breaks = c(0.1, 1, 10, 100, 300, 600)) +
-    scale_shape_manual(values = c(21, 16)) +
+    geom_point(aes(color = period, size = runoff_volume), alpha = 0.5) +
+    #scale_size_continuous(trans = 'log10') +
+    #coord_trans(y = 'log10') +
     theme_bw() +
     theme(panel.grid.minor.y = element_blank()) +
     labs(x = 'Storm Date', y = clean_names[i])
   
-  if (!is.na(discharge_col)){ 
-    p <- p + 
-  } else {
-    p <- p + geom_point(aes(color = period, shape = site))
-  }
-  
-  short_col_name <- paste0(control_site, '_', temp_trt, '_throughtime.png')
+  short_col_name <- paste0(site, '_', temp_var, '_throughtime.png')
   tempname <- file.path('figures', 'diagnostic', short_col_name)
   ggsave(tempname, p, height = 4, width = 8)
 }
-
+##############################################################################
 # calculate summary statistics by water year and export to tables/figures for review
 
 sum_stats <- wq %>%
@@ -67,36 +59,29 @@ sum_stats <- wq %>%
   summarize(n_before = length(which(period == 'before')),
             n_after = length(which(period == 'after')))
 
-if (!is.na(con_loadvars[1])){
+if (!is.na(loadvars[1])){
   temp <- wq %>%
     group_by(waterYear) %>%
-    summarize_at(.vars = c(con_loadvars, trt_loadvars), sum, na.rm = T)
+    summarize_at(.vars = c(loadvars, 'runoff_volume'), sum, na.rm = T)
   
-  names(temp)[which(names(temp) %in% c(con_loadvars, trt_loadvars))] <- 
-    paste0('sum_', c(con_loadvars, trt_loadvars))
+  names(temp)[which(names(temp) %in% c(loadvars, 'runoff_volume'))] <- 
+    paste0('sum_', c(loadvars, 'runoff_volume'))
 
   sum_stats <- left_join(sum_stats, temp)
 }
 
-if(!is.na(con_concvars[1])) {
+if(!is.na(concvars[1])) {
   
   sum_stats <- wq %>%
     group_by(waterYear) %>%
-    summarize_at(.vars = c(con_concvars, trt_concvars), mean, na.rm = T) %>%
-    left_join(sum_stats)
-}
-
-if (!is.na(discharge_col)) {
-  disvars <- grep(discharge_col, names(wq), ignore.case = T, value = T)
-  sum_stats <- wq %>%
-    group_by(waterYear) %>%
-    summarize_at(.vars = disvars, sum, na.rm = T) %>%
+    summarize_at(.vars = concvars, mean, na.rm = T) %>%
     left_join(sum_stats)
 }
 
 temp_table_name <- paste0(site, "_", site_paired, '_response_summary.csv')
 write.csv(sum_stats, file.path('figures', 'diagnostic', temp_table_name), row.names = F)
 
+##########################################################################
 # create frozen/non frozen loads  plot
 # ignore first and last year if the difference between start and end months
 # is greater than 3
@@ -160,3 +145,21 @@ p <- ggplot(data = prop.bar.plot, aes(x = variable, y = percentage, fill = froze
 # save plot
 temp_figname <- paste0(site, "_seasonal_loads.png")
 ggsave(file.path('figures', 'diagnostic', temp_figname), p, height = 5, width = 8)
+
+
+###############################################################
+# plot some predictor variables to make sure they calculated ok
+
+# rain
+plot(wq$weq, wq$runoff_volume, xlab = "Water Equivalent (inches)", ylab = "Total Runoff")
+legend('topright', legend = paste0(length(which(is.na(wq$weq) ==TRUE)), ' rain or snow measurements missing'), text.col = 'red', 
+       bty = 'n')
+
+p <- ggplot(wq, aes(x = weq, y = runoff_volume)) +
+  geom_point(aes(color = frozen)) +
+  theme_bw() +
+  annotate('text', x = Inf, y = Inf, label = paste0(length(which(is.na(wq$weq))), ' missing rain or snow values.'), hjust = 1, vjust = 1, col = 'red') +
+  labs(x = 'Snow + Rain (water equivalent, in inches)', y = "Total Runoff")
+
+temp_figname <- paste0(site, '_runoff_vs_weq.png')
+ggsave(file.path('figures', 'diagnostic', temp_figname), p, width = 6, height = 4)
