@@ -78,7 +78,7 @@ if(!is.na(concvars[1])) {
     left_join(sum_stats)
 }
 
-temp_table_name <- paste0(site, "_", site_paired, '_response_summary.csv')
+temp_table_name <- paste0(site, '_response_summary.csv')
 write.csv(sum_stats, file.path('figures', 'diagnostic', temp_table_name), row.names = F)
 
 ##########################################################################
