@@ -116,6 +116,7 @@ if (dif > 3) {
 } else {
   wq.temp <- wq
 }
+# calculate sum of loads
 prop <- wq.temp %>%
   group_by(frozen) %>%
   summarise_at(vars(loadvars), sum)
@@ -125,30 +126,37 @@ names(prop)[2:ncol(prop)] <- clean_names[(length(concvars) + 1):(length(clean_na
 prop.long <- prop %>%
   gather(variable, value, -frozen)
 
+# change true/false to frozen/not frozen
 prop.long$frozen <- as.factor(prop.long$frozen)
 levels(prop.long$frozen) <- c('not frozen', 'frozen') 
 prop.long$frozen <- as.character(prop.long$frozen)
 
+# get sums across seasons
 prop.long.tot <- prop.long %>%
   group_by(variable) %>%
   summarise_at('value', sum)
 
 names(prop.long.tot)[2]<- 'total'
 
+# merge seasonal and total sums, calculate percentage
 prop.bar.plot <- left_join(prop.long, prop.long.tot) %>%
   mutate(percentage = value/total)
 
+# order variables by percentage of not frozen loads
 var.order <- filter(prop.bar.plot, frozen == 'not frozen') %>%
   arrange(percentage)
 
 prop.bar.plot$variable <- factor(prop.bar.plot$variable, levels = var.order$variable)
 
+# plot
 p <- ggplot(data = prop.bar.plot, aes(x = variable, y = percentage, fill = frozen)) +
   geom_bar(stat = 'identity') +
   #geom_hline(aes(yintercept = mean(var.order$percentage), linetype = "Mean proportion of \nnon-frozen loads"), size = 2, color = 'darkgray') +
   scale_fill_manual(values = c(gg_color_hue(2)[2], gg_color_hue(2)[1])) +
   theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
   labs(x = '', y = 'Proportion of Load', linetype = "")
 
+# save plot
 temp_figname <- paste0(site, "_seasonal_loads.png")
 ggsave(file.path('figures', 'diagnostic', temp_figname), p, height = 5, width = 8)
