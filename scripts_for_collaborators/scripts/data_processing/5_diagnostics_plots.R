@@ -149,4 +149,6 @@ p <- ggplot(data = prop.bar.plot, aes(x = variable, y = percentage, fill = froze
   scale_fill_manual(values = c(gg_color_hue(2)[2], gg_color_hue(2)[1])) +
   theme_bw() +
   labs(x = '', y = 'Proportion of Load', linetype = "")
-p
+
+temp_figname <- paste0(site, "_seasonal_loads.png")
+ggsave(file.path('figures', 'diagnostic', temp_figname), p, height = 5, width = 8)
