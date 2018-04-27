@@ -42,7 +42,7 @@ message(paste0('Data processing complete. Please check file data_cached/', site,
 
 # source the diagnostic plots
 #message('Creating diagnostic plots of the data. Please see the figures in figures/diagnostics as one way to verify all import, processing, and merging went as planned prior to entering the analysis phase.')
-#diag_env <- new.eng()
+#diag_env <- new.env()
 #source('scripts/', echo = F, local = diag_env)
 
 } else {
@@ -51,4 +51,10 @@ message(paste0('Data processing complete. Please check file data_cached/', site,
   wq_env <- new.env()
   source('scripts/data_processing/1_calc_storm_wq_paired.R', echo = F, local = wq_env)
   message(paste0('Data processing complete. Please check file data_cached/', site, '_', site_paired, '_prepped_WQbystorm.csv to verify all import, processing, and merging went as planned prior to entering the analysis phase.'))
+  
+  # create diagnostic plots
+  message('Creating diagnostic plots/data for paired study.')
+  diag_env <- new.env()
+  source('scripts/data_processing/5_paired_diagnostics_plots.R', echo = F, local = diag_env)
+  message('Diagnostic data/plots complete. Please see files in figures/diagnostic to verify all import, processing, and merging went as planned prior to entering the analysis phase.')
 }
