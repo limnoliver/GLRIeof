@@ -1,7 +1,10 @@
 # Run this file to run all data processing/analysis steps
 
 # source the master file with all site-specific vars
-source('scripts/0_master_file.R', echo = F)
+source('scripts/0_master_file_test.R', echo = F)
+
+# source the test file to check inputs in 0_master_file
+source('scripts/data_processing/0_check_inputs.R')
 
 if (study_type == 'before_after') {
 # source the water quality file which is the basis for all other processing.
