@@ -9,7 +9,8 @@ must.haves <- c('storm_start', 'storm_end', 'sample_start', 'sample_end', 'runof
 # set concentration, load, and flag variables
 if (!all(must.haves %in% names(wq))) {
   vars.missing <- must.haves[which(!must.haves %in% names(wq))]
-  stop(paste0('The water quality data is missing column(s): ', paste0(vars.missing, collapse = ', ')))
+  stop(paste0('The water quality data is missing column(s): ', paste0(vars.missing, collapse = ', ')), 
+        call. = F)
 }
 
 # get conc/load vars
