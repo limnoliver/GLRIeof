@@ -16,6 +16,7 @@ library(USGSHydroTools)
 library(lubridate)
 library(rnoaa)
 library(randomForest)
+library(ggplot2)
 
 # if you do not have certain libraries installed (e.g., the code above failes for one or 
 # more packages) you need to install them (one time only). To do so, uncomment the lines below
