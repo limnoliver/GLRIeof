@@ -21,6 +21,12 @@ if (study_type == "before_after") {
     test.csv(discharge_file)
   }
   
+  # weather dat
+  if (is.na(noaa_site)) {
+    test.csv(weather_file)
+  }
+  
+  
   
 }
 
