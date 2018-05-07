@@ -59,3 +59,10 @@ for (i in 1:length(flagvars)) {
 
 temp_filename <- file.path("data_cached", paste0(site, "_", site_paired, "_prepped_WQbystorm.csv"))
 write.csv(wq, temp_filename, row.names = FALSE)
+
+if (nrow(wq) > 0) {
+  message(paste('Water quality data is now processed. See', temp_filename, 'to ensure correct processing.'))
+} else {
+  stop("Something went wrong with processing of water quality data. To debug, look through code in 'scipts/data_processing/1_calc_storm_wq_paired.R'.")
+}
+
