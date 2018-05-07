@@ -16,7 +16,11 @@ if (!is.na(noaa_site)) {
                                         date_max = temp_end, var = 'all')
   e_time <- Sys.time()
   d_time <- round(difftime(e_time, s_time, units = 'secs'), 0)
-  message(paste0(nrow(weather_noaa), ' rows of data pulled from NOAA in ', d_time, ' seconds.'))
+  if (nrow(weather_noww) > 0){
+    message(paste0(nrow(weather_noaa), ' rows of data pulled from NOAA in ', d_time, ' seconds.'))
+  } else {
+    stop("Weather data pull from NOAA failed. To debug, see file 'data_processing/2_calc_weather_variables.R'.")
+  }
 } 
 
 if (!is.na(weather_file)) {
@@ -75,3 +79,11 @@ weather.dat <- select(storms, unique_storm_number, sin_sdate:snwd_diff)
 
 weather_tempname <- file.path('data_cached', paste0(site, '_weather_by_storm.csv'))
 write.csv(weather.dat, weather_tempname, row.names = F)
+
+test <- weather.dat[!is.na(weather.dat$tmax), ]
+
+if (nrow(test) > 0) {
+  message(paste("Weather data has been processed. Please see", weather_tempname, "to ensure correct processing."))
+} else {
+  stop('Something went wrong while processing weather data. To debug, see code in "scripts/data_processing/2_calc_weather_variables.R"')
+}
