@@ -135,6 +135,6 @@ write.csv(wq.bystorm, temp_filename, row.names = FALSE)
 if (nrow(wq.bystorm) > 0) {
   message(paste('Water quality data is now processed. See', temp_filename, 'to ensure correct processing.'))
 } else {
-  stop("Something went wrong with processing of water quality data. To debug, look through code in 'data_processing/1_calc_storm_wq.R'.")
+  stop("Something went wrong with processing of water quality data. To debug, look through code in 'scipts/data_processing/1_calc_storm_wq.R'.")
 }
 
