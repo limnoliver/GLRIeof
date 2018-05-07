@@ -125,4 +125,16 @@ if (!is.na(discharge_col)) {
 temp_table_name <- paste0(site, "_", site_paired, '_response_summary.csv')
 write.csv(sum_stats, file.path('figures', 'diagnostic', temp_table_name), row.names = F)
 
+# test if figures were written
+
+test <- list.files('figures/diagnostic')
+time.figs <- grep('throughtime', test)
+summary.table <- grep('response_summary', test)
+
+if (length(time.figs) != length(plot_trt_vars)|
+    length(summary.table) != 1) {
+  warning("Not all diagnostic plots or tables were generated. To debug, see code in '5_diagnostic_plots.R'", call. = F)
+} else {
+  message("Diagnostic plots and tables have been made. See figures in figures/diagnostic as a visual test of proper importing, merging, and cleaning. If you would like to add figures to diagnostics, you can modify the script in scripts/data_processing/5_paired_diagnostic_plots.R.")
+}
 
