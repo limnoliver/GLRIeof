@@ -68,6 +68,6 @@ test <- precip.dat[!is.na(precip.dat$rain), ]
 if (nrow(test)>0) {
   message(paste("The precipitation data has been processed. Please check", precip_filename, "to ensure correct processing."))
 } else {
-  stop("Something went wrong with processing the precipitation data. To debug, see code in 'data_processing/2_calc_rain_variables.R'.")
+  stop("Something went wrong with processing the precipitation data. To debug, see code in 'scripts/data_processing/2_calc_rain_variables.R'.")
 }
   
