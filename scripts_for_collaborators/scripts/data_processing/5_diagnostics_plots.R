@@ -151,9 +151,6 @@ ggsave(file.path('figures', 'diagnostic', temp_figname), p, height = 5, width = 
 # plot some predictor variables to make sure they calculated ok
 
 # rain
-plot(wq$weq, wq$runoff_volume, xlab = "Water Equivalent (inches)", ylab = "Total Runoff")
-legend('topright', legend = paste0(length(which(is.na(wq$weq) ==TRUE)), ' rain or snow measurements missing'), text.col = 'red', 
-       bty = 'n')
 
 p <- ggplot(wq, aes(x = weq, y = runoff_volume)) +
   geom_point(aes(color = frozen)) +
@@ -163,3 +160,19 @@ p <- ggplot(wq, aes(x = weq, y = runoff_volume)) +
 
 temp_figname <- paste0(site, '_runoff_vs_weq.png')
 ggsave(file.path('figures', 'diagnostic', temp_figname), p, width = 6, height = 4)
+
+
+# test if figures were written
+
+test <- list.files('figures/diagnostic')
+time.figs <- grep('throughtime', test)
+seasonal.fig <- grep('seasonal_loads', test)
+predictor.fig <- grep('runoff', test)
+
+if (length(time.figs) != length(plot_all_vars)|
+    length(seasonal.fig) != 1 |
+    length(predictor.fig) != 1) {
+  warning("Not all diagnostic plots were generated. To debug, see code in '5_diagnostic_plots.R'", call. = F)
+} else {
+  message("Diagnostic plots have been made. See figures in figures/diagnostic as a visual test of proper importing, merging, and cleaning. If you would like to add figures to diagnostics, you can modify the script in scripts/data_processing/5_diagnostic_plots.R.")
+}
