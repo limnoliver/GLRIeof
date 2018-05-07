@@ -16,3 +16,9 @@ all.eof <- merge(all.eof, field, by = "unique_storm_number", all.x = TRUE)
 
 tempfile_name <- file.path('data_cached', paste0(site, '_merged_dat.csv'))
 write.csv(all.eof, tempfile_name, row.names = FALSE)
+
+if(nrow(all.eof) == nrow(wq)) {
+  message(paste("All storm and predictor data have been merged. See", tempfile_name, "to ensure data were merged properly."))
+} else {
+  stop("Something went wrong during the data merge process. To debug, see code in 'scripts/data_processing/3_merge_data.R'")
+}
