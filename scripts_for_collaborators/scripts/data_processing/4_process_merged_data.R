@@ -43,3 +43,9 @@ site_dat <- eof %>%
 temp_filename <- file.path('data_cached', paste0(site, '_mod_dat.csv'))
 write.csv(site_dat, temp_filename, row.names = F)
 
+if (nrow(site_dat) > 1) {
+  message(paste("The data have now been merged and processed. Please see", temp_filename, "to ensure processing."))
+} else {
+  stop("Something went wrong during processing of merged data. To debug, see code in 'scripts/data_processing/4_process_merged_data.R'.")
+}
+
