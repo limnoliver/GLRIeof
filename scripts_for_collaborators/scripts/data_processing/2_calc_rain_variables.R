@@ -17,7 +17,11 @@ if (is.na(rain_file)) {
   start_time <- Sys.time()
   precip_raw <- readNWISuv(rain_site, parameterCd, tz = site_tz)
   end_time <- Sys.time()
-  message(paste0(nrow(precip_raw)), ' rows of data pulled from NWIS in ', round(difftime(end_time , start_time, units = 'secs'), 0), ' seconds.')
+  if (nrow(precip_raw) > 0){
+    message(paste0(nrow(precip_raw)), ' rows of data pulled from NWIS in ', round(difftime(end_time , start_time, units = 'secs'), 0), ' seconds.')
+  } else {
+    stop('No precip data pulled from NWIS. Please check inputs to verify correct site number and start and end dates. To debug, see code in "data_processing/2_calc_rain_variables.R"')
+  }
   
   # rename columns
   precip_raw <- renameNWISColumns(precip_raw)
@@ -58,4 +62,12 @@ precip.dat <- rename(precip.dat, 'rain_startdate' = 'StartDate', 'rain_enddate' 
 precip_filename <- file.path('data_cached', paste0(site, '_rain_variables.csv'))
 write.csv(precip.dat, precip_filename, row.names = FALSE)
 
+# check if the precip.dat data frame has values
+test <- precip.dat[!is.na(precip.dat$rain), ]
+
+if (nrow(test)>0) {
+  message(paste("The precipitation data has been processed. Please check", precip_filename, "to ensure correct processing."))
+} else {
+  stop("Something went wrong with processing the precipitation data. To debug, see code in 'data_processing/2_calc_rain_variables.R'.")
+}
   
