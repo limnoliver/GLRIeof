@@ -64,3 +64,9 @@ field_events <- select(field_events, -storm_start)
 
 temp_filename <- file.path('data_cached', paste0(site, '_field_predictors.csv'))
 write.csv(field_events, temp_filename, row.names = FALSE)
+
+if(nrow(field_events) == nrow(storms) & nrow(field_events) > 0) {
+  message(paste("Field events processing is complete. Please see", temp_filename, "to ensure correct processing."))
+} else {
+  stop("Something went wrong with processing the field events data. To debug, see code in 'scripts/data_processing/2_calc_field_predictors.R'")
+}
