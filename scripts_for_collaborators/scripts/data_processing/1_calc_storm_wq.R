@@ -126,5 +126,15 @@ wq.bystorm <- merge(wq.bystorm, flagsbystorm)
 wq.bystorm <- merge(wq.bystorm, unique(storms[,c('unique_storm_number', 'sub_storms')]), all.x = TRUE)
 wq.bystorm <- merge(wq.bystorm, stormdesc)
 
+# check if wq.bystorm has more than one row, and print message. Otherwise, stop process.
+
 temp_filename <- file.path("data_cached", paste0(site, "_", "prepped_WQbystorm.csv"))
 write.csv(wq.bystorm, temp_filename, row.names = FALSE)
+
+
+if (nrow(wq.bystorm) > 0) {
+  message(paste('Water quality data is now processed. See', temp_filename, 'to ensure correct processing.'))
+} else {
+  stop("Something went wrong with processing of water quality data. To debug, look through code in 'data_processing/1_calc_storm_wq.R'.")
+}
+
