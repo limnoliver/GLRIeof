@@ -91,8 +91,6 @@ for (i in 1:length(responses)) {
 }
 
 # create a dataframe describing the residual models
-before_after_resid <- data.frame(variable = responses_clean,
+before_after_resid <- data.frame(variable = clean_names,
                                  perc_var = perc.var,
-                                 mdc_nbefore = round(mdc.perc.nbefore, 0),
-                                 mdc_nafter = round(mdc.perc.nafter, 0),
                                  pvals = round(pval.differences, 2))
