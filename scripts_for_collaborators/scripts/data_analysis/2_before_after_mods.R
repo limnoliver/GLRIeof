@@ -81,10 +81,10 @@ for (i in 1:length(responses)) {
   ###
   plot(resid ~ mod$predicted, 
        xlab = "Fitted Values", 
-       ylab = "Residuals", col = as.factor(dat$period))
+       ylab = "Residuals", col = as.factor(resid.test$period))
   abline(h = 0)
   ## #
-  plot(resid ~ as.Date(dat.mod$storm_start), col = as.factor(dat$period),
+  plot(resid ~ as.Date(dat.mod$storm_start), col = as.factor(resid.test$period),
        xlab = 'Year', ylab = 'Residuals')
   abline(h = 0, lwd = 2)
   dev.off()
