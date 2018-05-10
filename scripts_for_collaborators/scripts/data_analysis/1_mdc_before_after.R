@@ -73,7 +73,8 @@ mdc <- data.frame(variable = c(clean_names, "Peak discharge"),
                                  model_fit = perc.var,
                                  mdc = round(mdc.perc.nbefore, 0))
 
-write.csv(mdc, 'data_cached/mdc.csv')
+temp_filename <- file.path('data_cached', paste0(site, '_mdc.csv'))
+write.csv(mdc, temp_filename)
 
 if (nrow(mdc) == length(responses)) {
   message('Minimum detectable change has been calculated. See results in data_cached/mdc.csv')
