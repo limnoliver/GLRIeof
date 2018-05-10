@@ -33,15 +33,17 @@ if (length(concentrations) == 1 & !is.na(concentrations)){
 # create a dummy variable for period (before/after = 0/1)
 wq$period_num <- ifelse(wq$period == 'before', 0, 1)
 
-out <- as.data.frame(matrix(ncol = 6, nrow = length(trt_loadvars)))
-names(out) <- c('mdc_before', 'r2_before', 'mdc_after', 'r2_all', 'p_slopes', 'p_intercepts')
-
 # combine conc and load vars together
 trt_vars <- c(trt_concvars, trt_loadvars)
 trt_vars <- trt_vars[!is.na(trt_vars)]
 
-con_vars <- c(con_concvars, con_loadvars)
-con_vars <- con_vars[!is.na(con_vars)]
+#con_vars <- c(con_concvars, con_loadvars)
+#con_vars <- con_vars[!is.na(con_vars)]
+
+out <- as.data.frame(matrix(ncol = 3, nrow = length(trt_vars)))
+names(out) <- c('variable', 'mdc', 'r2')
+
+
 
 for (i in 1:length(trt_vars)) {
 
@@ -55,7 +57,7 @@ for (i in 1:length(trt_vars)) {
   # linear model
   temp_mod <- lm(log10(before_dat[,temp_trt]) ~ log10(before_dat[,temp_con]))
   stats <- summary(temp_mod)
-  out$r2_before[i] <- round(stats$r.squared, 2)
+  out$r2[i] <- round(stats$r.squared, 2)
   
   # calc MSE
   temp_mse <- mean(temp_mod$residuals^2)
@@ -67,9 +69,10 @@ for (i in 1:length(trt_vars)) {
   tval <- qt(0.05, degf, lower.tail = FALSE)
   
   mdc <- tval*sqrt(2*(temp_mse/(degf+2)))
-  out$mdc_before[i] <- round((1-(10^-mdc))*100, 0)
-  
+  out$mdc[i] <- round((1-(10^-mdc))*100, 0)
 }
+
+out$variable <- clean_names
 
 temp_filename <- paste0(site, '_', site_paired, '_mdc.csv')
 write.csv(file.path('data_cached', temp_filename))
