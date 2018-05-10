@@ -73,4 +73,10 @@ mdc <- data.frame(variable = c(clean_names, "Peak discharge"),
                                  model_fit = perc.var,
                                  mdc = round(mdc.perc.nbefore, 0))
 
-write.csv(before_after_resid, 'data_cached/residual_results.csv')
+write.csv(mdc, 'data_cached/mdc.csv')
+
+if (nrow(mdc) == length(responses)) {
+  message('Minimum detectable change has been calculated. See results in data_cached/mdc.csv')
+} else {
+  stop("Somethign went wrong with calculating the minimum detectable change. To debug, see code in scripts/data_analysis/1_mdc_before_after.R.")
+}
