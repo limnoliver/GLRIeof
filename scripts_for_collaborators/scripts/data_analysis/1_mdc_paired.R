@@ -1,6 +1,6 @@
 #load paired data
 paired_filename <- file.path("data_cached", paste0(site, "_", site_paired, "_prepped_WQbystorm.csv"))
-paired <- read.csv(paired_filename, stringsAsFactors = F)
+wq <- read.csv(paired_filename, stringsAsFactors = F)
 
 # vars to test
 # get conc/load vars
@@ -31,19 +31,26 @@ if (length(concentrations) == 1 & !is.na(concentrations)){
 }
 
 # create a dummy variable for period (before/after = 0/1)
-paired$period_num <- ifelse(paired$period == 'before', 0, 1)
+wq$period_num <- ifelse(wq$period == 'before', 0, 1)
 
 out <- as.data.frame(matrix(ncol = 6, nrow = length(trt_loadvars)))
 names(out) <- c('mdc_before', 'r2_before', 'mdc_after', 'r2_all', 'p_slopes', 'p_intercepts')
 
-for (i in 1:length(trt_loadvars)) {
+# combine conc and load vars together
+trt_vars <- c(trt_concvars, trt_loadvars)
+trt_vars <- trt_vars[!is.na(trt_vars)]
 
-  temp_trt <-  trt_loadvars[i]
+con_vars <- c(con_concvars, con_loadvars)
+con_vars <- con_vars[!is.na(con_vars)]
+
+for (i in 1:length(trt_vars)) {
+
+  temp_trt <-  trt_vars[i]
   temp_con <- gsub(test_site, control_site, temp_trt)
   
   #####################################
   # calculate MDC just using before dat
-  before_dat <- filter(paired, period == 'before')
+  before_dat <- filter(wq, period == 'before')
   
   # linear model
   temp_mod <- lm(log10(before_dat[,temp_trt]) ~ log10(before_dat[,temp_con]))
@@ -61,33 +68,6 @@ for (i in 1:length(trt_loadvars)) {
   
   mdc <- tval*sqrt(2*(temp_mse/(degf+2)))
   out$mdc_before[i] <- round((1-(10^-mdc))*100, 0)
-  
-  #####################################
-  # calculate MDC using before and after data
-
-  # linear model
-  temp_mod <- lm(log10(paired[,temp_trt]) ~ log10(paired[,temp_con])+paired$period_num)
-  
-  # calc MSE
-  stats <- summary(temp_mod)
-  s <- stats$coefficients[3,2]
-  
-  out$r2_all[i] <- round(stats$r.squared, 2)
-  
-  # get degrees of freedom and mean squared error
-  degf <- temp_mod$df.residual
-  
-  # get tval based on deg of freedom
-  tval <- qt(0.05, degf, lower.tail = FALSE)
-  
-  mdc <- tval*s
-  out$mdc_after[i] <- round((1-(10^-mdc))*100, 0)
-  
-  ################################
-  # test for before and after differences in relationship
-  temp_mod <- lm(log10(paired[,temp_trt]) ~ log10(paired[,temp_con])*paired$period_num)
-  out$p_slopes[i] <- round(summary(temp_mod)$coefficients[4,4], 3)
-  out$p_intercepts[i] <- round(summary(temp_mod)$coefficients[3,4], 3)
   
 }
 
