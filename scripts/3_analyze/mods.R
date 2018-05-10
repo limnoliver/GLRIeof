@@ -53,7 +53,7 @@ if (site == 'sw1') {
     mod <- randomForest(mod.equation, data = sw1.mod, importance = T, na.action = na.omit)
     mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit, ntree = 1000)
     
-    perc.var[i] <- round(mod$rsq[500]*100, 1)
+    perc.var[i] <- round(mod$rsq[1000]*100, 1)
     # calculate minimum detectable change for each constituent based on this model
     mse.before <- mod.before$mse[length(mod.before$mse)]
     
@@ -336,8 +336,8 @@ for (i in 1:(length(responses)-1)) {
 
   mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
   
-  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit)
-  mod.after <- randomForest(mod.equation, data = sw1.mod.after, importance = T, na.action = na.omit)
+  mod.before <- randomForest(mod.equation, data = sw1.mod.before, importance = T, na.action = na.omit, ntree = 1000)
+  mod.after <- randomForest(mod.equation, data = sw1.mod.after, importance = T, na.action = na.omit, ntree = 1000)
   
   # get residuals from before model for MDC calc
   resid.before <- sw1.mod.before[, responses[i]] - mod.before$predicted
@@ -347,8 +347,8 @@ for (i in 1:(length(responses)-1)) {
   
   
   # output model fit stats
-  before.fit[i] <- round(mod.before$rsq[500]*100, 1)
-  after.fit[i] <- round(mod.after$rsq[500]*100, 1)
+  before.fit[i] <- round(mod.before$rsq[1000]*100, 1)
+  after.fit[i] <- round(mod.after$rsq[1000]*100, 1)
   
   diff <- (10^pred.before - 10^pred.after)/10^pred.before
   diff.sum[i] <- (sum(10^pred.before) - sum(10^pred.after))/sum(10^pred.before)
