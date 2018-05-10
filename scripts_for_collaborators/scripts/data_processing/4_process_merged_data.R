@@ -46,7 +46,7 @@ write.csv(site_dat, temp_filename, row.names = F)
 ############
 # save predictors and responses for later use
 
-saveRDS(c(predictors, responses), 'data_cached/modvars.Rdata')
+save(predictors, responses, file = 'data_cached/modvars.Rdata')
 
 if (nrow(site_dat) > 1) {
   message(paste("The data have now been merged and processed. Please see", temp_filename, "to ensure processing."))
