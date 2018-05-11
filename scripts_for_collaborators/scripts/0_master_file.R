@@ -60,6 +60,9 @@ loads <- c('') # this can either be a vector of verbatim constituent load
 # columns (e.g, c('SS_load_pounds', 'TP_load_pounds')) or a character string that all load
 # columns share in common (e.g., "pounds")
 
+other_responses <- c('') # this is a space for a response variable that may not be a constituent concentration or load. 
+# e.g., if you expect the BMP to affect runoff itself, you may want to assess runoff or peak discharge as a response variable.
+
 flags <- c('') # this can either be a vector of verbatim flag
                # columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
                # columns share in common (e.g., "flag")  
@@ -70,7 +73,8 @@ clean_names <- c('') # a vector of "clean" response variables names for all vari
                      # better axis name would be "SS load (pounds)". These should be in the same order
                      # as variables listed above, or the order they appear in your spreadsheet if you're 
                      # using a unique string that all load or concentration columns share. Order should be
-                     # concentrations and then loads. For a paired study, just include a single clean name
+                     # concentration variables, load variables, and then other response variables. 
+                     # For a paired study, just include a single clean name
                      # for each variable - e.g., only provide "SS load (pounds)" instead of "Control - SS load (pounds)"
                      # and "Treatment - SS load (pounds)"
 
