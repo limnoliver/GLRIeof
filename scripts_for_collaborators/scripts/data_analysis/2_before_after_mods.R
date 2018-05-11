@@ -96,6 +96,8 @@ for (i in 1:length(responses)) {
 before_after_resid <- data.frame(variable = clean_names,
                                  perc_var = perc.var,
                                  pvals = round(pval.differences, 2))
+temp_filename <- file.path('data_cached', paste0(site, '_before_after_residual_analysis.csv'))
+write.csv(file = temp_filename, x = before_after_resid, row.names = F)
 
 #####################################
 ## now calculate % change if difference
@@ -193,5 +195,6 @@ perc_reduction <- data.frame(response = responses[-length(responses)],
                              perc_diff_nonfrozen = round(mean.diff.nonfrozen*100, 1),
                              sd_perc_diff_nonfrozen = round(mean.diff.sd.nonfrozen*100, 1))
 
-write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
+temp_filename <- file.path('data_cached', paste0(site, '_percent_reduction_before_after.csv'))
+write.csv(perc_reduction, temp_filename, row.names = F)
 
