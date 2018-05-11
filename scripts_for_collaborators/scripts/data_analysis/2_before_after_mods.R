@@ -8,6 +8,8 @@ mdc.perc.nafter <- c()
 pval.differences <- c()
 perc.var <- c()
 
+####################################
+# residual tests - was there a change after BMP implementation?
 # loop through responses to create equation and model
 for (i in 1:length(responses)) {
   
@@ -94,3 +96,102 @@ for (i in 1:length(responses)) {
 before_after_resid <- data.frame(variable = clean_names,
                                  perc_var = perc.var,
                                  pvals = round(pval.differences, 2))
+
+#####################################
+## now calculate % change if difference
+before.fit <- c()
+after.fit <- c()
+mean.diff <- c()
+mean.diff.sd <- c()
+mean.diff.frozen <- c()
+mean.diff.sd.frozen <- c()
+mean.diff.nonfrozen <- c()
+mean.diff.sd.nonfrozen <- c()
+median.diff <- c()
+diff.sum <- c()
+five.diff <- c()
+ninetyfive.diff <- c()
+pvals.ba <- c()
+load.before <- c()
+load.after <- c()
+
+for (i in 1:(length(responses)-1)) {
+  
+  if (pval.differences[i] > 0.05) {
+    before.fit[i] <- NA
+    after.fit[i] <- NA
+    pvals.ba[i] <- NA
+    mean.diff[i] <- NA
+    median.diff[i] <- NA
+    diff.sum[i] <- NA
+    five.diff[i] <- NA
+    ninetyfive.diff[i] <- NA
+    mean.diff.sd[i] <- NA
+    mean.diff.frozen[i] <- NA
+    mean.diff.sd.frozen[i] <- NA
+    mean.diff.nonfrozen[i] <- NA
+    mean.diff.sd.nonfrozen[i] <- NA
+    load.before[i] <- NA
+    load.after[i] <- NA
+    next}
+  
+  mod.equation <- as.formula(paste(responses[i], paste(predictors.keep, collapse = " + "), sep = " ~ "))
+  
+  mod.before <- randomForest(mod.equation, data = dat.mod.before, importance = T, na.action = na.omit, ntree = 1000)
+  mod.after <- randomForest(mod.equation, data = dat.mod.after, importance = T, na.action = na.omit, ntree = 1000)
+  
+  # get residuals from before model for MDC calc
+  resid.before <-dat.mod.before[, responses[i]] - mod.before$predicted
+
+  pred.before <- predict(mod.before, dat.mod)
+  pred.after <- predict(mod.after, dat.mod)
+  
+  # output model fit stats
+  before.fit[i] <- round(mod.before$rsq[1000]*100, 1)
+  after.fit[i] <- round(mod.after$rsq[1000]*100, 1)
+  
+  diff <- (10^pred.before - 10^pred.after)/10^pred.before
+  diff.sum[i] <- (sum(10^pred.before) - sum(10^pred.after))/sum(10^pred.before)
+  load.before[i] <- sum(10^pred.before)
+  load.after[i] <- sum(10^pred.after)
+  
+  # test if these percent differences are different from zero
+  change.test <- t.test(diff, alternative = 'greater')
+  pvals.ba[i] <- round(change.test$p.value, 3)
+  
+  
+  diff.frozen <- (pred.before[dat.mod$frozen == TRUE] - pred.after[dat.mod$frozen == TRUE])/pred.before[dat.mod$frozen == TRUE]
+  diff.nonfrozen <- (pred.before[dat.mod$frozen == FALSE] - pred.after[dat.mod$frozen == FALSE])/pred.before[dat.mod$frozen == FALSE]
+  
+  mean.diff[i] <- mean(diff)
+  median.diff[i] <- median(diff)
+  five.diff[i] <- quantile(diff, 0.05)
+  ninetyfive.diff[i] <- quantile(diff, 0.95)
+  mean.diff.sd[i] <- sd(diff)
+  mean.diff.frozen[i] <- mean(diff.frozen)
+  mean.diff.sd.frozen[i] <- sd(diff.frozen)
+  mean.diff.nonfrozen[i] <- mean(diff.nonfrozen)
+  mean.diff.sd.nonfrozen[i] <- sd(diff.nonfrozen)
+}
+
+# create data frame of values
+perc_reduction <- data.frame(response = responses[-length(responses)],
+                             response_clean = clean_names[-length(responses)],
+                             before_r2 = before.fit,
+                             after_r2 = after.fit,
+                             perc_diff = round(mean.diff*100, 1),
+                             sd_perc_diff = round(mean.diff.sd*100,1),
+                             median_diff = round(median.diff*100, 1),
+                             fifth_diff = round(five.diff*100, 1),
+                             ninetyfifth_diff = round(ninetyfive.diff*100, 1),
+                             diff_sum = round(diff.sum*100, 1),
+                             load_before = round(load.before, 0),
+                             load_after = round(load.after, 0),
+                             pval = pvals.ba,
+                             perc_diff_frozen = round(mean.diff.frozen*100, 1),
+                             sd_perc_diff_frozen = round(mean.diff.sd.frozen*100,1),
+                             perc_diff_nonfrozen = round(mean.diff.nonfrozen*100, 1),
+                             sd_perc_diff_nonfrozen = round(mean.diff.sd.nonfrozen*100, 1))
+
+write.csv(perc_reduction, "data_cached/percent_reduction_before_after.csv", row.names = F)
+
