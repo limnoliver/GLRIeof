@@ -30,11 +30,24 @@ if (length(concentrations) == 1 & !is.na(concentrations)){
   con_concvars <- grep(control_ste, concvars, ignore.case = TRUE, value = TRUE)
 }
 
+if (length(other_responses) == 1 & !is.na(other_responses)){
+  othervars <- grep(concentrations, names(wq), ignore.case = TRUE, value = TRUE)
+  trt_othervars <- grep(test_site, othervars, ignore.case = TRUE, value = TRUE)
+  con_othervars <- grep(control_ste, othervars, ignore.case = TRUE, value = TRUE)
+} else if (is.na(concentrations)) {
+  trt_othervars <- NA
+  con_othervars <- NA
+} else {
+  othervars <- concentrations
+  trt_othervars <- grep(test_site, othervars, ignore.case = TRUE, value = TRUE)
+  con_othervars <- grep(control_ste, othervars, ignore.case = TRUE, value = TRUE)
+}
+
 # create a dummy variable for period (before/after = 0/1)
 wq$period_num <- ifelse(wq$period == 'before', 0, 1)
 
 # combine conc and load vars together
-trt_vars <- c(trt_concvars, trt_loadvars)
+trt_vars <- c(trt_concvars, trt_loadvars, trt_othervars)
 trt_vars <- trt_vars[!is.na(trt_vars)]
 
 #con_vars <- c(con_concvars, con_loadvars)
