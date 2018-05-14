@@ -99,6 +99,14 @@ before_after_resid <- data.frame(variable = clean_names,
 temp_filename <- file.path('data_cached', paste0(site, '_before_after_residual_analysis.csv'))
 write.csv(file = temp_filename, x = before_after_resid, row.names = F)
 
+# test if the loop actually calculated values
+
+test <- nrow(before_after_resid[!is.na(before_after_resid$perc_var), ])
+
+if (test != length(responses)) {
+  stop('Something went wrong during model fitting. To debug, see code in scripts/data_analysis/2_before_after_mods.R')
+}
+
 #####################################
 ## now calculate % change if difference
 before.fit <- c()
