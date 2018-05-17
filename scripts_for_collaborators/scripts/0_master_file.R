@@ -52,31 +52,44 @@ wq_file <- '' # file name (with .csv extention) where event-level water quality 
 # include in the analysis. E.g., if you only want to evaluate loads (not concentrations), 
 # simply put NA for concentrations and fill out the loads variable.
 
-concentrations <- c('') # this can either be a vector of verbatim constituent concentrations
+# IF YOU USED THE TEMPLATE you do not have to change the variables that have been filled out below, 
+# unless you want to change the default behaviors (e.g., analyze concentrations and loads),
+# or you did not include all of the columns (e.g., peak_discharge)
+
+concentrations <- NA # this can either be a vector of verbatim constituent concentrations
 # columns (e.g, c('SS_mg_L', 'TP_mg_L')) or a character string that all concentration
-# columns share in common (e.g., "mg_L")
+# columns share in common (e.g., "mg_L"). If you used the template, this should be "mg_L"
 
-loads <- c('') # this can either be a vector of verbatim constituent load
+loads <- c('load_pounds') # this can either be a vector of verbatim constituent load
 # columns (e.g, c('SS_load_pounds', 'TP_load_pounds')) or a character string that all load
-# columns share in common (e.g., "pounds")
+# columns share in common (e.g., "pounds"). 
 
-other_responses <- c('') # this is a space for a response variable that may not be a constituent concentration or load. 
-# e.g., if you expect the BMP to affect runoff itself, you may want to assess runoff or peak discharge as a response variable.
+other_responses <- c('peak_discharge') # this is a space for a response variable that may not be a constituent concentration or load. 
+# e.g., if you expect the BMP to affect runoff itself, you may want to assess total event runoff or peak discharge 
+# as a response variable.
 
-flags <- c('') # this can either be a vector of verbatim flag
+flags <- c('flag') # this can either be a vector of verbatim flag
                # columns (e.g, c('SS_flag', 'TP_flag')) or a character string that all flag
                # columns share in common (e.g., "flag")  
 
-clean_names <- c('') # a vector of "clean" response variables names for all variables you want to 
-                     # model. This will be used for plotting purposes to create nice looking
-                     # axes. For example, if a column was named suspended_sediments_load_pound, a 
-                     # better axis name would be "SS load (pounds)". These should be in the same order
-                     # as variables listed above, or the order they appear in your spreadsheet if you're 
-                     # using a unique string that all load or concentration columns share. Order should be
-                     # concentration variables, load variables, and then other response variables. 
-                     # For a paired study, just include a single clean name
-                     # for each variable - e.g., only provide "SS load (pounds)" instead of "Control - SS load (pounds)"
-                     # and "Treatment - SS load (pounds)"
+clean_names <- c('SS load (pounds)', 'Chloride load (pounds)', 
+                 'NO2 + NO3 load (pounds)', 'Ammonium load (pounds)', 
+                 'TKN load (pounds)', 'Orthophosphate load (pounds)', 
+                 'TP load (pounds)', 'TN load (pounds)', 
+                 'Org N load (pounds)', 'Peak discharge (cfs)') 
+
+# Do not change if you're using default settings and the templates provided.
+# This is a vector of "clean" response variables names for all variables you want to 
+# model. This will be used for plotting purposes to create nice looking
+# axes. For example, if a column was named suspended_sediments_load_pound, a 
+# better axis name would be "SS load (pounds)". These should be in the same order
+# as variables listed above, or the order they appear in your spreadsheet if you're 
+# using a unique string that all load or concentration columns share. Order should be
+# concentration variables, load variables, and then other response variables. 
+# For a paired study, just include a single clean name
+# for each variable - e.g., only provide "SS load (pounds)" instead of "Control - SS load (pounds)"
+# and "Treatment - SS load (pounds)"
+                     
 
 event_over_thaw <- # For subevents that span a thaw, you may have to decide whether to split the events or combine them.
                      # If you decide to combine events, such that part of the event was during the "frozen" period
