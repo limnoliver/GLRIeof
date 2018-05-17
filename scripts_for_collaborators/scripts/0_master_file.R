@@ -114,18 +114,24 @@ antecedent_days <- c(1,2,3,7,14) # the days over which to calculate antecedent d
 dis_date_column <- 'Date' # name of column with dates if providing own file - defaults to NWIS standards
 discharge_column <- 'Flow' # name of column with discharge data if providing own file - defaults to NWIS standards
 
-# weather data
+############# weather data ##############
 weather_file <- '' # filename (ending in .csv) of daily weather data from a nearby met station to calculate storm
                    # weather characteristics, NA if pulling data directly from NOAA (preferred). 
                    # At a minimum, this file should include 'date' and 
-                   # daily min (tmin) and max (tmax) temperature in degrees celsius. 
-                   # Can also include snow depth  in milimeters (snwd).
-
+                   # daily min (tmin) and max (tmax) temperature in degrees celsius, snow depth  in milimeters (snwd)
 
 noaa_site <- '' # nearest NOAA met station site number. Can use both weather_file and noaa_site if 
                 # weather_file does not contain snow depth. 
 
-# other
+other_weather_vars <- NA # if you have other daily weather/site characteristic data in your file (e.g., soil temp) and want to 
+                         # include them as predictors in the model, include the names of the column here in quotes (e.g. "soil_temp"). 
+                         # If you have multiple variables, create a vector of column names (e.g., c("soil_temp", "soil_moisture"))
+                         # Leave as NA if no variables to add to analysis. 
+                         # the default behavior is to take the mean of the "other_weather_vars" parameter if 
+                         # the storm spans multiple days. The default behavior can be changed on line 82 in
+                         # the file scripts/data_processing/2_calc_weather_variables
+
+########### other ##############
 predictors_drop <- '' # one or more predictor variables that should be dropped from the analysis based
                       # on site-specific analysis goals. For example, if you expect that the implemented
                       # BMP will affect field activity (e.g., if the farmer moves to no-till, 'days_since_cultivation'

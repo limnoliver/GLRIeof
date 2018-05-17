@@ -73,6 +73,16 @@ for (i in 1:nrow(storms)) {
   #storms$snwd[i] <- mean(weather_temp$snwd)*0.0393701 # convert from mm to inches
   storms$snwd_diff[i] <- sum(weather_temp$snwd_diff)*0.0393701 # convert from mm to inches
   
+  if (!is.na(other_weather_vars)) {
+    for (j in 1:length(other_weather_vars)) {
+      # default behavior is to take the mean of the "other_weather_vars if the storm spans multiple days
+      # but could change to min, max, sum depending on what type of variable it is.
+      storms[i, other_weather_vars[j]] <- mean(weather_temp[, other_weather_vars[j]])
+    }
+  }
+  
+  
+  
 }
 
 weather.dat <- select(storms, unique_storm_number, sin_sdate:snwd_diff)
