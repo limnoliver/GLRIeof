@@ -102,11 +102,10 @@ event_over_thaw <- # For subevents that span a thaw, you may have to decide whet
   
   
   
-###########################################################################################
-# If you're using a before-after study design, the variables below should be filled out.
-# If you have a paired site, these data aren't necessary, but can be used to run 
-# site diagnostics (yearly precipitation, etc)
-###########################################################################################
+##########################################################################
+# If you're using a before-after study design, the variables below should 
+# be filled out. If you have a paired site, these data aren't necessary.
+##########################################################################
 
 ######## rain data ###########
 rain_site <- '' # site number for rain gage if pulling from NWIS, 'NA' if providing data file
