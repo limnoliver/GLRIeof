@@ -43,11 +43,9 @@ if (is.na(rain_file)) {
     
   # read in precip file
   precip_raw <- read.csv(file.path('data_raw', rain_file), stringsAsFactors = FALSE, strip.white = TRUE)
-  precip_raw[,date_column] <- as.POSIXct(precip_raw[,date_column], tz = site_tz)
+  precip_raw[,'datetime'] <- as.POSIXct(precip_raw[,'datetime'], tz = site_tz)
   
-  names(precip_raw)[which(names(precip_raw) %in% rain_column)] <- 'rain'
-  names(precip_raw)[which(names(precip_raw) %in% date_column)] <- 'pdate'
-  
+  names(precip_raw) <- c('pdate', 'rain')
 }
 
 ############## Process rain data ###########
