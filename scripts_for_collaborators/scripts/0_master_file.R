@@ -2,7 +2,8 @@
 
 # all raw input files should be contained in the same folder 'raw_data'
 # all processed data files will be exported to the same folder 'cached_data'
-# all figures will be exported to the same folder 'figures'
+# all figures will be exported to the 'figures' - diagnostic figures will be 
+# places in figures/diagnostic
 
 ######## site & study info #####
 # set site-specific information
