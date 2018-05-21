@@ -29,3 +29,6 @@ library(jtools)
 ## Process your raw data ##
 
 source('scripts/run_files/processing_run_file.R', echo = F)
+
+## Analyze your data ##
+source('scripts/run_files/analysis_run_file.R', echo = F)

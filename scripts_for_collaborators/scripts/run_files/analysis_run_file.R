@@ -24,6 +24,4 @@ if (study_type == 'before_after') {
   message('Testing whether BMP implementation reduced loads/concentrations.')
   source('scripts/data_analysis/2_paired_mods.R', echo = F, local = mod_env)
   
-  
-  
 }
