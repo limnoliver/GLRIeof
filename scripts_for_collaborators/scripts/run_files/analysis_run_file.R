@@ -19,7 +19,10 @@ if (study_type == 'before_after') {
 } else {
   message('Calculating minimum detectable change using the pre-BMP data. This calculation assumes the same number of observations in the post-BMP period.')
   mod_env <- new.env()
-  source('scripts/data_analysis/1_mdc_paired.R', echo = F, local = mdc_env)
+  source('scripts/data_analysis/1_mdc_paired.R', echo = F, local = mod_env)
+  
+  message('Testing whether BMP implementation reduced loads/concentrations.')
+  source('scripts/data_analysis/2_paired_mods.R', echo = F, local = mod_env)
   
   
   
